@@ -6,6 +6,7 @@ define("MIN_LENGTH_NAME", 3);
 if (isset($_POST["register"])) {
     $response = [];
     $response["status"] = false;
+    $response["target"] = 'register';
     $user = [
         "first_name" => $_POST["first_name"],
         "last_name" => $_POST["last_name"],
@@ -24,6 +25,9 @@ if (isset($_POST["register"])) {
         mb_strlen($user["first_name"]) > MIN_LENGTH_NAME &&
         mb_strlen($user["last_name"]) > MIN_LENGTH_NAME &&
         strcmp($user["password"], $user["repeat_password"]) == 0) {
+
+        $user['password'] = password_hash($user['password'],PASSWORD_BCRYPT);
+
         if (addUser($user)) {
             $response["status"] = true;
         }
