@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script>
         $(document).ready(function () {
-            $.get('view/user/register.html', function (data) {
+            $.get('view/user/login.html', function (data) {
                 $("#container").html(data);
             });
             $(document).on("click", '.loader', function(event) {
@@ -19,6 +19,15 @@
                     cont.html(data);
                 });
             });
+            $(document).on("click", ':submit', function (e) {
+                e.preventDefault();
+                let form = $(this).closest("form");
+                let action = form.attr("action");
+                let data = form.serialize() + '&' + $(this).attr("name");
+                $.post(action, data, function (data) {
+                    alert(data);
+                });
+            })
         });
     </script>
 </head>
