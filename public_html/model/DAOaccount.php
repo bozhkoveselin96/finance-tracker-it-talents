@@ -18,3 +18,15 @@ function createAccount(array $account) {
         return false;
     }
 }
+
+function getMyAccounts($user_id) {
+    try {
+        $conn = getPDO();
+        $sql = "SELECT id, name, current_amount FROM accounts WHERE owner_id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $exception) {
+        return false;
+    }
+}
