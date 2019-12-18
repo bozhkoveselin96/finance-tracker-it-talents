@@ -1,4 +1,5 @@
 <?php
+require_once "../../model/DAOuser.php";
 session_start();
 define("MIN_LENGTH_PASSWORD", 5);
 if (isset($_POST["login"])) {
