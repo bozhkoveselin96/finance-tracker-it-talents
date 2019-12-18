@@ -19,16 +19,16 @@ function getUserByEmail($email) {
 function addUser($user) {
     try {
         $data = [];
-        $data['email'] = $user['email'];
-        $data['password'] = $user['password'];
-        $data['first_name'] = $user['first_name'];
-        $data['last_name'] = $user['last_name'];
+        $data[] = $user['email'];
+        $data[] = $user['password'];
+        $data[] = $user['first_name'];
+        $data[] = $user['last_name'];
 
         $conn = getPDO();
         $sql = "INSERT INTO users(email, password, first_name, last_name, last_login, date_created)
                 VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_DATE)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$data['email'], $data['password'], $data['first_name'], $data['last_name']]);
+        $stmt->execute($data);
         return true;
     } catch (PDOException $exception) {
         return false;

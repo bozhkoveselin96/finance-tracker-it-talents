@@ -10,7 +10,6 @@ if (isset($_POST['add_account'])) {
 
     $response = [];
     $response['status'] = false;
-
     if (mb_strlen($account_name) >= MIN_LENGTH_NAME && is_numeric($current_amount) && $current_amount >= 0) {
         $account = [];
         $account['name'] = $account_name;
@@ -21,5 +20,5 @@ if (isset($_POST['add_account'])) {
             $response['target'] = 'addaccount';
         }
     }
-    json_encode($response);
+    echo json_encode($response);
 }
