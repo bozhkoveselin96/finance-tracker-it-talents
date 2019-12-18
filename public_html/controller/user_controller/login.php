@@ -1,21 +1,20 @@
 <?php
 session_start();
-define("MIN_LENGTH_PASSWORD", 8);
+define("MIN_LENGTH_PASSWORD", 5);
 if (isset($_POST["login"])) {
-    if (empty($_POST["email"]) || empty($_POST["password"])) {
-
-    } elseif ($_POST["password"] < MIN_LENGTH_PASSWORD) {
-
-    } elseif (filter_var($_POST["email"] , FILTER_VALIDATE_EMAIL)) {
-
-    } elseif (!exists_user($_POST["email"])) {
-
-    } else {
-        $user = exists_user($_POST["email"]);
-        if (password_verify($user["password"], $_POST["password"])) {
-            $_SESSION["logged_user"] = $user;
-        } else {
-
+    $email = $_POST["email"];
+    $password = $_POST["password"];
+    $response = [];
+    $response["status"] = false;
+    if (!empty($email) && !empty($password) &&
+        mb_strlen($password) >= MIN_LENGTH_PASSWORD &&
+        filter_var($email , FILTER_VALIDATE_EMAIL)) {
+        $user = getUserByEmail($email);
+        if ($user && password_verify($password, $user["password"])) {
+            $_SESSION["logged_user"] = $user["id"];
+            $response["status"] = true;
+            $response["full_name"] = $user["full_name"];
         }
     }
+    echo json_encode($response);
 }
