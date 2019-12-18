@@ -6,15 +6,34 @@
     <script src="js/jquery-3.4.1.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <script>
+        function getAllAccounts() {
+            $.get("controller/account_controller/getAll.php", {user_id: sessionStorage.getItem("id")}, function (data) {
+                let response = JSON.parse(data);
+                if (response.status === true) {
+                    let table = $("<table />");
+                    table.attr("id", "appended-table");
+
+                    $.each(response.data, function (key, value) {
+                        let tr = $("<tr />");
+                        $.each(value, function (k, v) {
+                            let td = $("<td />").text(v);
+                            tr.append(td);
+                        });
+                        table.append(tr);
+                    });
+
+                    $("#container").html(table);
+                }
+            });
+        }
         $(document).ready(function () {
             let url = "view/user/login.html";
-            if (localStorage.getItem("id") !== null) {
+            if (sessionStorage.getItem("id") !== null) {
                 url = "view/main.html";
                 $.get("view/menu.html", function (data) {
                     $("#menu").html(data);
                 });
             }
-
             $.get(url, function (data) {
                 $("#container").html(data);
             });
@@ -43,14 +62,19 @@
                             });
                         } else if(response.target === 'login') {
                             alert("Login succesfull!");
-                            localStorage.setItem("name", response.full_name);
-                            localStorage.setItem("id", response.id);
-                            let url = "view/main.html";
-                            $.get(url, function (data) {
+                            sessionStorage.setItem("name", response.full_name);
+                            sessionStorage.setItem("id", response.id);
+                            $.get("view/menu.html", function (data) {
+                                $("#menu").html(data);
+                            });
+
+                            $.get("view/main.html", function (data) {
+
                                 $("#container").html(data);
                             });
                         } else if(response.target === 'addaccount') {
                             alert('Account added succesfully!');
+                            getAllAccounts();
                         }
                     }
                 });

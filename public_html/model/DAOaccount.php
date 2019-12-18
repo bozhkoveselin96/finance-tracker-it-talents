@@ -4,9 +4,9 @@ require_once "DBconnection.php";
 function createAccount(array $account) {
     try {
         $data = [];
-        $data["name"] = $account["name"];
-        $data["current_amount"] = $account["current_name"];
-        $data["owner_id"] = $account["owner_id"];
+        $data[] = $account["name"];
+        $data[] = $account["current_amount"];
+        $data[] = $account["owner_id"];
 
         $conn = getPDO();
         $sql = "INSERT INTO accounts(name, current_amount, owner_id, date_created)
@@ -14,6 +14,18 @@ function createAccount(array $account) {
         $stmt = $conn->prepare($sql);
         $stmt->execute($data);
         return true;
+    } catch (PDOException $exception) {
+        return $exception;
+    }
+}
+
+function getMyAccounts($user_id) {
+    try {
+        $conn = getPDO();
+        $sql = "SELECT id, name, current_amount FROM accounts WHERE owner_id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $exception) {
         return false;
     }
