@@ -1,6 +1,8 @@
 <?php
 require_once "../../model/DAOuser.php";
+define("MIN_LENGTH_PASSWORD", 5);
 define("MIN_LENGTH_NAME", 3);
+
 if (isset($_POST["register"])) {
     $response = [];
     $response["status"] = false;
@@ -19,8 +21,8 @@ if (isset($_POST["register"])) {
         filter_var($user["email"] , FILTER_VALIDATE_EMAIL) &&
         !empty($user["first_name"]) &&
         !empty($user["last_name"]) &&
-        $user["first_name"] < MIN_LENGTH_NAME &&
-        $user["last_name"] < MIN_LENGTH_NAME &&
+        mb_strlen($user["first_name"]) > MIN_LENGTH_NAME &&
+        mb_strlen($user["last_name"]) > MIN_LENGTH_NAME &&
         strcmp($user["password"], $user["repeat_password"]) == 0) {
         if (addUser($user)) {
             $response["status"] = true;
