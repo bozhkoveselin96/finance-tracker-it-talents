@@ -7,6 +7,7 @@ if (isset($_POST["login"])) {
     $password = $_POST["password"];
     $response = [];
     $response["status"] = false;
+    $response["target"] = 'login';
     if (!empty($email) && !empty($password) &&
         mb_strlen($password) >= MIN_LENGTH_PASSWORD &&
         filter_var($email , FILTER_VALIDATE_EMAIL)) {
@@ -14,6 +15,7 @@ if (isset($_POST["login"])) {
         if ($user && password_verify($password, $user["password"])) {
             $_SESSION["logged_user"] = $user["id"];
             $response["status"] = true;
+            $response['id'] = $user['id'];
             $response["full_name"] = $user["full_name"];
         }
     }

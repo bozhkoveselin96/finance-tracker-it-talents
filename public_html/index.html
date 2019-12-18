@@ -7,9 +7,18 @@
     <link rel="stylesheet" href="css/style.css">
     <script>
         $(document).ready(function () {
-            $.get('view/user/login.html', function (data) {
+            let url = "view/user/login.html";
+            if (localStorage.getItem("id") !== null) {
+                url = "view/main.html";
+                $.get("view/menu.html", function (data) {
+                    $("#menu").html(data);
+                });
+            }
+
+            $.get(url, function (data) {
                 $("#container").html(data);
             });
+
             $(document).on("click", '.loader', function(event) {
                 event.preventDefault();
                 let href = 'view/' + $(this).attr("href");
@@ -25,13 +34,32 @@
                 let action = form.attr("action");
                 let data = form.serialize() + '&' + $(this).attr("name");
                 $.post(action, data, function (data) {
-                    alert(data);
+                    let response = JSON.parse(data);
+                    if (response.status === true) {
+                        if (response.target === 'register') {
+                            alert('Registration succesfull!');
+                            $.get('view/user/login.html', function (data) {
+                                $("#container").html(data);
+                            });
+                        } else if(response.target === 'login') {
+                            alert("Login succesfull!");
+                            localStorage.setItem("name", response.full_name);
+                            localStorage.setItem("id", response.id);
+                            let url = "view/main.html";
+                            $.get(url, function (data) {
+                                $("#container").html(data);
+                            });
+                        } else if(response.target === 'addaccount') {
+                            alert('Account added succesfully!');
+                        }
+                    }
                 });
             })
         });
     </script>
 </head>
 <body>
+<div id="menu"></div>
 <div id="container"></div>
 </body>
 </html>

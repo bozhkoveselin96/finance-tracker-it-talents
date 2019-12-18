@@ -4,7 +4,7 @@ require_once "DBconnection.php";
 function getUserByEmail($email) {
     try {
         $conn = getPDO();
-        $sql = "SELECT password, CONCAT(first_name, ' ', last_name) AS full_name FROM users WHERE email = ?";
+        $sql = "SELECT id, password, CONCAT(first_name, ' ', last_name) AS full_name FROM users WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$email]);
         if ($stmt->rowCount() == 1) {
