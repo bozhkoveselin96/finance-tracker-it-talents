@@ -5,7 +5,7 @@ function createAccount(array $account) {
     try {
         $data = [];
         $data["name"] = $account["name"];
-        $data["current_amount"] = $account["current_name"];
+        $data["current_amount"] = $account["current_amount"];
         $data["owner_id"] = $account["owner_id"];
 
         $conn = getPDO();
