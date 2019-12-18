@@ -19,8 +19,8 @@ function getUserByEmail($email) {
 function addUser($user) {
     try {
         $data = [];
-        $data['email'] = $user['first_name'];
-        $data['password'] = $user['first_name'];
+        $data['email'] = $user['email'];
+        $data['password'] = $user['password'];
         $data['first_name'] = $user['first_name'];
         $data['last_name'] = $user['last_name'];
 
@@ -28,10 +28,8 @@ function addUser($user) {
         $sql = "INSERT INTO users(email, password, first_name, last_name, last_login, date_created)
                 VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_DATE)";
         $stmt = $conn->prepare($sql);
-        if ($stmt->execute($data)) {
-            return true;
-        }
-        return false;
+        $stmt->execute([$data['email'], $data['password'], $data['first_name'], $data['last_name']]);
+        return true;
     } catch (PDOException $exception) {
         return false;
     }
