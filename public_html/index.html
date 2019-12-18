@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Finance tracker</title>
+    <script src="js/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        $(document).ready(function () {
+           // $("#container").load('view/user/register.html');
+            $.get('view/user/register.html', function (data) {
+                $("#container").html(data);
+            });
+            $(document).on("click", '.loader', function(event) {
+                event.preventDefault();
+                let href = 'view/' + $(this).attr("href");
+                $.get(href, function (data) {
+                    let cont = $("#container");
+                    cont.empty();
+                    cont.html(data);
+                })
+            });
+
+        });
+    </script>
+</head>
+<body>
+<div id="container"></div>
+</body>
+</html>
