@@ -96,19 +96,18 @@ function getAllAccounts() {
                     tdRename.html(form);
                     $(this).text("Save");
                     $(this).unbind(event);
-                    $(this).bind("click", function (event) {
+                    $(this).bind("click", function (event2) {
                         let trId = $(this).closest("tr").attr("id");
-                        let renamer = $("#" + trId + " .renamer").val();
+                        let renamer = $("#" + trId + " .renamer");
                         $.post("controller/account_controller/edit.php",
                             {
                                 edit : true,
                                 user_id : sessionStorage.getItem("id"),
                                 account_id : trId,
-                                name : renamer,
+                                name : renamer.val(),
                             }, function (data) {
                                 if (data.status === true) {
-                                    $(this).html("Edited");
-                                    $(this).unbind(event);
+                                    getAllAccounts();
                                 } else {
                                     alert("error!");
                                 }

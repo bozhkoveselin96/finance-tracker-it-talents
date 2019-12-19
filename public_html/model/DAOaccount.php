@@ -57,3 +57,15 @@ function deleteAccount($account_id) {
         return false;
     }
 }
+
+function editAccount($new_name, $account_id) {
+    try {
+        $conn = getPDO();
+        $sql = "UPDATE accounts SET name = ? WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$new_name, $account_id]);
+        return true;
+    } catch (PDOException $exception) {
+        return $exception;
+    }
+}
