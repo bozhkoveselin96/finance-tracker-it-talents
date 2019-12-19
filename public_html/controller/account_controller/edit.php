@@ -11,8 +11,7 @@ if (isset($_POST["edit"])) {
 
     if ($user_id == $_SESSION["logged_user"] &&
         $account["owner_id"] == $user_id &&
-        editAccount($new_name, $account["id"]))
-    {
+        editAccount($new_name, $account["id"])) {
         $response["status"] = true;
     }
     echo json_encode($response);
