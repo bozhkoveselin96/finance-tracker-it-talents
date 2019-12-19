@@ -2,7 +2,7 @@
 session_start();
 require_once "../../model/DAOaccount.php";
 
-if (isset($_POST["delete"])) {
+if (isset($_POST["edit"])) {
     $user_id = $_POST["user_id"];
     $account_id = $_POST["account_id"];
     $new_name = $_POST["name"];
