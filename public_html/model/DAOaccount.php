@@ -30,3 +30,30 @@ function getMyAccounts($user_id) {
         return false;
     }
 }
+
+function getAccountById($account_id) {
+    try {
+        $conn = getPDO();
+        $sql = "SELECT id, name, current_amount, owner_id FROM accounts WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$account_id]);
+        if ($stmt->rowCount() == 1) {
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        return false;
+    } catch (PDOException $exception) {
+        return false;
+    }
+}
+
+function deleteAccount($account_id) {
+    try {
+        $conn = getPDO();
+        $sql = "DELETE FROM accounts WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$account_id]);
+        return true;
+    } catch (PDOException $exception) {
+        return false;
+    }
+}

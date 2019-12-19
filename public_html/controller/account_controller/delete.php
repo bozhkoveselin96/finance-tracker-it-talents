@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "../../model/DAOuser.php";
+require_once "../../model/DAOaccount.php";
 
 if (isset($_POST["delete"])) {
     $user_id = $_POST["user_id"];
