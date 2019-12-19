@@ -34,10 +34,10 @@ function getMyAccounts($user_id) {
 function editAccount($new_name, $account_id) {
     try {
         $conn = getPDO();
-        $sql = "UPDATE accounts SET name = ? WHERE account_id = ?;";
+        $sql = "UPDATE accounts SET name = ? WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$new_name, $account_id]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return true;
     } catch (PDOException $exception) {
         return false;
     }
