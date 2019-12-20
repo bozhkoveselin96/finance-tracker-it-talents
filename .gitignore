@@ -1,2 +1,3 @@
 .idea/
-/public_html/model/config.php
+/public_html/app/model/config.php
+/public_html/app/model/Connection.php

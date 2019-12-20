@@ -10,7 +10,7 @@ $(document).ready(function () {
         $("#container").html(data);
     });
 
-    $(document).on("click", '.loader', function(event) {
+    $("#menu").on("click", '.loader', function(event) {
         event.preventDefault();
         let href = 'view/' + $(this).attr("href");
         $.get(href, function (data) {
@@ -19,7 +19,7 @@ $(document).ready(function () {
             cont.html(data);
         });
     });
-    $(document).on("click", ':submit', function (e) {
+    $("#container").on("click", ':submit', function (e) {
         e.preventDefault();
         let form = $(this).closest("form");
         let action = form.attr("action");
@@ -47,12 +47,14 @@ $(document).ready(function () {
                     alert('Account added succesfully!');
                     getAllAccounts();
                 }
+            } else {
+                alert("Error! Please try again.")
             }
         }, 'json');
     })
 });
 function getAllAccounts() {
-    $.get("controller/account_controller/getAll.php", {user_id: sessionStorage.getItem("id")}, function (data) {
+    $.get("app/index.php?target=account&action=getAll", {user_id: sessionStorage.getItem("id")}, function (data) {
         if (data.status === true) {
             let table = $("<table />");
             table.attr("id", "appended-table");
@@ -75,7 +77,7 @@ function getAllAccounts() {
                     let trId = $(this).closest("tr").attr("id");
                     let accountName = $("#" + trId + " .name").text();
                     if (confirm("Are you sure you want to delete " + accountName + "?")) {
-                        $.post("controller/account_controller/delete.php",
+                        $.post("app/index.php?target=account&action=delete",
                             {
                                 delete : true,
                                 user_id : sessionStorage.getItem("id"),
@@ -99,7 +101,7 @@ function getAllAccounts() {
                     $(this).bind("click", function (event2) {
                         let trId = $(this).closest("tr").attr("id");
                         let renamer = $("#" + trId + " .renamer");
-                        $.post("controller/account_controller/edit.php",
+                        $.post("app/index.php?target=account&action=edit",
                             {
                                 edit : true,
                                 user_id : sessionStorage.getItem("id"),
