@@ -22,7 +22,7 @@ class CategoryDAO {
             $stmt->execute($data);
             return true;
         } catch (\PDOException $exception) {
-            return $exception->getMessage();
+            return false;
         }
     }
 
@@ -65,7 +65,7 @@ class CategoryDAO {
         try {
             $conn = Connection::get();
             $sql = "SELECT id, name, type, icon_url, owner_id 
-                    FROM trasaction_categories WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
+                    FROM transaction_categories WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$category_id, $owner_id]);
             if ($stmt->rowCount() == 1) {

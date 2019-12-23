@@ -51,6 +51,11 @@ $(document).ready(function () {
                     $.get("view/transaction_categories/view.html", function (data) {
                         $("#container").html(data);
                     });
+                } else if(data.target === 'transaction') {
+                    alert('Transaction added!');
+                    $.get("view/transactions/add.html", function (data) {
+                        $("#container").html(data);
+                    });
                 }
             } else {
                 alert("Error! Please try again.")
@@ -169,7 +174,31 @@ function addTransaction() {
     let selectAccount = $("#account");
     $.get("app/index.php?target=account&action=getAll", {user_id: sessionStorage.getItem("id")}, function (data) {
         if (data.status === true) {
-
+            $.each(data.data, function (key, value) {
+                selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
+            })
         }
     }, 'json');
+
+    let type = $("#type");
+    type.on("change", function () {
+        let selectCategory = $("#category");
+        selectCategory.empty();
+
+        if (this.value == 0 || this.value == 1) {
+            $.get("app/index.php?target=category&action=getAll",
+                {
+                    user_id: sessionStorage.getItem("id"),
+                    category_type: this.value,
+                }
+                , function (data) {
+                    if (data.status === true) {
+                        $.each(data.data, function (key, value) {
+                            selectCategory.append($("<option />").val(value.id).text(value.name));
+                        });
+                    }
+                }, 'json');
+        }
+
+    });
 }

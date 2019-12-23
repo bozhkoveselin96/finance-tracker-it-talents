@@ -1,10 +1,20 @@
-<form action="app/index.php?target=category&action=add" method="POST">
+<form action="app/index.php?target=transaction&action=add" method="POST">
     <table>
         <tr>
             <td><label for="account">Account: </label></td>
             <td>
                 <select name="account_id" id="account">
 
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="type">Type: </label></td>
+            <td>
+                <select name="type" id="type">
+                    <option value="-1">Select type</option>
+                    <option value="0">Outcome</option>
+                    <option value="1">Income</option>
                 </select>
             </td>
         </tr>
