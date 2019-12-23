@@ -7,10 +7,8 @@ namespace controller;
 use model\categories\Category;
 use model\categories\CategoryDAO;
 
-class CategoryController
-{
-    public function add()
-    {
+class CategoryController {
+    public function add(){
         $response = [];
         $response["status"] = false;
         if (isset($_POST["add_category"]) && isset($_SESSION["logged_user"])) {
@@ -23,15 +21,14 @@ class CategoryController
             if (mb_strlen($category->getName()) >= MIN_LENGTH_NAME) {
                 if (CategoryDAO::createCategory($category)) {
                     $response["status"] = true;
-                    $response["target"] = "addCategory";
+                    $response["target"] = "category";
                 }
             }
         }
         return $response;
     }
 
-    public function getAll()
-    {
+    public function getAll() {
         $response = [];
         $response["status"] = false;
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
@@ -59,6 +56,10 @@ class CategoryController
             if ($category) {
                 $name = $_POST["name"];
                 $icon_url = $_POST["icon_url"];
+<<<<<<< HEAD
+=======
+
+>>>>>>> 654650b83f826e0ec9602b07ec3d98968f8ad1b2
                 $editedCategory = new Category($name, $category->type ,$icon_url, $owner_id);
                 $editedCategory->setId($category_id);
                 if ($editedCategory->getOwnerId() == $category->owner_id &&

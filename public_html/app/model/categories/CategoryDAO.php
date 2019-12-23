@@ -12,6 +12,7 @@ class CategoryDAO {
             $data = [];
             $data[] = $category->getName();
             $data[] = $category->getType();
+            $data[] = $category->getIconUrl();
             $data[] = $category->getOwnerId();
 
             $conn = Connection::get();
@@ -21,7 +22,7 @@ class CategoryDAO {
             $stmt->execute($data);
             return true;
         } catch (\PDOException $exception) {
-            return $exception;
+            return $exception->getMessage();
         }
     }
 
@@ -64,7 +65,7 @@ class CategoryDAO {
         try {
             $conn = Connection::get();
             $sql = "SELECT id, name, type, icon_url, owner_id 
-                    FROM trasaction_categories WHERE id = ? AND owner_id = ?;";
+                    FROM trasaction_categories WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$category_id, $owner_id]);
             if ($stmt->rowCount() == 1) {
