@@ -1,7 +1,7 @@
 <?php
 
 
-namespace model\accounts;
+namespace model\categories;
 
 
 class Category {

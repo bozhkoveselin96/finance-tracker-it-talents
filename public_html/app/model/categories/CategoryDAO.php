@@ -1,7 +1,7 @@
 <?php
 
 
-namespace model\accounts;
+namespace model\categories;
 
 
 use model\Connection;
@@ -25,13 +25,13 @@ class CategoryDAO {
         }
     }
 
-    public static function getCategories($owner_id) {
+    public static function getAll($owner_id, $type) {
         try {
             $conn = Connection::get();
             $sql = "SELECT * FROM transaction_categories 
-                    WHERE owner_id is NULL AND owner_id = ?;";
+                    WHERE (owner_id is NULL OR owner_id = ?) AND type = ?;";
             $stmt = $conn->prepare($sql);
-            $stmt->execute(["$owner_id"]);
+            $stmt->execute([$owner_id, $type]);
 
             if ($stmt->rowCount() > 0) {
                 return $stmt->fetchAll(\PDO::FETCH_OBJ);
