@@ -1,7 +1,7 @@
 <?php
 
 
-namespace model\accounts;
+namespace model\categories;
 
 
 use model\Connection;
@@ -12,6 +12,7 @@ class CategoryDAO {
             $data = [];
             $data[] = $category->getName();
             $data[] = $category->getType();
+            $data[] = $category->getIconUrl();
             $data[] = $category->getOwnerId();
 
             $conn = Connection::get();
@@ -21,17 +22,17 @@ class CategoryDAO {
             $stmt->execute($data);
             return true;
         } catch (\PDOException $exception) {
-            return $exception;
+            return $exception->getMessage();
         }
     }
 
-    public static function getCategories($owner_id) {
+    public static function getAll($owner_id, $type) {
         try {
             $conn = Connection::get();
             $sql = "SELECT * FROM transaction_categories 
-                    WHERE owner_id is NULL AND owner_id = ?;";
+                    WHERE (owner_id is NULL OR owner_id = ?) AND type = ?;";
             $stmt = $conn->prepare($sql);
-            $stmt->execute(["$owner_id"]);
+            $stmt->execute([$owner_id, $type]);
 
             if ($stmt->rowCount() > 0) {
                 return $stmt->fetchAll(\PDO::FETCH_OBJ);
@@ -64,7 +65,7 @@ class CategoryDAO {
         try {
             $conn = Connection::get();
             $sql = "SELECT id, name, type, icon_url, owner_id 
-                    FROM trasaction_categories WHERE id = ? AND owner_id = ?;";
+                    FROM trasaction_categories WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$category_id, $owner_id]);
             if ($stmt->rowCount() == 1) {

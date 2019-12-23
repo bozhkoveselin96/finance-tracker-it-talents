@@ -4,13 +4,11 @@
 namespace controller;
 
 
-use model\accounts\Category;
-use model\accounts\CategoryDAO;
+use model\categories\Category;
+use model\categories\CategoryDAO;
 
-class CategoryController
-{
-    public function add()
-    {
+class CategoryController {
+    public function add(){
         $response = [];
         $response["status"] = false;
         if (isset($_POST["add_category"]) && isset($_SESSION["logged_user"])) {
@@ -23,22 +21,22 @@ class CategoryController
             if (mb_strlen($category->getName()) >= MIN_LENGTH_NAME) {
                 if (CategoryDAO::createCategory($category)) {
                     $response["status"] = true;
-                    $response["target"] = "addCategory";
+                    $response["target"] = "category";
                 }
             }
         }
         return $response;
     }
 
-    public function getAll()
-    {
+    public function getAll() {
         $response = [];
         $response["status"] = false;
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
             $user_id = $_GET["user_id"];
             $owner_id = $_SESSION["logged_user"];
+            $type = $_GET["category_type"];
             if ($_SESSION["logged_user"] == $user_id) {
-                $categories = CategoryDAO::getCategories($owner_id);
+                $categories = CategoryDAO::getAll($owner_id, $type);
                 if ($categories) {
                     $response["status"] = true;
                     $response["data"] = $categories;
@@ -58,7 +56,6 @@ class CategoryController
             if ($category) {
                 $name = $_POST["name"];
                 $icon_url = $_POST["icon_url"];
-                $owner_id = $_SESSION["logged_user"];
 
                 $editedCategory = new Category($name, $category->type ,$icon_url, $owner_id);
                 $editedCategory->setId($category_id);
