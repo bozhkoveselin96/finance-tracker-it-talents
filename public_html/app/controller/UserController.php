@@ -6,6 +6,20 @@ use model\users\User;
 use model\users\UserDAO;
 
 class UserController {
+    public function checkLogin() {
+        $response = [];
+        $response['status'] = false;
+        if ($_SERVER['REQUEST_METHOD'] == "POST") {
+            if (isset($_SESSION['logged_user']) && isset($_SESSION['logged_user_full_name'])) {
+                $response["status"] = true;
+                $response['id'] = $_SESSION['logged_user'];
+                $response["full_name"] = $_SESSION['logged_user_full_name'];
+            }
+
+        }
+        return $response;
+    }
+
     public function login(){
         $response = [];
         $response["status"] = false;
@@ -20,6 +34,7 @@ class UserController {
 
                 if ($user && password_verify($password, $user->password)) {
                     $_SESSION["logged_user"] = $user->id;
+                    $_SESSION['logged_user_full_name'] = $user->full_name;
                     $response["status"] = true;
                     $response['id'] = $user->id;
                     $response["full_name"] = $user->full_name;
@@ -38,7 +53,7 @@ class UserController {
             $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name']);
 
             if (!empty($user->getEmail()) &&
-                UserDAO::getByEmail($user->getEmail()) &&
+                !UserDAO::getByEmail($user->getEmail()) &&
                 !empty($user->getPassword()) &&
                 mb_strlen($user->getPassword()) >= MIN_LENGTH_PASSWORD &&
                 filter_var($user->getEmail(),FILTER_VALIDATE_EMAIL) &&

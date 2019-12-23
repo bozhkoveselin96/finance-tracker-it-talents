@@ -21,7 +21,7 @@ class AccountDAO {
             $stmt->execute($data);
             return true;
         } catch (\PDOException $exception) {
-            return $exception;
+            return false;
         }
     }
 

@@ -10,7 +10,7 @@ $(document).ready(function () {
         $("#container").html(data);
     });
 
-    $("#menu").on("click", '.loader', function(event) {
+    $("#menu, #container").on("click", '.loader', function(event) {
         event.preventDefault();
         let href = 'view/' + $(this).attr("href");
         $.get(href, function (data) {
