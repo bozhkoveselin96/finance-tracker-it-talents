@@ -38,7 +38,7 @@ class UserController {
             $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name']);
 
             if (!empty($user->getEmail()) &&
-                UserDAO::getByEmail($user->getEmail()) &&
+                !UserDAO::getByEmail($user->getEmail()) &&
                 !empty($user->getPassword()) &&
                 mb_strlen($user->getPassword()) >= MIN_LENGTH_PASSWORD &&
                 filter_var($user->getEmail(),FILTER_VALIDATE_EMAIL) &&
