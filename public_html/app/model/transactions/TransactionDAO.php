@@ -7,24 +7,36 @@ namespace model\transactions;
 use model\Connection;
 
 class TransactionDAO {
-    public static function create(Transaction $transaction) {
+    public static function create(Transaction $transaction, int $category_type) {
         try {
-            $data = [];
-            $data[] = $transaction->getAmount();
-            $data[] = $transaction->getAccountId();
-            $data[] = $transaction->getCategoryId();
-            $data[] = $transaction->getNote();
-            $data[] = $transaction->getTimeEvent();
 
             $conn = Connection::get();
-            $sql = "INSERT INTO transactions(amount, account_id, category_id, note, time_created, time_event) VALUES 
-            (?, ?, ?, ?, CURRENT_TIMESTAMP, ?);";
-            $stmt = $conn->prepare($sql);
-            if ($stmt->execute($data)) {
-                return true;
-            }
+            $conn->beginTransaction();
+                $data = [];
+                $data[] = $transaction->getAmount();
+                $data[] = $transaction->getAccountId();
+                $data[] = $transaction->getCategoryId();
+                $data[] = $transaction->getNote();
+                $data[] = $transaction->getTimeEvent();
+
+                $sql = "INSERT INTO transactions(amount, account_id, category_id, note, time_created, time_event) VALUES 
+                (?, ?, ?, ?, CURRENT_TIMESTAMP, ?);";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute($data);
+
+                $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2) WHERE id = ?";
+                if ($category_type == 0) {
+                    $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount - ?, 2) WHERE id = ?";
+                }
+
+                $stmt2 = $conn->prepare($sql2);
+                $stmt2->execute([$transaction->getAmount(), $transaction->getAccountId()]);
+
+            $conn->commit();
+            return true;
         } catch (\PDOException $exception) {
-            return $exception;
+            $conn->rollBack();
+            return false;
         }
     }
 

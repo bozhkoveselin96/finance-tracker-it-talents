@@ -22,7 +22,7 @@ class CategoryDAO {
             $stmt->execute($data);
             return true;
         } catch (\PDOException $exception) {
-            return $exception->getMessage();
+            return false;
         }
     }
 
