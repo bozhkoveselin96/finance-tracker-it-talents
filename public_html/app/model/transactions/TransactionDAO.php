@@ -60,7 +60,7 @@ class TransactionDAO {
 
             $stmt = $conn->prepare($sql);
             if ($stmt->execute($data)) {
-                return true;
+                return $stmt->fetchAll(\PDO::FETCH_OBJ);
             }
         } catch (\PDOException $exception) {
             return false;

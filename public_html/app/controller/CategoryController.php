@@ -56,7 +56,6 @@ class CategoryController {
             if ($category) {
                 $name = $_POST["name"];
                 $icon_url = $_POST["icon_url"];
-
                 $editedCategory = new Category($name, $category->type ,$icon_url, $owner_id);
                 $editedCategory->setId($category_id);
                 if ($editedCategory->getOwnerId() == $category->owner_id &&

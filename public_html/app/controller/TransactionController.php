@@ -32,4 +32,25 @@ class TransactionController {
         }
         return $response;
     }
+
+    public function showUserTransactions() {
+        $response = [];
+        $response["status"] = false;
+
+        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
+            $user_id = $_GET["user_id"];
+            $category_id = null;
+            if (isset($_GET["category_id"])) {
+                $category_id = $_GET["category_id"];
+            }
+            if ($_SESSION["logged_user"] = $user_id) {
+                $transactions = TransactionDAO::getByUserAndCategory($user_id, $category_id);
+                if ($transactions) {
+                    $response["status"] = true;
+                    $response["data"] = $transactions;
+                }
+            }
+        }
+        return $response;
+    }
 }
