@@ -13,7 +13,8 @@ class TransactionController {
     public function add() {
         $response = [];
         $response['status'] = false;
-        if (isset($_POST['add_transaction']) && isset($_SESSION['logged_user'])) {
+        if (isset($_POST['add_transaction']) && isset($_SESSION['logged_user']) && isset($_POST['account_id']) &&
+            isset($_POST['category_id']) && Validator::validateName($_POST['note']) && !empty($_POST['time_event'])) {
             $account = AccountDAO::getAccountById($_POST['account_id']);
             $category = CategoryDAO::getCategoryById($_POST['category_id'], $account->owner_id);
             $transaction_type = $category->type;
@@ -43,7 +44,7 @@ class TransactionController {
             if (isset($_GET["category_id"])) {
                 $category_id = $_GET["category_id"];
             }
-            if ($_SESSION["logged_user"] = $user_id) {
+            if (Validator::validateLoggedUser($user_id)) {
                 $transactions = TransactionDAO::getByUserAndCategory($user_id, $category_id);
                 if ($transactions) {
                     $response["status"] = true;

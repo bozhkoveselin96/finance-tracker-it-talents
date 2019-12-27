@@ -18,7 +18,7 @@ class CategoryController {
             $owner_id = $_SESSION["logged_user"];
             $category = new Category($name, $type, $icon_url, $owner_id);
 
-            if (mb_strlen($category->getName()) >= MIN_LENGTH_NAME) {
+            if (Validator::validateName($category->getName())) {
                 if (CategoryDAO::createCategory($category)) {
                     $response["status"] = true;
                     $response["target"] = "category";
@@ -33,10 +33,9 @@ class CategoryController {
         $response["status"] = false;
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
             $user_id = $_GET["user_id"];
-            $owner_id = $_SESSION["logged_user"];
             $type = $_GET["category_type"];
-            if ($_SESSION["logged_user"] == $user_id) {
-                $categories = CategoryDAO::getAll($owner_id, $type);
+            if (Validator::validateLoggedUser($user_id)) {
+                $categories = CategoryDAO::getAll($user_id, $type);
                 if ($categories) {
                     $response["status"] = true;
                     $response["data"] = $categories;
@@ -52,9 +51,8 @@ class CategoryController {
             $category_id = $_POST["category_id"];
             $owner_id = $_SESSION["logged_user"];
             $category = CategoryDAO::getCategoryById($category_id, $owner_id);
-
-            if ($category) {
-                $name = $_POST["name"];
+            $name = $_POST["name"];
+            if ($category && Validator::validateName($name)) {
                 $icon_url = $_POST["icon_url"];
                 $editedCategory = new Category($name, $category->type ,$icon_url, $owner_id);
                 $editedCategory->setId($category_id);
