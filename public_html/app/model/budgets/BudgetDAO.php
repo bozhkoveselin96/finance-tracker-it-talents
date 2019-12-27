@@ -29,10 +29,13 @@ class BudgetDAO {
     public static function getAll(int $user_id) {
         try {
             $conn = Connection::get();
-            $sql = "SELECT b.id, b.category_id, b.amount, b.from_date, b.to_date, b.date_created
+            $sql = "SELECT b.id, c.name, b.amount, 
                     (SELECT SUM(t.amount) FROM transactions AS t 
-                    WHERE t.time_event BETWEEN b.from_date AND b.to_date) AS budget_status
+                    WHERE t.time_event BETWEEN b.from_date AND b.to_date 
+                    AND t.category_id = b.category_id) AS budget_status, 
+                    b.from_date, b.to_date
                     FROM budgets AS b
+                    JOIN transaction_categories AS c ON b.category_id = c.id
                     WHERE b.owner_id = ?;";
             $stmt = $conn->prepare($sql);
             $stmt->execute(["$user_id"]);
@@ -41,7 +44,7 @@ class BudgetDAO {
             }
             return false;
         } catch (\PDOException $exception) {
-            return false;
+            return $exception;
         }
     }
 

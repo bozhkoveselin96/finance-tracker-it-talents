@@ -33,11 +33,16 @@ $(document).ready(function () {
                     getAllCategories(0);
                 } else if(data.target === 'transaction') {
                     alert('Transaction added!');
-                    $.get("view/transactions/add.html", function (data) {
-                        $("#container").html(data);
-                    });
+                    $("#container").empty();
+                    showUserTransactions();
                 } else if (data.target === 'planned_payment') {
                     alert('Planned payment added succesfully!');
+                    $("#container").empty();
+                    showUserPlannedPayments();
+                } else if(data.target === 'budget') {
+                    alert("Budget added succesfully!");
+                    $("#container").empty();
+                    showUserBudgets();
                 }
             } else {
                 alert("Error! Please try again.")
