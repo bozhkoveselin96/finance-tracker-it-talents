@@ -26,12 +26,14 @@ class BudgetDAO {
         }
     }
 
-    public static function getMyBudgets(int $user_id) {
+    public static function getAll(int $user_id) {
         try {
             $conn = Connection::get();
-            $sql = "SELECT id, category_id, amount, from_date, to_date, date_created
-                    FROM budgets
-                    WHERE owner_id = ?;";
+            $sql = "SELECT b.id, b.category_id, b.amount, b.from_date, b.to_date, b.date_created
+                    (SELECT SUM(t.amount) FROM transactions AS t 
+                    WHERE t.time_event BETWEEN b.from_date AND b.to_date) AS budget_status
+                    FROM budgets AS b
+                    WHERE b.owner_id = ?;";
             $stmt = $conn->prepare($sql);
             $stmt->execute(["$user_id"]);
             if ($stmt->rowCount() > 0) {
