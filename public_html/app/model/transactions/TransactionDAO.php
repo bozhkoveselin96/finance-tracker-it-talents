@@ -66,5 +66,4 @@ class TransactionDAO {
             return false;
         }
     }
-
 }
