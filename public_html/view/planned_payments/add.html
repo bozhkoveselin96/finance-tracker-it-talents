@@ -1,0 +1,30 @@
+<form action="app/index.php?target=plannedPayment&action=add" method="POST">
+    <table>
+        <tr>
+            <td><label for="account">Account: </label></td>
+            <td>
+                <select name="account_id" id="account">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="category">Category: </label></td>
+            <td>
+                <select name="category_id" id="category">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="amount">Amount: </label></td>
+            <td><input id="amount" name="amount" step=".01" type="number"></td>
+        </tr>
+        <tr>
+            <td><label for="day_for_payment">Day for payment: </label></td>
+            <td><input type="number" name="day_for_payment" id="day_for_payment"></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" name="add_planned_payment" value="Add planned payment"></td>
+        </tr>
+    </table>
+</form>
+<script>addPlannedPayment();</script>

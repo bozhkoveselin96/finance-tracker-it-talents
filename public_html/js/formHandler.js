@@ -36,6 +36,8 @@ $(document).ready(function () {
                     $.get("view/transactions/add.html", function (data) {
                         $("#container").html(data);
                     });
+                } else if (data.target === 'planned_payment') {
+                    alert('Planned payment added succesfully!');
                 }
             } else {
                 alert("Error! Please try again.")
