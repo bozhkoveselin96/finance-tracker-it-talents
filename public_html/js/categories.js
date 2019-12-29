@@ -22,7 +22,14 @@ function getAllCategories(category_type) {
                     $.each(value, function (k, v) {
                         let td = $("<td />").text(v);
                         td.addClass(k);
+                        if (k == 'icon') {
+                            td.text('');
+                            let icon = $("<i />");
+                            icon.addClass(v);
+                            td.append(icon);
+                        }
                         tr.append(td);
+                        //<i class="fa fa-angle-right"></i>
                     });
                     table.append(tr);
                 });

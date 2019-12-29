@@ -12,11 +12,11 @@ class CategoryDAO {
             $data = [];
             $data[] = $category->getName();
             $data[] = $category->getType();
-            $data[] = $category->getIconUrl();
+            $data[] = $category->getIcon();
             $data[] = $category->getOwnerId();
 
             $conn = Connection::get();
-            $sql = "INSERT INTO transaction_categories(name, type, icon_url, owner_id)
+            $sql = "INSERT INTO transaction_categories(name, type, icon, owner_id)
                     VALUES (?, ?, ?, ?);";
             $stmt = $conn->prepare($sql);
             $stmt->execute($data);
@@ -46,12 +46,12 @@ class CategoryDAO {
     public static function editCategory(Category $category) {
         try {
             $conn = Connection::get();
-            $sql = "UPDATE transaction_categories SET name = ?, icon_url = ? 
+            $sql = "UPDATE transaction_categories SET name = ?, icon = ? 
                     WHERE id = ? AND owner_id = ?;";
             $stmt = $conn->prepare($sql);
             $stmt->execute([
                 $category->getName(),
-                $category->getIconUrl(),
+                $category->getIcon(),
                 $category->getId(),
                 $category->getOwnerId()
                 ]);
@@ -64,7 +64,7 @@ class CategoryDAO {
     public static function getCategoryById($category_id, $owner_id) {
         try {
             $conn = Connection::get();
-            $sql = "SELECT id, name, type, icon_url, owner_id 
+            $sql = "SELECT id, name, type, icon, owner_id 
                     FROM transaction_categories WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$category_id, $owner_id]);

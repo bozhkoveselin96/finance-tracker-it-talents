@@ -8,13 +8,13 @@ class Category {
     private $id;
     private $name;
     private $type;
-    private $icon_url;
+    private $icon;
     private $owner_id;
 
-    public function __construct($name, $type, $icon_url, $owner_id) {
+    public function __construct($name, $type, $icon, $owner_id) {
         $this->name = $name;
         $this->type = $type;
-        $this->icon_url = $icon_url;
+        $this->icon = $icon;
         $this->owner_id = $owner_id;
     }
 
@@ -34,8 +34,8 @@ class Category {
         return $this->owner_id;
     }
 
-    public function getIconUrl() {
-        return $this->icon_url;
+    public function getIcon() {
+        return $this->icon;
     }
 
     public function setId($id) {

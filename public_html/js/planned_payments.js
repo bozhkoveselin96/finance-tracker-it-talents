@@ -34,14 +34,21 @@ function showUserPlannedPayments() {
                 let table = $("<table />");
                 table.attr("id", "budgets-table");
 
-                table.append("<tr><th>Budgets</th></tr>");
-
+                table.append("<tr><th>Planned payments</th></tr>");
                 $.each(data.data, function (key, value) {
                     let tr = $("<tr />");
                     tr.attr("id", value.id);
                     $.each(value, function (k, v) {
-                        let td = $("<td />").text(v);
-
+                        let td = $("<td />");
+                        if (k === 'status') {
+                            if (v == 1) {
+                                td.text("Active");
+                            } else {
+                                td.text("Not active");
+                            }
+                        } else {
+                            td.text(v);
+                        }
 
                         td.addClass(k);
                         tr.append(td);
