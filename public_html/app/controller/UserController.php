@@ -4,25 +4,26 @@ namespace controller;
 
 use model\users\User;
 use model\users\UserDAO;
+use const Grpc\STATUS_PERMISSION_DENIED;
 
 class UserController {
     public function checkLogin() {
         $response = [];
-        $response['status'] = false;
+        $status = STATUS_FORBIDDEN;
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             if (isset($_SESSION['logged_user']) && isset($_SESSION['logged_user_full_name'])) {
-                $response["status"] = true;
                 $response['id'] = $_SESSION['logged_user'];
                 $response["full_name"] = $_SESSION['logged_user_full_name'];
+                $status = STATUS_OK;
             }
-
         }
+        header($status);
         return $response;
     }
 
     public function login(){
         $response = [];
-        $response["status"] = false;
+        $status = STATUS_FORBIDDEN;
         if (isset($_POST["login"])) {
             $email = $_POST["email"];
             $password = $_POST["password"];
@@ -31,19 +32,20 @@ class UserController {
                 if ($user && password_verify($password, $user->password)) {
                     $_SESSION["logged_user"] = $user->id;
                     $_SESSION['logged_user_full_name'] = $user->full_name;
-                    $response["status"] = true;
                     $response['id'] = $user->id;
                     $response["full_name"] = $user->full_name;
                     $response["target"] = 'login';
+                    $status = STATUS_OK;
                 }
             }
         }
+        header($status);
         return $response;
     }
 
     public function register() {
         $response = [];
-        $response["status"] = false;
+        $status = STATUS_BAD_REQUEST;
         if (isset($_POST["register"])) {
             $response["target"] = 'register';
             $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name']);
@@ -58,10 +60,11 @@ class UserController {
                 $user->setPassword($cryptedPass);
 
                 if (UserDAO::register($user)) {
-                    $response["status"] = true;
+                    $status = STATUS_CREATED;
                 }
             }
         }
+        header($status);
         return $response;
     }
 

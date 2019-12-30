@@ -5,23 +5,23 @@ function addBudget() {
         {
             user_id: sessionStorage.getItem("id"),
             category_type: 0,
-        }
-        , function (data) {
-            if (data.status === true) {
-                $.each(data.data, function (key, value) {
-                    selectCategory.append($("<option />").val(value.id).text(value.name));
-                });
-            }
-        }, 'json');
+        },
+        function (data) {
+            $.each(data.data, function (key, value) {
+                selectCategory.append($("<option />").val(value.id).text(value.name));
+            });
+        }, 'json')
+        .fail(function (xhr, status, error) {
+            alert(error);
+        });
 }
 
 function showUserBudgets() {
     $.get("app/index.php?target=budget&action=getAll",
         {
             user_id: sessionStorage.getItem("id"),
-        }
-        , function (data) {
-            if (data.status === true) {
+        },
+        function (data) {
                 let table = $("<table />");
                 table.attr("id", "budgets-table");
 
@@ -41,6 +41,8 @@ function showUserBudgets() {
                 });
 
                 $("#container").append(table);
-            }
-        }, 'json');
+        }, 'json')
+        .fail(function (xhr, status, error) {
+            alert(error);
+        });
 }

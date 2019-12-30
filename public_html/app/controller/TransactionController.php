@@ -12,7 +12,7 @@ use model\transactions\TransactionDAO;
 class TransactionController {
     public function add() {
         $response = [];
-        $response['status'] = false;
+        $status = STATUS_BAD_REQUEST;
         if (isset($_POST['add_transaction']) && isset($_SESSION['logged_user']) && isset($_POST['account_id']) &&
             isset($_POST['category_id']) && Validator::validateName($_POST['note']) && !empty($_POST['time_event'])) {
             $account = AccountDAO::getAccountById($_POST['account_id']);
@@ -27,16 +27,17 @@ class TransactionController {
                 $transaction = new Transaction($amount, $account->id, $category->id, $note, $time_event);
                 if (TransactionDAO::create($transaction, $transaction_type)) {
                     $response['target'] = 'transaction';
-                    $response['status'] = true;
+                    $status = STATUS_CREATED;
                 }
             }
         }
+        header($status);
         return $response;
     }
 
     public function showUserTransactions() {
         $response = [];
-        $response["status"] = false;
+        $status = STATUS_BAD_REQUEST;
 
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
             $user_id = $_GET["user_id"];
@@ -47,11 +48,12 @@ class TransactionController {
             if (Validator::validateLoggedUser($user_id)) {
                 $transactions = TransactionDAO::getByUserAndCategory($user_id, $category_id);
                 if ($transactions) {
-                    $response["status"] = true;
+                    $status = STATUS_OK;
                     $response["data"] = $transactions;
                 }
             }
         }
+        header($status);
         return $response;
     }
 }

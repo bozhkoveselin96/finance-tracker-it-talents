@@ -10,7 +10,7 @@ use model\budgets\BudgetDAO;
 class BudgetController {
     public function add() {
         $response = [];
-        $response["status"] = false;
+        $status = STATUS_BAD_REQUEST;
         if (isset($_POST["add_budget"]) && isset($_SESSION["logged_user"]) &&
             isset($_POST["category_id"]) && isset($_POST["amount"]) &&
             isset($_POST["from_date"]) && isset($_POST["to_date"])) {
@@ -22,33 +22,34 @@ class BudgetController {
 
                 $budget = new Budget($category_id, $amount, $owner_id, $from_date, $to_date);
                 if (BudgetDAO::createBudget($budget)) {
-                    $response["status"] = true;
+                    $status = STATUS_CREATED;
                     $response["target"] = "budget";
                 }
         }
+        header($status);
         return $response;
     }
 
     public function getAll() {
         $response = [];
-        $response["status"] = false;
-
+        $status = STATUS_BAD_REQUEST;
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
             $user_id = $_GET["user_id"];
             if (Validator::validateLoggedUser($user_id)) {
                 $budgets = BudgetDAO::getAll($user_id);
                 if ($budgets) {
-                    $response["status"] = true;
                     $response["data"] = $budgets;
+                    $status = STATUS_OK;
                 }
             }
         }
+        header($status);
         return $response;
     }
 
     public function delete() {
         $response = [];
-        $response["status"] = false;
+        $status = STATUS_FORBIDDEN;
         if (isset($_POST["delete"])) {
             $user_id = $_POST["user_id"];
             $budget_id = $_POST["budget_id"];
@@ -56,9 +57,10 @@ class BudgetController {
 
             if ($budget && $user_id && Validator::validateLoggedUser($user_id) &&
                 $user_id == $budget->owner_id && BudgetDAO::deleteBudget($budget_id)) {
-                    $response["status"] = true;
+                $status = STATUS_OK;
             }
         }
+        header($status);
         return $response;
     }
 }

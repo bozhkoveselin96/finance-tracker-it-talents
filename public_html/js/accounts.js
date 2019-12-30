@@ -1,10 +1,11 @@
 function getAllAccounts() {
-    $.get("app/index.php?target=account&action=getAll", {user_id: sessionStorage.getItem("id")}, function (data) {
-        if (data.status === true) {
+    $.get("app/index.php?target=account&action=getAll",
+        {user_id: sessionStorage.getItem("id")},
+        function (response) {
             let table = $("<table />");
             table.attr("id", "accounts-table");
 
-            $.each(data.data, function (key, value) {
+            $.each(response.data, function (key, value) {
                 let tr = $("<tr />");
                 tr.attr("id", value.id);
                 $.each(value, function (k, v) {
@@ -28,12 +29,11 @@ function getAllAccounts() {
                                 user_id : sessionStorage.getItem("id"),
                                 account_id : trId,
                             }, function (data) {
-                                if (data.status === true) {
-                                    $("#"+trId).fadeOut(1500);
-                                } else {
-                                    alert("error!");
-                                }
-                            }, 'json');
+                                $("#"+trId).fadeOut(1500);
+                            }, 'json')
+                            .fail(function (xhr, status, error) {
+                                alert(error);
+                            });
                     }
                 });
                 editItemButton.bind("click", function (event) {
@@ -53,12 +53,11 @@ function getAllAccounts() {
                                 account_id : trId,
                                 name : renamer.val(),
                             }, function (data) {
-                                if (data.status === true) {
-                                    getAllAccounts();
-                                } else {
-                                    alert("error!");
-                                }
-                            }, 'json');
+                                getAllAccounts();
+                            }, 'json')
+                            .fail(function (xhr, status, error) {
+                                alert(error);
+                            });
                     })
                 });
                 tr.append(editItem);
@@ -67,6 +66,9 @@ function getAllAccounts() {
             });
 
             $("#container").html(table);
-        }
-    }, 'json');
+        },
+        'json')
+        .fail(function (xhr, status, error) {
+            alert(error);
+        });
 }

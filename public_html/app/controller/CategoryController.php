@@ -10,7 +10,7 @@ use model\categories\CategoryDAO;
 class CategoryController {
     public function add(){
         $response = [];
-        $response["status"] = false;
+        $status = STATUS_BAD_REQUEST;
         if (isset($_POST["add_category"]) && isset($_SESSION["logged_user"])) {
             $name = $_POST["name"];
             $type = $_POST["type"];
@@ -20,33 +20,35 @@ class CategoryController {
 
             if (Validator::validateName($category->getName())) {
                 if (CategoryDAO::createCategory($category)) {
-                    $response["status"] = true;
                     $response["target"] = "category";
+                    $status = STATUS_CREATED;
                 }
             }
         }
+        header($status);
         return $response;
     }
 
     public function getAll() {
         $response = [];
-        $response["status"] = false;
+        $status = STATUS_BAD_REQUEST;
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
             $user_id = $_GET["user_id"];
             $type = $_GET["category_type"];
             if (Validator::validateLoggedUser($user_id)) {
                 $categories = CategoryDAO::getAll($user_id, $type);
                 if ($categories) {
-                    $response["status"] = true;
+                    $status = STATUS_OK;
                     $response["data"] = $categories;
                 }
             }
         }
+        header($status);
         return $response;
     }
 
     public function edit() {
-        $response["status"] = false;
+        $status = STATUS_FORBIDDEN;
         if (isset($_POST["edit"])) {
             $category_id = $_POST["category_id"];
             $owner_id = $_SESSION["logged_user"];
@@ -58,10 +60,10 @@ class CategoryController {
                 $editedCategory->setId($category_id);
                 if ($editedCategory->getOwnerId() == $category->owner_id &&
                     CategoryDAO::editCategory($editedCategory)) {
-                    $response["status"] = true;
+                    $status = STATUS_OK;
                 }
             }
         }
-        return $response;
+        return header($status);
     }
 }
