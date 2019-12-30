@@ -1,4 +1,4 @@
-<form action="app/index.php?target=user&action=register" method="POST" enctype="multipart/form-data">
+<form action="app/index.php?target=user&action=edit" method="POST">
     <table>
         <tr>
             <td><label for="first_name">First name: </label></td>
@@ -10,7 +10,7 @@
         </tr>
         <tr>
             <td><label for="email">E-mail: </label></td>
-            <td><input type="email" name="email" id="email"></td>
+            <td><input type="email" id="email" readonly></td>
         </tr>
         <tr>
             <td><label for="password">Password</label></td>
@@ -21,14 +21,7 @@
             <td><input type="password" name="rpassword" id="rpassword"></td>
         </tr>
         <tr>
-            <td><label for="avatar">Avatar</label></td>
-            <td><input type="file" name="avatar" id="avatar"></td>
-        </tr>
-        <tr>
-            <td colspan="2"><input type="submit" name="register" value="Register"></td>
-        </tr>
-        <tr>
-            <td colspan="2"><a href="user/login.html" class="loader">Login</a></td>
+            <td colspan="2"><input type="submit" name="edit" value="Edit"></td>
         </tr>
     </table>
 </form>
