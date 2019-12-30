@@ -32,40 +32,4 @@
         </tr>
     </table>
 </form>
-<script>
-    $(document).ready(function () {
-
-        $("#btnRegister").click(function (event) {
-            event.preventDefault();
-
-            var form = $('#formRegister')[0];
-
-            var data = new FormData(form);
-            data.append("register", 'true');
-
-            $("#btnSubmit").prop("disabled", true);
-
-            $.ajax({
-                type: "POST",
-                enctype: 'multipart/form-data',
-                url: "app/index.php?target=user&action=register",
-                data: data,
-                processData: false,
-                contentType: false,
-                cache: false,
-                timeout: 600000,
-                success: function (data) {
-                    alert('Registration succesfull!');
-                    $.get('view/user/login.html', function (data) {
-                        $("#container").html(data);
-                    });
-                },
-                error: function (e) {
-                    alert('Email taken or first name or last name is < 3 symbols or password missmatch.');
-                }
-            });
-
-        });
-
-    });
-</script>
+<script src="js/users.js"></script>

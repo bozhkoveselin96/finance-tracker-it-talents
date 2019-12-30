@@ -99,7 +99,9 @@ class UserController
             if (Validator::validatePassword($editedUser->getPassword()) && strcmp($editedUser->getPassword(), $_POST["rpassword"]) == 0) {
                 $cryptedPass = password_hash($editedUser->getPassword(), PASSWORD_BCRYPT);
                 $editedUser->setPassword($cryptedPass);
+                $response['password_edited'] = true;
             } else {
+                $response['password_edited'] = false;
                 $editedUser->setPassword($user->password);
             }
             if (Validator::validateName($editedUser->getFirstName()) &&
@@ -113,6 +115,18 @@ class UserController
         }
         header($status);
         return $response;
+    }
+
+    public function logout() {
+        $status = STATUS_FORBIDDEN;
+        if (isset($_SESSION['logged_user'])) {
+            unset($_SESSION["logged_user"]);
+            unset($_SESSION["logged_user_first_name"]);
+            unset($_SESSION["logged_user_last_name"]);
+            unset($_SESSION['logged_user_avatar_url']);
+            $status = STATUS_OK;
+        }
+        return header($status);
     }
 
     private function uploadAvatar($email) {
