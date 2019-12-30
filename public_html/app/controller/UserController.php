@@ -4,7 +4,6 @@ namespace controller;
 
 use model\users\User;
 use model\users\UserDAO;
-use const Grpc\STATUS_PERMISSION_DENIED;
 
 class UserController
 {
@@ -13,9 +12,11 @@ class UserController
         $response = [];
         $status = STATUS_FORBIDDEN;
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            if (isset($_SESSION['logged_user']) && isset($_SESSION['logged_user_full_name'])) {
+            if (isset($_SESSION['logged_user'])) {
                 $response['id'] = $_SESSION['logged_user'];
-                $response["full_name"] = $_SESSION['logged_user_full_name'];
+                $response["first_name"] = $_SESSION['logged_user_first_name'];
+                $response["last_name"] = $_SESSION['logged_user_last_name'];
+                $response["avatar_url"] = $_SESSION['logged_user_avatar_url'];
                 $status = STATUS_OK;
             }
         }
@@ -23,8 +24,7 @@ class UserController
         return $response;
     }
 
-    public function login()
-    {
+    public function login() {
         $response = [];
         $status = STATUS_FORBIDDEN;
         if (isset($_POST["login"])) {
@@ -34,6 +34,10 @@ class UserController
                 $user = UserDAO::getUser($email);
                 if ($user && password_verify($password, $user->password)) {
                     $_SESSION["logged_user"] = $user->id;
+                    $_SESSION["logged_user_first_name"] = $user->first_name;
+                    $_SESSION["logged_user_last_name"] = $user->last_name;
+                    $_SESSION["logged_user_avatar_url"] = $user->avatar_url;
+
                     $response['id'] = $user->id;
                     $response["first_name"] = $user->first_name;
                     $response["last_name"] = $user->last_name;
@@ -47,15 +51,12 @@ class UserController
         return $response;
     }
 
-    public function register()
-    {
+    public function register() {
         $response = [];
         $status = STATUS_BAD_REQUEST;
         if (isset($_POST["register"])) {
-            $response["target"] = 'register';
             $avatar_url = $this->uploadAvatar($_POST["email"]);
             $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name'], $avatar_url);
-
             if (Validator::validateEmail($user->getEmail()) &&
                 !UserDAO::getUser($user->getEmail()) &&
                 Validator::validatePassword($user->getPassword()) &&
@@ -65,69 +66,61 @@ class UserController
                 $cryptedPass = password_hash($user->getPassword(), PASSWORD_BCRYPT);
                 $user->setPassword($cryptedPass);
                 if (UserDAO::register($user)) {
-                    $status = STATUS_CREATED;
+                    $status = STATUS_OK;
                 } else {
                     unlink($user->getAvatarUrl());
                 }
             }
         }
+        header($status);
         return $response;
     }
 
     public function edit() {
         $response = [];
-        $response["status"] = false;
-        $changedPass = false;
+        $status = STATUS_BAD_REQUEST;
 
         if (isset($_POST["edit"]) && isset($_SESSION["logged_user"])) {
-            $response["target"] = "edit";
             $user_id = $_SESSION["logged_user"];
             $user = UserDAO::getUser(intval($user_id));
             $oldAvatar = $user->avatar_url;
-            $avatar_url = $this->uploadAvatar($user->getEmail());
+            $avatar_url = $this->uploadAvatar($user->email);
             if ($avatar_url) {
-                unlink($oldAvatar);
+                if (file_exists($oldAvatar)) {
+                    unlink($oldAvatar);
+                }
             } else {
                 $avatar_url = $oldAvatar;
             }
 
-            $editedUser = new User($user->getEmail(), $_POST["password"], $_POST["first_name"], $_POST["last_name"], $avatar_url);
+            $editedUser = new User($user->email, $_POST["password"], $_POST["first_name"], $_POST["last_name"], $avatar_url);
             $editedUser->setId($user_id);
 
             if (Validator::validatePassword($editedUser->getPassword()) && strcmp($editedUser->getPassword(), $_POST["rpassword"]) == 0) {
-                $changedPass = true;
+                $cryptedPass = password_hash($editedUser->getPassword(), PASSWORD_BCRYPT);
+                $editedUser->setPassword($cryptedPass);
+            } else {
+                $editedUser->setPassword($user->password);
             }
-
-            if (Validator::validatePassword($editedUser->getPassword()) &&
-                Validator::validateName($editedUser->getFirstName()) &&
-                Validator::validateName($editedUser->getLastName())) {
-                if ($changedPass) {
-                    $cryptedPass = password_hash($editedUser->getPassword(), PASSWORD_BCRYPT);
-                    $editedUser->setPassword($cryptedPass);
-                } else {
-                    $editedUser->setPassword($user->password);
-                }
-
-                if (UserDAO::edit($editedUser)) {
-                    $response["status"] = true;
+            if (Validator::validateName($editedUser->getFirstName()) &&
+                Validator::validateName($editedUser->getLastName()) &&
+                UserDAO::edit($editedUser)) {
+                    $status = STATUS_OK;
                     $response["first_name"] = $editedUser->getFirstName();
                     $response["last_name"] = $editedUser->getLastName();
                     $response["avatar_url"] = $editedUser->getAvatarUrl();
-                }
             }
         }
-
+        header($status);
         return $response;
     }
 
-    public function uploadAvatar($email) {
-        $fileUrl = null;
+    private function uploadAvatar($email) {
         $tempName = $_FILES["avatar"]["tmp_name"];
-        $originalName = $_FILES["avatar"]["name"];
-        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        $ext = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
 
         if (is_uploaded_file($tempName)) {
-            $fileUrl = "avatars/$email-" . time() . ".$ext";
+            $fileUrl = "avatars" . DIRECTORY_SEPARATOR . "$email-" . time() . ".$ext";
             if (move_uploaded_file($tempName, $fileUrl)) {
                 return $fileUrl;
             } else {

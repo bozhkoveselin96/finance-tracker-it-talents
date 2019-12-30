@@ -29,7 +29,7 @@ class UserDAO {
     public static function getUser($email_or_id) {
         try {
             $conn = Connection::get();
-            $sql = "SELECT id, password, first_name, last_name, avatar_url FROM users ";
+            $sql = "SELECT id, email, password, first_name, last_name, avatar_url FROM users ";
             if (is_int($email_or_id)) {
                 $sql .= "WHERE id = ?;";
             } else {

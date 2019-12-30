@@ -1,4 +1,4 @@
-<form action="app/index.php?target=user&action=register" method="POST" enctype="multipart/form-data">
+<form id="formRegister" action="" method="POST" enctype="multipart/form-data">
     <table>
         <tr>
             <td><label for="first_name">First name: </label></td>
@@ -25,10 +25,47 @@
             <td><input type="file" name="avatar" id="avatar"></td>
         </tr>
         <tr>
-            <td colspan="2"><input type="submit" name="register" value="Register"></td>
+            <td colspan="2"><input type="submit" id="btnRegister" name="register" value="Register"></td>
         </tr>
         <tr>
             <td colspan="2"><a href="user/login.html" class="loader">Login</a></td>
         </tr>
     </table>
 </form>
+<script>
+    $(document).ready(function () {
+
+        $("#btnRegister").click(function (event) {
+            event.preventDefault();
+
+            var form = $('#formRegister')[0];
+
+            var data = new FormData(form);
+            data.append("register", 'true');
+
+            $("#btnSubmit").prop("disabled", true);
+
+            $.ajax({
+                type: "POST",
+                enctype: 'multipart/form-data',
+                url: "app/index.php?target=user&action=register",
+                data: data,
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                success: function (data) {
+                    alert('Registration succesfull!');
+                    $.get('view/user/login.html', function (data) {
+                        $("#container").html(data);
+                    });
+                },
+                error: function (e) {
+                    alert('Email taken or first name or last name is < 3 symbols or password missmatch.');
+                }
+            });
+
+        });
+
+    });
+</script>

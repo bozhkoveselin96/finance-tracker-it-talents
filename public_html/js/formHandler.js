@@ -12,8 +12,10 @@ $(document).ready(function () {
                 });
             } else if(data.target === 'login') {
                 alert("Login succesfull!");
-                sessionStorage.setItem("name", data.full_name);
                 sessionStorage.setItem("id", data.id);
+                sessionStorage.setItem("first_name", data.first_name);
+                sessionStorage.setItem("last_name", data.last_name);
+                sessionStorage.setItem("avatar_url", data.avatar_url);
                 $.get("view/menu.html", function (data) {
                     $("#menu").html(data);
                 });

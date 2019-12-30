@@ -1,5 +1,10 @@
-<form action="app/index.php?target=user&action=edit" method="POST">
+<form id="formEdit" action="app/index.php?target=user&action=edit" method="POST">
     <table>
+        <tr>
+            <td colspan="2">
+                <img src="" id="img" alt="">
+            </td>
+        </tr>
         <tr>
             <td><label for="first_name">First name: </label></td>
             <td><input type="text" name="first_name" id="first_name"></td>
@@ -7,10 +12,6 @@
         <tr>
             <td><label for="last_name">Last name: </label></td>
             <td><input type="text" name="last_name" id="last_name"></td>
-        </tr>
-        <tr>
-            <td><label for="email">E-mail: </label></td>
-            <td><input type="email" id="email" readonly></td>
         </tr>
         <tr>
             <td><label for="password">Password</label></td>
@@ -21,7 +22,55 @@
             <td><input type="password" name="rpassword" id="rpassword"></td>
         </tr>
         <tr>
-            <td colspan="2"><input type="submit" name="edit" value="Edit"></td>
+            <td><label for="avatar">Avatar:</label></td>
+            <td><input id="avatar" type="file" name="avatar"></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" id="btnEdit" name="edit" value="Edit"></td>
         </tr>
     </table>
 </form>
+<script>
+    $("input#first_name").attr('value', sessionStorage.getItem('first_name'));
+    $("input#last_name").attr('value', sessionStorage.getItem('last_name'));
+    $("img#img").attr('src', 'app/' + sessionStorage.getItem('avatar_url'));
+    $(document).ready(function () {
+
+
+        $("#btnEdit").click(function (event) {
+            event.preventDefault();
+
+            var form = $('#formEdit')[0];
+
+            var data = new FormData(form);
+            data.append("edit", 'true');
+
+            $.ajax({
+                type: "POST",
+                enctype: 'multipart/form-data',
+                url: "app/index.php?target=user&action=edit",
+                data: data,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                success: function (response) {
+                    alert('Edit succesfull!');
+
+                    sessionStorage.setItem("first_name", response.first_name);
+                    sessionStorage.setItem("last_name", response.last_name);
+                    sessionStorage.setItem("avatar_url", response.avatar_url);
+                    $.get('view/user/edit.html', function (data) {
+                        $("#container").html(data);
+                    });
+                },
+                error: function (e) {
+                    alert('Password missmatch or names < 3 symbols.');
+                }
+            });
+
+        });
+
+    });
+</script>
