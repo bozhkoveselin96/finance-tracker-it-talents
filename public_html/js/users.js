@@ -74,10 +74,14 @@ $(document).ready(function () {
 
     });
 
-    $("#logout").on('click', function (event) {
+    $("#logout").off().on('click', function (event) {
         event.preventDefault();
 
         $.post("app/index.php?target=user&action=logout", function (data) {
+            sessionStorage.removeItem('id');
+            sessionStorage.removeItem('first_name');
+            sessionStorage.removeItem('last_name');
+            sessionStorage.removeItem('avatar_url');
             alert('See ya!');
             $("#menu").empty();
             $.get('view/user/login.html', function (data) {
