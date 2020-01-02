@@ -1,81 +1,153 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Statistics!</title>
-    <script src="../js/Chart.js"></script>
-    <script
-            src="https://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-            crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="../css/Chart.css">
-</head>
-<body>
-    <div id="charts-container" style="width: 50%;">
-        <canvas id="pie"></canvas>
-        <canvas id="bar"></canvas>
-        <canvas id="line"></canvas>
-    </div>
-</body>
+<div id="charts-container" style="width: 50%;">
+    <canvas id="allIncomesAndOutcomes"></canvas>
+    <canvas id="OutcomesByCategory"></canvas>
+    <canvas id="IncomesByCategory"></canvas>
+</div>
 <script>
 $(document).ready(function () {
-    let pie = $('#pie');
-    let myChart = new Chart(pie, {
-        type: 'pie',
-        data: {
-            labels: ["Income", "Outcome"],
-            datasets: [{
-                label: "Income and outcome",
-                backgroundColor: ["#00ff00", "#ff0000"],
-                data: [1527,723]
-            }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Income and outcome'
-            }
-        }
-    });
+    $.get("app/index.php?target=statistic&action=getIncomesOutcomes",
+        function (response) {
+            let labelsTable = [];
+            let dataTable = [];
+            $.each(response, function (key, value) {
+                $.each(value, function (k, v) {
+                    labelsTable.push(k);
+                    dataTable.push(v);
+                })
+            });
 
-    let barCharts = $("#bar");
-    let myChart2 = new Chart(barCharts, {
-        type: 'bar',
-        data: {
-            labels: ["Car", "Home", 'School', 'Food'],
-            datasets: [{
-                label: ["Money"],
-                backgroundColor: ["#00ff00", "#ff0000", "#0000ff", "#C5FF28"],
-                data: [123,300, 200,130]
-            }]
+            let pie = $('#allIncomesAndOutcomes');
+            let myChart = new Chart(pie, {
+                type: 'pie',
+                data: {
+                    labels: labelsTable,
+                    datasets: [{
+                        label: labelsTable,
+                        backgroundColor: ["#00ff00", "#ff0000"],
+                        data: dataTable
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Income and outcome'
+                    }
+                }
+            });
         },
-        options: {
-            title: {
-                display: true,
-                text: 'Outcomes by categories'
-            }
-        }
-    });
+        'json')
+        .fail(function (xhr, status, error) {
+            alert(error);
+        });
 
-    let line = $("#line");
-    let myChart3 = new Chart(line, {
-        type: 'line',
-        data: {
-            labels: ["July", "August", 'September', 'Octover', 'November', 'December', 'January'],
-            datasets: [{
-                label: ["Money"],
-                backgroundColor: ["#00ff00", "#ff0000", "#0000ff", "#C5FF28", '#1FFFFF', "#875C43", "#1F330B"],
-                data: [1502,3312, 2400, 5001, 2333, 1822, 2222]
-            }]
+    $.get("app/index.php?target=statistic&action=getOutcomesByCategory",
+        function (response) {
+            let labelsTable = [];
+            let dataTable = [];
+            $.each(response, function (key, value) {
+                $.each(value, function (k, v) {
+                    labelsTable.push(k);
+                    dataTable.push(v);
+                })
+            });
+
+            let pie = $('#OutcomesByCategory');
+            let myChart = new Chart(pie, {
+                type: 'pie',
+                data: {
+                    labels: labelsTable,
+                    datasets: [{
+                        label: labelsTable,
+                        backgroundColor: ["#00ff00", "#ff0000"],
+                        data: dataTable
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Income and outcome'
+                    }
+                }
+            });
         },
-        options: {
-            title: {
-                display: true,
-                text: 'Incomes by months'
-            }
-        }
-    });
+        'json')
+        .fail(function (xhr, status, error) {
+            alert(error);
+        });
+
+    $.get("app/index.php?target=statistic&action=getIncomesByCategory",
+        function (response) {
+            let labelsTable = [];
+            let dataTable = [];
+            $.each(response, function (key, value) {
+                $.each(value, function (k, v) {
+                    labelsTable.push(k);
+                    dataTable.push(v);
+                })
+            });
+
+            let pie = $('#OutcomesByCategory');
+            let myChart = new Chart(pie, {
+                type: 'pie',
+                data: {
+                    labels: labelsTable,
+                    datasets: [{
+                        label: labelsTable,
+                        backgroundColor: ["#00ff00", "#ff0000"],
+                        data: dataTable
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Income and outcome'
+                    }
+                }
+            });
+        },
+        'json')
+        .fail(function (xhr, status, error) {
+            alert(error);
+        });
+
+
+    // let barCharts = $("#bar");
+    // let myChart2 = new Chart(barCharts, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: ["Car", "Home", 'School', 'Food'],
+    //         datasets: [{
+    //             label: ["Money"],
+    //             backgroundColor: ["#00ff00", "#ff0000", "#0000ff", "#C5FF28"],
+    //             data: [123,300, 200,130]
+    //         }]
+    //     },
+    //     options: {
+    //         title: {
+    //             display: true,
+    //             text: 'Outcomes by categories'
+    //         }
+    //     }
+    // });
+    //
+    // let line = $("#line");
+    // let myChart3 = new Chart(line, {
+    //     type: 'line',
+    //     data: {
+    //         labels: ["July", "August", 'September', 'Octover', 'November', 'December', 'January'],
+    //         datasets: [{
+    //             label: ["Money"],
+    //             backgroundColor: ["#00ff00", "#ff0000", "#0000ff", "#C5FF28", '#1FFFFF', "#875C43", "#1F330B"],
+    //             data: [1502,3312, 2400, 5001, 2333, 1822, 2222]
+    //         }]
+    //     },
+    //     options: {
+    //         title: {
+    //             display: true,
+    //             text: 'Incomes by months'
+    //         }
+    //     }
+    // });
 
 });
 </script>
-</html>
