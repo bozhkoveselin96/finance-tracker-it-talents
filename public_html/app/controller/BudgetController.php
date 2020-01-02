@@ -11,7 +11,6 @@ use model\categories\CategoryDAO;
 class BudgetController {
     public function add() {
         $response = [];
-        echo Validator::validateDate($_POST['from_date']);
         $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
         if (isset($_POST["add_budget"]) && isset($_SESSION["logged_user"]) &&
             isset($_POST["category_id"]) && isset($_POST["amount"]) &&
