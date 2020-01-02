@@ -1,115 +1,50 @@
 <div id="charts-container" style="width: 50%;">
+    <form action="app/index.php?target=statistic&action=getIncomesOutcomes" id="all-incomes-outcomes">
+        <input type="date" name="from_date">
+        <input type="date" name="to_date">
+        <input type="submit" value="Select">
+    </form>
     <canvas id="allIncomesAndOutcomes"></canvas>
-    <canvas id="OutcomesByCategory"></canvas>
+    <form action="app/index.php?target=statistic&action=getIncomesOutcomes" id="incomes-by-category">
+        <input type="date" name="from_date">
+        <input type="date" name="to_date">
+        <input type="submit" value="Select">
+    </form>
     <canvas id="IncomesByCategory"></canvas>
+    <form action="app/index.php?target=statistic&action=getIncomesOutcomes" id="outcomes-by-category">
+        <input type="date" name="from_date">
+        <input type="date" name="to_date">
+        <input type="submit" value="Select">
+    </form>
+    <canvas id="OutcomesByCategory"></canvas>
 </div>
 <script>
+
 $(document).ready(function () {
-    $.get("app/index.php?target=statistic&action=getIncomesOutcomes",
-        function (response) {
-            let labelsTable = [];
-            let dataTable = [];
-            $.each(response, function (key, value) {
-                $.each(value, function (k, v) {
-                    labelsTable.push(k);
-                    dataTable.push(v);
-                })
-            });
+    getIncomesAndOutcomes();
+    getIncomesByCategory();
+    getOutcomesByCategory();
 
-            let pie = $('#allIncomesAndOutcomes');
-            let myChart = new Chart(pie, {
-                type: 'pie',
-                data: {
-                    labels: labelsTable,
-                    datasets: [{
-                        label: labelsTable,
-                        backgroundColor: ["#00ff00", "#ff0000"],
-                        data: dataTable
-                    }]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: 'Income and outcome'
-                    }
-                }
-            });
-        },
-        'json')
-        .fail(function (xhr, status, error) {
-            alert(error);
-        });
+    $("form#all-incomes-outcomes").on("submit", function (event) {
+        event.preventDefault();
+        let from_date = $("#all-incomes-outcomes :input[name ='from_date']").val();
+        let to_date = $("#all-incomes-outcomes :input[name ='to_date']").val();
+        getIncomesAndOutcomes(from_date, to_date);
+    });
 
-    $.get("app/index.php?target=statistic&action=getOutcomesByCategory",
-        function (response) {
-            let labelsTable = [];
-            let dataTable = [];
-            $.each(response, function (key, value) {
-                $.each(value, function (k, v) {
-                    labelsTable.push(k);
-                    dataTable.push(v);
-                })
-            });
+    $("form#incomes-by-category").on("submit", function (event) {
+        event.preventDefault();
+        let from_date = $("#incomes-by-category :input[name ='from_date']").val();
+        let to_date = $("#incomes-by-category :input[name ='to_date']").val();
+        getIncomesByCategory(from_date, to_date);
+    });
 
-            let pie = $('#OutcomesByCategory');
-            let myChart = new Chart(pie, {
-                type: 'pie',
-                data: {
-                    labels: labelsTable,
-                    datasets: [{
-                        label: labelsTable,
-                        backgroundColor: ["#00ff00", "#ff0000"],
-                        data: dataTable
-                    }]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: 'Income and outcome'
-                    }
-                }
-            });
-        },
-        'json')
-        .fail(function (xhr, status, error) {
-            alert(error);
-        });
-
-    $.get("app/index.php?target=statistic&action=getIncomesByCategory",
-        function (response) {
-            let labelsTable = [];
-            let dataTable = [];
-            $.each(response, function (key, value) {
-                $.each(value, function (k, v) {
-                    labelsTable.push(k);
-                    dataTable.push(v);
-                })
-            });
-
-            let pie = $('#OutcomesByCategory');
-            let myChart = new Chart(pie, {
-                type: 'pie',
-                data: {
-                    labels: labelsTable,
-                    datasets: [{
-                        label: labelsTable,
-                        backgroundColor: ["#00ff00", "#ff0000"],
-                        data: dataTable
-                    }]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: 'Income and outcome'
-                    }
-                }
-            });
-        },
-        'json')
-        .fail(function (xhr, status, error) {
-            alert(error);
-        });
-
+    $("form#outcomes-by-category").on("submit", function (event) {
+        event.preventDefault();
+        let from_date = $("#outcomes-by-category :input[name ='from_date']").val();
+        let to_date = $("#outcomes-by-category :input[name ='to_date']").val();
+        getOutcomesByCategory(from_date, to_date);
+    });
 
     // let barCharts = $("#bar");
     // let myChart2 = new Chart(barCharts, {
