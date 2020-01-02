@@ -35,8 +35,8 @@ $(document).ready(function () {
                     $("#container").html(data);
                 });
             },
-            error: function (e) {
-                alert('Password missmatch or names < 3 symbols.');
+            error: function (xhr, status, error) {
+                alert(error);
             }
         });
 
@@ -67,8 +67,8 @@ $(document).ready(function () {
                     $("#container").html(data);
                 });
             },
-            error: function (e) {
-                alert('Email taken or first name or last name is < 3 symbols or password missmatch.');
+            error: function (xhr, status, error) {
+                alert(error);
             }
         });
 

@@ -3,7 +3,6 @@ function addBudget() {
 
     $.get("app/index.php?target=category&action=getAll",
         {
-            user_id: sessionStorage.getItem("id"),
             category_type: 0,
         },
         function (data) {
@@ -18,9 +17,6 @@ function addBudget() {
 
 function showUserBudgets() {
     $.get("app/index.php?target=budget&action=getAll",
-        {
-            user_id: sessionStorage.getItem("id"),
-        },
         function (data) {
                 let table = $("<table />");
                 table.attr("id", "budgets-table");

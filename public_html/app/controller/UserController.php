@@ -7,8 +7,7 @@ use model\users\UserDAO;
 
 class UserController
 {
-    public function checkLogin()
-    {
+    public function checkLogin() {
         $response = [];
         $status = STATUS_FORBIDDEN;
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -26,7 +25,7 @@ class UserController
 
     public function login() {
         $response = [];
-        $status = STATUS_FORBIDDEN;
+        $status = STATUS_FORBIDDEN . 'Email and password mismatch.';
         if (isset($_POST["login"])) {
             $email = $_POST["email"];
             $password = $_POST["password"];
@@ -53,7 +52,7 @@ class UserController
 
     public function register() {
         $response = [];
-        $status = STATUS_BAD_REQUEST;
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly.';
         if (isset($_POST["register"])) {
             $avatar_url = $this->uploadAvatar($_POST["email"]);
             $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name'], $avatar_url);
@@ -78,7 +77,7 @@ class UserController
 
     public function edit() {
         $response = [];
-        $status = STATUS_BAD_REQUEST;
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
 
         if (isset($_POST["edit"]) && isset($_SESSION["logged_user"])) {
             $user_id = $_SESSION["logged_user"];

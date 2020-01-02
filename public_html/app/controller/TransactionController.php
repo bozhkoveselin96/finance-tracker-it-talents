@@ -12,7 +12,7 @@ use model\transactions\TransactionDAO;
 class TransactionController {
     public function add() {
         $response = [];
-        $status = STATUS_BAD_REQUEST;
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
         if (isset($_POST['add_transaction']) && isset($_SESSION['logged_user']) && isset($_POST['account_id']) &&
             isset($_POST['category_id']) && Validator::validateName($_POST['note']) && !empty($_POST['time_event'])) {
             $account = AccountDAO::getAccountById($_POST['account_id']);
@@ -23,7 +23,7 @@ class TransactionController {
             $time_event = $_POST['time_event'];
 
             if ($account && $account->owner_id == $_SESSION['logged_user'] && $category &&
-                ($category->owner_id == $_SESSION['logged_user'] || $category->owner_id == null) ) {
+                Validator::validateAmount($amount) && Validator::validateDate($time_event)) {
                 $transaction = new Transaction($amount, $account->id, $category->id, $note, $time_event);
                 if (TransactionDAO::create($transaction, $transaction_type)) {
                     $response['target'] = 'transaction';
@@ -37,21 +37,20 @@ class TransactionController {
 
     public function showUserTransactions() {
         $response = [];
-        $status = STATUS_BAD_REQUEST;
+        $status = STATUS_BAD_REQUEST . 'No categories available or you are not logged in.';
 
-        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
-            $user_id = $_GET["user_id"];
+        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"])) {
             $category_id = null;
             if (isset($_GET["category_id"])) {
                 $category_id = $_GET["category_id"];
             }
-            if (Validator::validateLoggedUser($user_id)) {
-                $transactions = TransactionDAO::getByUserAndCategory($user_id, $category_id);
-                if ($transactions) {
-                    $status = STATUS_OK;
-                    $response["data"] = $transactions;
-                }
+
+            $transactions = TransactionDAO::getByUserAndCategory($_SESSION['logged_user'], $category_id);
+            if ($transactions) {
+                $status = STATUS_OK;
+                $response["data"] = $transactions;
             }
+
         }
         header($status);
         return $response;

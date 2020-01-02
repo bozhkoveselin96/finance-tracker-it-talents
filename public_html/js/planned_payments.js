@@ -1,6 +1,7 @@
 function addPlannedPayment() {
     let selectAccount = $("#account");
-    $.get("app/index.php?target=account&action=getAll", {user_id: sessionStorage.getItem("id")}, function (data) {
+    $.get("app/index.php?target=account&action=getAll",
+        function (data) {
         $.each(data.data, function (key, value) {
             selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
         })
@@ -13,7 +14,6 @@ function addPlannedPayment() {
 
     $.get("app/index.php?target=category&action=getAll",
     {
-        user_id: sessionStorage.getItem("id"),
         category_type: 0,
     },
     function (data) {
@@ -28,9 +28,6 @@ function addPlannedPayment() {
 
 function showUserPlannedPayments() {
     $.get("app/index.php?target=plannedPayment&action=getAll",
-        {
-            user_id: sessionStorage.getItem("id"),
-        },
         function (data) {
             let table = $("<table />");
             table.attr("id", "budgets-table");

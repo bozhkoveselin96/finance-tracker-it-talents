@@ -10,19 +10,17 @@ use model\categories\CategoryDAO;
 class CategoryController {
     public function add(){
         $response = [];
-        $status = STATUS_BAD_REQUEST;
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
         if (isset($_POST["add_category"]) && isset($_SESSION["logged_user"])) {
             $name = $_POST["name"];
             $type = $_POST["type"];
             $icon = $_POST["icon"];
-            $owner_id = $_SESSION["logged_user"];
-            $category = new Category($name, $type, $icon, $owner_id);
+            $category = new Category($name, $type, $icon, $_SESSION['logged_user']);
 
-            if (Validator::validateName($category->getName())) {
-                if (CategoryDAO::createCategory($category)) {
-                    $response["target"] = "category";
-                    $status = STATUS_CREATED;
-                }
+            if (Validator::validateName($category->getName()) && Validator::validateCategoryType($type) &&
+                CategoryDAO::createCategory($category)) {
+                $response["target"] = "category";
+                $status = STATUS_CREATED;
             }
         }
         header($status);
@@ -31,16 +29,14 @@ class CategoryController {
 
     public function getAll() {
         $response = [];
-        $status = STATUS_BAD_REQUEST;
-        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) && isset($_GET["user_id"])) {
-            $user_id = $_GET["user_id"];
+        $status = STATUS_BAD_REQUEST . 'No categories available or you are not logged in.';
+        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) &&
+            Validator::validateCategoryType($_GET["category_type"])) {
             $type = $_GET["category_type"];
-            if (Validator::validateLoggedUser($user_id)) {
-                $categories = CategoryDAO::getAll($user_id, $type);
-                if ($categories) {
-                    $status = STATUS_OK;
-                    $response["data"] = $categories;
-                }
+            $categories = CategoryDAO::getAll($_SESSION['logged_user'], $type);
+            if ($categories) {
+                $status = STATUS_OK;
+                $response["data"] = $categories;
             }
         }
         header($status);
@@ -48,7 +44,7 @@ class CategoryController {
     }
 
     public function edit() {
-        $status = STATUS_FORBIDDEN;
+        $status = STATUS_FORBIDDEN . 'Something is not filled correctly or you are not logged in.';
         if (isset($_POST["edit"])) {
             $category_id = $_POST["category_id"];
             $owner_id = $_SESSION["logged_user"];

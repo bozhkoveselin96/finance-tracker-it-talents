@@ -5,12 +5,7 @@ $(document).ready(function () {
         let action = form.attr("action");
         let data = form.serialize() + '&' + $(":submit").attr("name");
         $.post(action, data, function (data) {
-            if (data.target === 'register') {
-                alert('Registration succesfull!');
-                $.get('view/user/login.html', function (data) {
-                    $("#container").html(data);
-                });
-            } else if(data.target === 'login') {
+            if(data.target === 'login') {
                 alert("Login succesfull!");
                 sessionStorage.setItem("id", data.id);
                 sessionStorage.setItem("first_name", data.first_name);

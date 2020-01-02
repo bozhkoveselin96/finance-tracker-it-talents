@@ -28,16 +28,37 @@ class Validator {
     }
 
     public static function validateAmount($amount) {
-        if (is_numeric($amount) && $amount >= 0) {
+        if (is_numeric($amount) && $amount >= 0 && $amount < MAX_AMOUNT) {
             return true;
         }
         return false;
     }
 
-    public static function validateLoggedUser($user_id) {
-        if ($user_id == $_SESSION['logged_user']) {
+    public static function validateDate($date) {
+        if (empty($date)) {
+            return false;
+        }
+        try {
+            $checkDate = new \DateTime($date);
+            return true;
+        } catch (\Exception $exception) {
+            return false;
+        }
+    }
+
+    public static function validateCategoryType($type) {
+        if ($type == 0 || $type == 1) {
             return true;
         }
         return false;
     }
+
+    public static function validateDayOfMonth($day) {
+        if (is_numeric($day) && $day == intval($day) && $day > 0 && $day < 32) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

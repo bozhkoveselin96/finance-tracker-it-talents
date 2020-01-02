@@ -1,6 +1,7 @@
 function addTransaction() {
     let selectAccount = $("#account");
-    $.get("app/index.php?target=account&action=getAll", {user_id: sessionStorage.getItem("id")}, function (data) {
+    $.get("app/index.php?target=account&action=getAll",
+        function (data) {
         $.each(data.data, function (key, value) {
             selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
         })
@@ -14,7 +15,6 @@ function addTransaction() {
         if (this.value == 0 || this.value == 1) {
             $.get("app/index.php?target=category&action=getAll",
                 {
-                    user_id: sessionStorage.getItem("id"),
                     category_type: this.value,
                 }
                 , function (data) {
@@ -23,15 +23,11 @@ function addTransaction() {
                     });
                 }, 'json');
         }
-
     });
 }
 
 function showUserTransactions() {
     $.get("app/index.php?target=transaction&action=showUserTransactions",
-        {
-            user_id: sessionStorage.getItem("id"),
-        },
         function (data) {
             let table = $("<table />");
             table.attr("id", "transactions-table");

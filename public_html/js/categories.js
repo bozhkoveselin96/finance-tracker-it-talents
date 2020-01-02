@@ -1,7 +1,6 @@
 function getAllCategories(category_type) {
     $.get("app/index.php?target=category&action=getAll",
         {
-            user_id: sessionStorage.getItem("id"),
             category_type: category_type,
         },
         function (data) {

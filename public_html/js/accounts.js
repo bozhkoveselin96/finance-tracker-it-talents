@@ -1,6 +1,5 @@
 function getAllAccounts() {
     $.get("app/index.php?target=account&action=getAll",
-        {user_id: sessionStorage.getItem("id")},
         function (response) {
             let table = $("<table />");
             table.attr("id", "accounts-table");
@@ -26,7 +25,6 @@ function getAllAccounts() {
                         $.post("app/index.php?target=account&action=delete",
                             {
                                 delete : true,
-                                user_id : sessionStorage.getItem("id"),
                                 account_id : trId,
                             }, function (data) {
                                 $("#"+trId).fadeOut(1500);
@@ -49,7 +47,6 @@ function getAllAccounts() {
                         $.post("app/index.php?target=account&action=edit",
                             {
                                 edit : true,
-                                user_id : sessionStorage.getItem("id"),
                                 account_id : trId,
                                 name : renamer.val(),
                             }, function (data) {
