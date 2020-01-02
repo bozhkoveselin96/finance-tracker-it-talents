@@ -4,19 +4,25 @@
         <input type="date" name="to_date">
         <input type="submit" value="Select">
     </form>
-    <canvas id="allIncomesAndOutcomes"></canvas>
-    <form action="app/index.php?target=statistic&action=getIncomesOutcomes" id="incomes-by-category">
+    <div id="firstChart">
+        <canvas id="allIncomesAndOutcomes"></canvas>
+    </div>
+    <form action="app/index.php?target=statistic&action=getIncomesByCategory" id="incomes-by-category">
         <input type="date" name="from_date">
         <input type="date" name="to_date">
         <input type="submit" value="Select">
     </form>
-    <canvas id="IncomesByCategory"></canvas>
-    <form action="app/index.php?target=statistic&action=getIncomesOutcomes" id="outcomes-by-category">
+    <div id="secondChart">
+        <canvas id="IncomesByCategory"></canvas>
+    </div>
+    <form action="app/index.php?target=statistic&action=getOutcomesByCategory" id="outcomes-by-category">
         <input type="date" name="from_date">
         <input type="date" name="to_date">
         <input type="submit" value="Select">
     </form>
-    <canvas id="OutcomesByCategory"></canvas>
+    <div id="thirdChart">
+        <canvas id="OutcomesByCategory"></canvas>
+    </div>
 </div>
 <script>
 

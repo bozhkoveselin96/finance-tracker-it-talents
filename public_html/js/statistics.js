@@ -13,7 +13,10 @@ function getIncomesAndOutcomes(fromDate = null, toDate = null) {
                 })
             });
 
+            $("#allIncomesAndOutcomes").remove();
+            $("#firstChart").append('<canvas id="allIncomesAndOutcomes"></canvas>');
             let pie = $('#allIncomesAndOutcomes');
+
             let myChart = new Chart(pie, {
                 type: 'pie',
                 data: {
@@ -51,7 +54,10 @@ function getIncomesByCategory(fromDate = null, toDate = null) {
                 dataTable.push(value.amount);
             });
 
+            $("#IncomesByCategory").remove();
+            $("#secondChart").append('<canvas id="IncomesByCategory"></canvas>');
             let pie = $('#IncomesByCategory');
+
             let myChart = new Chart(pie, {
                 type: 'pie',
                 data: {
@@ -89,7 +95,10 @@ function getOutcomesByCategory(fromDate = null, toDate = null) {
                 dataTable.push(value.amount);
             });
 
+            $("#OutcomesByCategory").remove();
+            $("#thirdChart").append('<canvas id="OutcomesByCategory"></canvas>');
             let pie = $('#OutcomesByCategory');
+            console.log(pie);
             let myChart = new Chart(pie, {
                 type: 'pie',
                 data: {

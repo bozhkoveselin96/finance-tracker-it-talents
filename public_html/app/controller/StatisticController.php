@@ -11,8 +11,16 @@ class StatisticController {
         $status = STATUS_BAD_REQUEST . 'You do not have transactions or you are not logged in.';
         $response = [];
         if (isset($_SESSION['logged_user'])) {
-            $incomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 1);
-            $outcomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 0);
+            if (isset($_GET['from_date']) && Validator::validateDate($_GET['from_date']) &&
+                isset($_GET['to_date']) && Validator::validateDate($_GET['to_date'])) {
+                $from_date = $_GET['from_date'];
+                $to_date = $_GET['to_date'];
+                $incomes = StatisticDAO::getTrForSelectedPeriod($_SESSION['logged_user'], 1, $from_date, $to_date);
+                $outcomes = StatisticDAO::getTrForSelectedPeriod($_SESSION['logged_user'], 0, $from_date, $to_date);
+            } else {
+                $incomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 1);
+                $outcomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 0);
+            }
             if ($incomes && $outcomes) {
                 $response[] = $incomes;
                 $response[] = $outcomes;
@@ -27,25 +35,43 @@ class StatisticController {
         $status = STATUS_BAD_REQUEST . 'You do not have transactions or you are not logged in.';
         $response = [];
         if (isset($_SESSION['logged_user'])) {
-            $outcomes = StatisticDAO::getTransactionsByCategory($_SESSION['logged_user'], 0);
-            if ($outcomes) {
+            if (isset($_GET['from_date']) && Validator::validateDate($_GET['from_date']) &&
+                isset($_GET['to_date']) && Validator::validateDate($_GET['to_date'])) {
+                $from_date = $_GET['from_date'];
+                $to_date = $_GET['to_date'];
+                $incomes = StatisticDAO::getTrForSelectedPeriodByCategories($_SESSION['logged_user'], 0, $from_date, $to_date);
+            } else {
+                $incomes = StatisticDAO::getTransactionsByCategory($_SESSION['logged_user'], 0);
+            }
+
+            if ($incomes) {
+                $response = $incomes;
                 $status = STATUS_OK;
             }
         }
         header($status);
-        return $outcomes;
+        return $response;
     }
 
     public function getIncomesByCategory() {
         $status = STATUS_BAD_REQUEST . 'You do not have transactions or you are not logged in.';
         $response = [];
         if (isset($_SESSION['logged_user'])) {
-            $incomes = StatisticDAO::getTransactionsByCategory($_SESSION['logged_user'], 1);
+            if (isset($_GET['from_date']) && Validator::validateDate($_GET['from_date']) &&
+                isset($_GET['to_date']) && Validator::validateDate($_GET['to_date'])) {
+                $from_date = $_GET['from_date'];
+                $to_date = $_GET['to_date'];
+                $incomes = StatisticDAO::getTrForSelectedPeriodByCategories($_SESSION['logged_user'], 1, $from_date, $to_date);
+            } else {
+                $incomes = StatisticDAO::getTransactionsByCategory($_SESSION['logged_user'], 1);
+            }
+
             if ($incomes) {
+                $response = $incomes;
                 $status = STATUS_OK;
             }
         }
         header($status);
-        return $incomes;
+        return $response;
     }
 }

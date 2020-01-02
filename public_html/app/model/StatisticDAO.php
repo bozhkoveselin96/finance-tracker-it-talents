@@ -43,12 +43,13 @@ class StatisticDAO {
     public static function getTrForSelectedPeriod($user_id, $type, $from_date, $to_date) {
         try {
             $conn = Connection::get();
-            $sql = "SELECT COALESCE(SUM(t.amount), 0) AS money FROM transactions AS t
+            $name = ($type == 1 ? "income" : "outcome");
+            $sql = "SELECT COALESCE(SUM(t.amount), 0) AS ? FROM transactions AS t
                     JOIN accounts AS a ON(a.id = t.account_id)
                     JOIN transaction_categories AS tc ON(t.category_id = tc.id)
                     WHERE a.owner_id = ? AND tc.type = ? AND t.time_event BETWEEN ? AND ?;";
             $stmt = $conn->prepare($sql);
-            $stmt->execute([$user_id, $type, $from_date, $to_date]);
+            $stmt->execute([$name,$user_id, $type, $from_date, $to_date]);
             return $stmt->fetch(\PDO::FETCH_OBJ);
         } catch (\PDOException $exception) {
             return false;
@@ -59,10 +60,10 @@ class StatisticDAO {
         try {
             $conn = Connection::get();
             $sql = "SELECT tc.name AS category_name,
-                    COALESCE(SUM(t.amount), 0) AS money FROM transactions AS t
+                    COALESCE(SUM(t.amount), 0) AS amount FROM transactions AS t
                     JOIN accounts AS a ON(a.id = t.account_id)
                     JOIN transaction_categories AS tc ON(t.category_id = tc.id)
-                    WHERE a.owner_id = ? AND tc.type = ? AND t.time_event BETWEEN ? AND ?
+                    WHERE a.owner_id = ? AND tc.type = ? AND t.time_event BETWEEN ? AND ? + INTERVAL 1 DAY
                     GROUP BY t.category_id;";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$user_id, $type, $from_date, $to_date]);
