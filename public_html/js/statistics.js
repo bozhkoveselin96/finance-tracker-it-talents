@@ -1,4 +1,4 @@
-function getIncomesAndOutcomes(fromDate = null, toDate = null) {
+function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = null) {
     $.get("app/index.php?target=statistic&action=getIncomesOutcomes", {
         from_date: fromDate,
         to_date: toDate
@@ -18,7 +18,7 @@ function getIncomesAndOutcomes(fromDate = null, toDate = null) {
             let pie = $('#allIncomesAndOutcomes');
 
             let myChart = new Chart(pie, {
-                type: 'pie',
+                type: diagramType,
                 data: {
                     labels: labelsTable,
                     datasets: [{
@@ -31,6 +31,21 @@ function getIncomesAndOutcomes(fromDate = null, toDate = null) {
                     title: {
                         display: true,
                         text: 'Income and outcome'
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                let dataset = data.datasets[tooltipItem.datasetIndex];
+                                let meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                let total = meta.total;
+                                let currentValue = dataset.data[tooltipItem.index];
+                                let percentage = parseFloat((currentValue/total*100).toFixed(2));
+                                return currentValue + ' (' + percentage + '%)';
+                            },
+                            title: function(tooltipItem, data) {
+                                return data.labels[tooltipItem[0].index];
+                            }
+                        }
                     }
                 }
             });
@@ -41,7 +56,7 @@ function getIncomesAndOutcomes(fromDate = null, toDate = null) {
         });
 }
 
-function getIncomesByCategory(fromDate = null, toDate = null) {
+function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
     $.get("app/index.php?target=statistic&action=getIncomesByCategory", {
             from_date: fromDate,
             to_date: toDate
@@ -59,12 +74,11 @@ function getIncomesByCategory(fromDate = null, toDate = null) {
             let pie = $('#IncomesByCategory');
 
             let myChart = new Chart(pie, {
-                type: 'pie',
+                type: diagramType,
                 data: {
                     labels: labelsTable,
                     datasets: [{
                         label: labelsTable,
-                        backgroundColor: ["#00ff00", "#ff0000"],
                         data: dataTable
                     }]
                 },
@@ -72,6 +86,27 @@ function getIncomesByCategory(fromDate = null, toDate = null) {
                     title: {
                         display: true,
                         text: 'Incomes by category'
+                    },
+                    plugins: {
+                        colorschemes: {
+                            scheme: 'brewer.DarkTwo8'
+                        }
+
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                let dataset = data.datasets[tooltipItem.datasetIndex];
+                                let meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                let total = meta.total;
+                                let currentValue = dataset.data[tooltipItem.index];
+                                let percentage = parseFloat((currentValue/total*100).toFixed(2));
+                                return currentValue + ' (' + percentage + '%)';
+                            },
+                            title: function(tooltipItem, data) {
+                                return data.labels[tooltipItem[0].index];
+                            }
+                        }
                     }
                 }
             });
@@ -82,7 +117,7 @@ function getIncomesByCategory(fromDate = null, toDate = null) {
         });
 }
 
-function getOutcomesByCategory(fromDate = null, toDate = null) {
+function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
     $.get("app/index.php?target=statistic&action=getOutcomesByCategory", {
             from_date: fromDate,
             to_date: toDate
@@ -98,14 +133,12 @@ function getOutcomesByCategory(fromDate = null, toDate = null) {
             $("#OutcomesByCategory").remove();
             $("#thirdChart").append('<canvas id="OutcomesByCategory"></canvas>');
             let pie = $('#OutcomesByCategory');
-            console.log(pie);
             let myChart = new Chart(pie, {
-                type: 'pie',
+                type: diagramType,
                 data: {
                     labels: labelsTable,
                     datasets: [{
                         label: labelsTable,
-                        backgroundColor: ["#00ff00", "#ff0000"],
                         data: dataTable
                     }]
                 },
@@ -113,6 +146,27 @@ function getOutcomesByCategory(fromDate = null, toDate = null) {
                     title: {
                         display: true,
                         text: 'Outcomes by category'
+                    },
+                    plugins: {
+                        colorschemes: {
+                            scheme: 'office.Excel16'
+                        }
+
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                let dataset = data.datasets[tooltipItem.datasetIndex];
+                                let meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                let total = meta.total;
+                                let currentValue = dataset.data[tooltipItem.index];
+                                let percentage = parseFloat((currentValue/total*100).toFixed(2));
+                                return currentValue + ' (' + percentage + '%)';
+                            },
+                            title: function(tooltipItem, data) {
+                                return data.labels[tooltipItem[0].index];
+                            }
+                        }
                     }
                 }
             });
