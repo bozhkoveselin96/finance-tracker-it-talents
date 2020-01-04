@@ -29,32 +29,35 @@ function addPlannedPayment() {
 function showUserPlannedPayments() {
     $.get("app/index.php?target=plannedPayment&action=getAll",
         function (data) {
-            let table = $("<table />");
-            table.attr("id", "budgets-table");
+            let table = $("#planned_payments");
 
-            table.append("<tr><th>Planned payments</th></tr>");
             $.each(data.data, function (key, value) {
                 let tr = $("<tr />");
-                tr.attr("id", value.id);
-                $.each(value, function (k, v) {
-                    let td = $("<td />");
-                    if (k === 'status') {
-                        if (v == 1) {
-                            td.text("Active");
-                        } else {
-                            td.text("Not active");
-                        }
-                    } else {
-                        td.text(v);
-                    }
+                //{"data":[{"day_for_payment":"15","amount":"240","account_name":"\u0411\u0430\u043d\u043a\u0430","category_name":"Loan","status":"1"}]}
 
-                    td.addClass(k);
-                    tr.append(td);
-                });
+                let dayForPayment = $("<td />");
+                dayForPayment.text(value.day_for_payment);
+                let amount = $("<td />");
+                amount.text(value.amount);
+                let account = $("<td />");
+                account.text(value.account_name);
+                let category = $("<td />");
+                category.text(value.category_name);
+                let status = $("<td />");
+                if (value.status == 0) {
+                    status.text('Not active');
+                } else {
+                    status.text('Active');
+                }
+
+                tr.append(dayForPayment);
+                tr.append(amount);
+                tr.append(account);
+                tr.append(category);
+                tr.append(status);
                 table.append(tr);
             });
 
-            $("#container").append(table);
         }, 'json')
         .fail(function (xhr, status, error) {
             alert(error);

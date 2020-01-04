@@ -18,25 +18,32 @@ function addBudget() {
 function showUserBudgets() {
     $.get("app/index.php?target=budget&action=getAll",
         function (data) {
-                let table = $("<table />");
-                table.attr("id", "budgets-table");
-
-                table.append("<tr><th>Budgets</th></tr>");
+                let table = $("#budgets");
 
                 $.each(data.data, function (key, value) {
                     let tr = $("<tr />");
                     tr.attr("id", value.id);
-                    $.each(value, function (k, v) {
-                        let td = $("<td />").text(v);
 
+                    let category = $("<td />");
+                    category.text(value.name);
+                    let amount = $("<td />");
+                    amount.text(value.amount);
+                    let spent = $("<td />");
+                    spent.text(value.budget_status);
+                    let fromDate = $("<td />");
+                    fromDate.text(value.from_date);
+                    let toDate = $("<td />");
+                    toDate.text(value.to_date);
 
-                        td.addClass(k);
-                        tr.append(td);
-                    });
+                    tr.append(category);
+                    tr.append(amount);
+                    tr.append(spent);
+                    tr.append(fromDate);
+                    tr.append(toDate);
+
                     table.append(tr);
                 });
 
-                $("#container").append(table);
         }, 'json')
         .fail(function (xhr, status, error) {
             alert(error);

@@ -16,6 +16,7 @@ define("MIN_LENGTH_NAME", 3);
 //8 symbols, one letter and one number
 define("PASSWORD_PATTERN", "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$^");
 define("MAX_AMOUNT", 10000000);
+define("NO_AVATAR_URL", 'avatars' . DIRECTORY_SEPARATOR . 'no-avatar.png');
 
 define("STATUS_OK", $_SERVER["SERVER_PROTOCOL"] . " 200 OK ");
 define("STATUS_CREATED", $_SERVER["SERVER_PROTOCOL"] . " 201 Created ");

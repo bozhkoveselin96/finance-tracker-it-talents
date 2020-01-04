@@ -29,8 +29,7 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
                 },
                 options: {
                     title: {
-                        display: true,
-                        text: 'Income and outcome'
+                        display: false,
                     },
                     tooltips: {
                         callbacks: {
@@ -84,8 +83,7 @@ function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = nul
                 },
                 options: {
                     title: {
-                        display: true,
-                        text: 'Incomes by category'
+                        display: false,
                     },
                     plugins: {
                         colorschemes: {
@@ -144,8 +142,7 @@ function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = nu
                 },
                 options: {
                     title: {
-                        display: true,
-                        text: 'Outcomes by category'
+                        display: false,
                     },
                     plugins: {
                         colorschemes: {
