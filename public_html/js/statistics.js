@@ -1,7 +1,7 @@
 function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = null) {
     $.get("app/index.php?target=statistic&action=getIncomesOutcomes", {
-        from_date: fromDate,
-        to_date: toDate
+            from_date: fromDate,
+            to_date: toDate
         },
         function (response) {
             let labelsTable = [];
@@ -29,7 +29,7 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
                 },
                 options: {
                     title: {
-                        display: false,
+                        display: false
                     },
                     tooltips: {
                         callbacks: {
@@ -148,7 +148,6 @@ function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = nu
                         colorschemes: {
                             scheme: 'office.Excel16'
                         }
-
                     },
                     tooltips: {
                         callbacks: {

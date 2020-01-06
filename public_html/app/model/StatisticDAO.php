@@ -88,4 +88,38 @@ class StatisticDAO {
             return false;
         }
     }
+
+    public static function getForTheLastThirtyDays($owner_id) {
+        try {
+            $conn = Connection::get();
+            $sql1 = "SELECT t.amount AS incomes, DATE_FORMAT(t.time_event, '%e.%m') AS date 
+                     FROM transactions AS t
+                     JOIN transaction_categories AS tc ON(t.category_id = tc.id)
+                     JOIN accounts AS a ON(t.account_id = a.id)
+                     WHERE tc.type = 1 
+                     AND(t.time_event > NOW() - INTERVAL 30 DAY) AND (t.time_event < NOW() + INTERVAL 1 DAY)
+                     AND a.owner_id = ?
+                     ORDER BY t.time_event DESC;";
+            $incomes = $conn->prepare($sql1);
+            $incomes->execute([$owner_id]);
+
+            $sql2 = "SELECT t.amount AS costs, DATE_FORMAT(t.time_event, '%e.%m') AS date 
+                     FROM transactions AS t
+                     JOIN transaction_categories AS tc ON(t.category_id = tc.id)
+                     JOIN accounts AS a ON(t.account_id = a.id)
+                     WHERE tc.type = 0 
+                     AND(t.time_event > NOW() - INTERVAL 30 DAY) AND (t.time_event < NOW() + INTERVAL 1 DAY)
+                     AND a.owner_id = ?
+                     ORDER BY t.time_event DESC;";
+            $costs = $conn->prepare($sql2);
+            $costs->execute([$owner_id]);
+
+            $stmt = [];
+            $stmt[] = $incomes->fetchAll(\PDO::FETCH_OBJ);
+            $stmt[] = $costs->fetchAll(\PDO::FETCH_OBJ);
+            return $stmt;
+        } catch (\PDOException $exception) {
+            return false;
+        }
+    }
 }
