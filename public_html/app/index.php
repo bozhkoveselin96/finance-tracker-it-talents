@@ -14,7 +14,7 @@ spl_autoload_register(function ($class) {
 define("MIN_LENGTH_PASSWORD", 8);
 define("MIN_LENGTH_NAME", 3);
 //8 symbols, one letter and one number
-define("PASSWORD_PATTERN", "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$^");
+define("PASSWORD_PATTERN", "^(?=.*[A-Za-z])(?=.*\d)[a-zA-Z0-9,.;\^!@#$%&*()+=:_'\s-]{8,}$^");
 define("MAX_AMOUNT", 10000000);
 define("NO_AVATAR_URL", 'avatars' . DIRECTORY_SEPARATOR . 'no-avatar.png');
 

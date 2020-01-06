@@ -34,7 +34,7 @@ class CategoryController {
             Validator::validateCategoryType($_GET["category_type"])) {
             $type = $_GET["category_type"];
             $categories = CategoryDAO::getAll($_SESSION['logged_user'], $type);
-            if ($categories) {
+            if ($categories !== false) {
                 $status = STATUS_OK;
                 $response["data"] = $categories;
             }

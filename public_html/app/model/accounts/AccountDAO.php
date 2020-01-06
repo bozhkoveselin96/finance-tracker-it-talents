@@ -31,10 +31,7 @@ class AccountDAO {
             $sql = "SELECT id, name, current_amount FROM accounts WHERE owner_id = ?;";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$user_id]);
-            if ($stmt->rowCount() > 0) {
-                return $stmt->fetchAll(\PDO::FETCH_OBJ);
-            }
-            return false;
+            return $stmt->fetchAll(\PDO::FETCH_OBJ);
         } catch (\PDOException $exception) {
             return false;
         }

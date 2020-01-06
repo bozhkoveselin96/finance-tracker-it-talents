@@ -21,7 +21,7 @@ class StatisticController {
                 $incomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 1);
                 $outcomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 0);
             }
-            if ($incomes && $outcomes) {
+            if ($incomes !== false && $outcomes !== false) {
                 $response[] = $incomes;
                 $response[] = $outcomes;
                 $status = STATUS_OK;

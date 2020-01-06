@@ -34,7 +34,7 @@ class PlannedPaymentController {
         $status = STATUS_BAD_REQUEST . 'No planned payments available or you are not logged in.';
         if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_SESSION['logged_user'])) {
              $plannedPayments = PlannedPaymentDAO::getAll($_SESSION['logged_user']);
-            if ($plannedPayments) {
+            if ($plannedPayments !== false) {
                 $status = STATUS_OK;
                 $response['data'] = $plannedPayments;
             }

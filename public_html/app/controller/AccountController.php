@@ -28,7 +28,7 @@ class AccountController {
         $status = STATUS_BAD_REQUEST . 'No accounts available or you are not logged in.';
         if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_SESSION['logged_user'])) {
             $accounts = AccountDAO::getMyAccounts($_SESSION['logged_user']);
-            if ($accounts) {
+            if ($accounts !== false) {
                 $status = STATUS_OK;
                 $response['data'] = $accounts;
             }
