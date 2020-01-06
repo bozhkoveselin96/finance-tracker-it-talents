@@ -180,13 +180,12 @@ function getIncomesAndOutcomesLastTenDays() {
 
             let incomes = [];
             let outcomes = [];
-            $.each(response[0], function (key, value) {
-                incomes.push(value.incomes);
-                labelsTable.push(value.day);
+            $.each(response, function (key, value) {
+                incomes.push(value.income);
+                outcomes.push(value.outcome);
+                labelsTable.push(key);
             });
-            $.each(response[1], function (key, value) {
-                outcomes.push(value.outcomes);
-            });
+
 
 
             let chart = $('#incomesOutcomesThirdyDays');

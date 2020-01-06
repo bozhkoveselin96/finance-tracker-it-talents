@@ -81,8 +81,22 @@ class StatisticController {
         if (isset($_SESSION['logged_user'])) {
             $user_id = $_SESSION["logged_user"];
             $data = StatisticDAO::getForTheLastTenDays($user_id);
+
             if ($data !== false) {
-                $response = $data;
+                $howManyDays = 10;
+                $days = [];
+                for ($i = 0; $i < $howManyDays; $i++) {
+                    $date = date('j.m', strtotime('-'.$i.' days', time()));
+                    $days[$date] = ['outcome'=>0, 'income'=>0];
+                }
+                foreach ($data as $value) {
+                    if ($value->category == 1) {
+                        $days[$value->date]['income'] = $value->sum;
+                    } else {
+                        $days[$value->date]['outcome'] = $value->sum;
+                    }
+                }
+                $response = array_reverse($days);
                 $status = STATUS_OK;
             }
         }
