@@ -38,11 +38,8 @@ class BudgetDAO {
                     JOIN transaction_categories AS c ON b.category_id = c.id
                     WHERE b.owner_id = ?;";
             $stmt = $conn->prepare($sql);
-            $stmt->execute(["$user_id"]);
-            if ($stmt->rowCount() > 0) {
-                return $stmt->fetchAll(\PDO::FETCH_OBJ);
-            }
-            return false;
+            $stmt->execute([$user_id]);
+            return $stmt->fetchAll(\PDO::FETCH_OBJ);
         } catch (\PDOException $exception) {
             return $exception;
         }

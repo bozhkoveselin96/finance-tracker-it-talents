@@ -21,7 +21,7 @@ class StatisticController {
                 $incomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 1);
                 $outcomes = StatisticDAO::getTransactionsSum($_SESSION['logged_user'], 0);
             }
-            if ($incomes && $outcomes) {
+            if ($incomes !== false && $outcomes !== false) {
                 $response[] = $incomes;
                 $response[] = $outcomes;
                 $status = STATUS_OK;
@@ -44,7 +44,7 @@ class StatisticController {
                 $incomes = StatisticDAO::getTransactionsByCategory($_SESSION['logged_user'], 0);
             }
 
-            if ($incomes) {
+            if ($incomes !== false) {
                 $response = $incomes;
                 $status = STATUS_OK;
             }
@@ -66,7 +66,7 @@ class StatisticController {
                 $incomes = StatisticDAO::getTransactionsByCategory($_SESSION['logged_user'], 1);
             }
 
-            if ($incomes) {
+            if ($incomes !== false) {
                 $response = $incomes;
                 $status = STATUS_OK;
             }
@@ -76,12 +76,12 @@ class StatisticController {
     }
 
     public function getDataForTheLastThirtyDays() {
-        $status = STATUS_BAD_REQUEST . 'You do not have transactions or you are not logged in.';
+        $status = STATUS_BAD_REQUEST . 'You are not logged in.';
         $response = [];
         if (isset($_SESSION['logged_user'])) {
             $user_id = $_SESSION["logged_user"];
             $data = StatisticDAO::getForTheLastThirtyDays($user_id);
-            if ($data) {
+            if ($data !== false) {
                 $response = $data;
                 $status = STATUS_OK;
             }

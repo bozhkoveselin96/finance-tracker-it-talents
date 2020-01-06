@@ -172,3 +172,49 @@ function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = nu
             alert(error);
         });
 }
+
+function getIncomesAndOutcomesLastThirtyDays() {
+    $.get("app/index.php?target=statistic&action=getDataForTheLastThirtyDays",
+        function (response) {
+            let labelsTable = [];
+
+            let incomes = [];
+            let outcomes = [];
+            $.each(response[0], function (key, value) {
+                incomes.push(value.incomes);
+                labelsTable.push(value.day);
+            });
+            $.each(response[1], function (key, value) {
+                outcomes.push(value.outcomes);
+            });
+
+
+            let chart = $('#incomesOutcomesThirdyDays');
+
+            let myChart = new Chart(chart, {
+                type: 'line',
+                data: {
+                    labels: labelsTable,
+                    datasets: [{
+                        data: incomes,
+                        label: "Income",
+                        borderColor: "#00ff00",
+                    }, {
+                        data: outcomes,
+                        label: "Outcome",
+                        borderColor: "#ff0000",
+                    }
+                    ]
+                },
+                options: {
+                    title: {
+                        display: false
+                    },
+                }
+            });
+        },
+        'json')
+        .fail(function (xhr, status, error) {
+            alert(error);
+        });
+}

@@ -34,10 +34,7 @@ class CategoryDAO {
             $stmt = $conn->prepare($sql);
             $stmt->execute([$owner_id, $type]);
 
-            if ($stmt->rowCount() > 0) {
-                return $stmt->fetchAll(\PDO::FETCH_OBJ);
-            }
-            return false;
+            return $stmt->fetchAll(\PDO::FETCH_OBJ);
         } catch (\PDOException $exception) {
             return false;
         }

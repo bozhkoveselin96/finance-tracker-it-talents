@@ -37,7 +37,7 @@ class BudgetController {
         $status = STATUS_BAD_REQUEST . 'No budgets available or you are not logged in.';
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"])) {
             $budgets = BudgetDAO::getAll($_SESSION['logged_user']);
-            if ($budgets) {
+            if ($budgets !== false) {
                 $response["data"] = $budgets;
                 $status = STATUS_OK;
             }

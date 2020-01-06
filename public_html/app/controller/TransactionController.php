@@ -37,7 +37,7 @@ class TransactionController {
 
     public function showUserTransactions() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'No categories available or you are not logged in.';
+        $status = STATUS_BAD_REQUEST . 'No transactions available or you are not logged in.';
 
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"])) {
             $category_id = null;
@@ -46,7 +46,7 @@ class TransactionController {
             }
 
             $transactions = TransactionDAO::getByUserAndCategory($_SESSION['logged_user'], $category_id);
-            if ($transactions) {
+            if ($transactions !== false) {
                 $status = STATUS_OK;
                 $response["data"] = $transactions;
             }

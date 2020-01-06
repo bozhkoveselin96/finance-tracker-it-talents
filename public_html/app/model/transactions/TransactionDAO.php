@@ -57,11 +57,10 @@ class TransactionDAO {
                 $sql .= "AND tc.id = ? ";
             }
             $sql .= "ORDER BY time_created DESC";
-
             $stmt = $conn->prepare($sql);
-            if ($stmt->execute($data)) {
-                return $stmt->fetchAll(\PDO::FETCH_OBJ);
-            }
+            $stmt->execute($data);
+
+            return $stmt->fetchAll(\PDO::FETCH_OBJ);
         } catch (\PDOException $exception) {
             return false;
         }
