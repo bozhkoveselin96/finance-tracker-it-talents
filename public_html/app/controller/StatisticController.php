@@ -74,4 +74,19 @@ class StatisticController {
         header($status);
         return $response;
     }
+
+    public function getDataForTheLastThirtyDays() {
+        $status = STATUS_BAD_REQUEST . 'You do not have transactions or you are not logged in.';
+        $response = [];
+        if (isset($_SESSION['logged_user'])) {
+            $user_id = $_SESSION["logged_user"];
+            $data = StatisticDAO::getForTheLastThirtyDays($user_id);
+            if ($data) {
+                $response = $data;
+                $status = STATUS_OK;
+            }
+        }
+        header($status);
+        return $response;
+    }
 }
