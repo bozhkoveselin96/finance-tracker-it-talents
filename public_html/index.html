@@ -114,7 +114,7 @@
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-chart-area"></i>
-            Incomes and Outcomes last 30 days</div>
+            Incomes and Outcomes last 10 days</div>
           <div class="card-body">
             <canvas id="myAreaChart" width="100%" height="30"></canvas>
             <div id="mainChart" >
@@ -202,7 +202,7 @@
       $("#avatar_url").attr('src', 'app/' + sessionStorage.getItem('avatar_url'));
       getAccountsMain();
       getTransactionsMain();
-      getIncomesAndOutcomesLastThirtyDays();
+      getIncomesAndOutcomesLastTenDays();
       setTimeout(function () {
           $('#dataTable').DataTable( {
             "order": [[ 4, "desc" ]],

@@ -89,7 +89,7 @@ class StatisticDAO {
         }
     }
 
-    public static function getForTheLastThirtyDays($owner_id) {
+    public static function getForTheLastTenDays($owner_id) {
         try {
             $conn = Connection::get();
             $sql1 = "

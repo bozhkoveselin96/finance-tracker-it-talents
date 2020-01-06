@@ -173,8 +173,8 @@ function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = nu
         });
 }
 
-function getIncomesAndOutcomesLastThirtyDays() {
-    $.get("app/index.php?target=statistic&action=getDataForTheLastThirtyDays",
+function getIncomesAndOutcomesLastTenDays() {
+    $.get("app/index.php?target=statistic&action=getDataForTheLastTenDays",
         function (response) {
             let labelsTable = [];
 

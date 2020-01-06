@@ -75,12 +75,12 @@ class StatisticController {
         return $response;
     }
 
-    public function getDataForTheLastThirtyDays() {
+    public function getDataForTheLastTenDays() {
         $status = STATUS_BAD_REQUEST . 'You are not logged in.';
         $response = [];
         if (isset($_SESSION['logged_user'])) {
             $user_id = $_SESSION["logged_user"];
-            $data = StatisticDAO::getForTheLastThirtyDays($user_id);
+            $data = StatisticDAO::getForTheLastTenDays($user_id);
             if ($data !== false) {
                 $response = $data;
                 $status = STATUS_OK;
