@@ -4,6 +4,7 @@ namespace controller;
 
 use model\users\User;
 use model\users\UserDAO;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class UserController
 {
@@ -50,6 +51,7 @@ class UserController
 
                     $response["target"] = 'login';
                     $status = STATUS_OK;
+                    UserDAO::updateLastLogin($_SESSION["logged_user"]);
                 }
             }
         }
@@ -152,6 +154,78 @@ class UserController
             } else {
                 return false;
             }
+        } else {
+            return false;
+        }
+    }
+
+//new methods
+    public function setNewPassword() {
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
+
+        if (isset($_POST["change"]) && isset($_SESSION["logged_user"])) {
+            if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
+                $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
+                $changed = UserDAO::changeForgottenPassword($cryptedPass, $_SESSION["logged_user"]);
+                if ($changed) {
+                    $status = STATUS_OK;
+                }
+            }
+        }
+        return header($status);
+    }
+    public function sendEmail() {
+        if (isset($_POST["email"]) && UserDAO::getUser($_POST["email"])) {
+            $email = $_POST["email"];
+            $finance_tracker_email = "@gmail.com";
+            $finance_tracker_password = "";
+            $token = $this->generateRandomToken();
+            if (!$token) {
+                return false;
+            }
+
+            require_once "../PHPMailer/PHPMailer.php";
+            require_once "../PHPMailer/SMTP.php";
+            require_once "../PHPMailer/Exception.php";
+            $mail = new PHPMailer();
+
+            //SMTP Settings
+            $mail->isSMTP();
+            $mail->Host = "smtp.gmail.com";
+            $mail->SMTPAuth = true;
+            $mail->Username = $finance_tracker_email;
+            $mail->Password = $finance_tracker_password;
+            $mail->Port = 465; //587
+            $mail->SMTPSecure = "ssl"; //tls
+
+            //Email Settings
+            $mail->isHTML(true);
+            $mail->setFrom($finance_tracker_email, "Finance Tracker");
+            $mail->addAddress($email);
+            $mail->Body =  'Hello, click <a href="localhost/finance_tracker/app/index.php?target=user&action=changePass&token='.$token.'">here</a> to change your password';
+
+            if ($mail->send()) {
+                $response = "Email is sent!";
+                UserDAO::addToken($token, $_SESSION["logged_user"]);
+            } else {
+                $response = "Something is wrong: <br>" . $mail->ErrorInfo;
+            }
+            exit(json_encode(array("response" => $response)));
+        }
+    }
+
+    private function generateRandomToken()
+    {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $token = array(); //remember to declare $pass as an array
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < 10; $i++) {
+            $n = rand(0, $alphaLength);
+            $token[] = $alphabet[$n];
+        }
+        $randomToken = implode($token);
+        if (!UserDAO::tokenExists($randomToken)) {
+            return $randomToken; //turn the array into a string
         } else {
             return false;
         }
