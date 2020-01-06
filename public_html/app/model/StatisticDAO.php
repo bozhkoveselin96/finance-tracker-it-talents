@@ -92,31 +92,37 @@ class StatisticDAO {
     public static function getForTheLastThirtyDays($owner_id) {
         try {
             $conn = Connection::get();
-            $sql1 = "SELECT t.amount AS incomes, DATE_FORMAT(t.time_event, '%e.%m') AS date 
-                     FROM transactions AS t
-                     JOIN transaction_categories AS tc ON(t.category_id = tc.id)
-                     JOIN accounts AS a ON(t.account_id = a.id)
-                     WHERE tc.type = 1 
-                     AND(t.time_event > NOW() - INTERVAL 30 DAY) AND (t.time_event < NOW() + INTERVAL 1 DAY)
-                     AND a.owner_id = ?
-                     ORDER BY t.time_event DESC;";
+            $sql1 = "
+select DATE_FORMAT(NOW(), '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW()) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 1 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 1 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 2 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 2 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 3 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 3 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 4 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 4 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 5 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 5 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 6 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 6 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 7 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 7 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 8 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 8 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 9 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS incomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =1 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 9 DAY) AND a.owner_id = 14";
             $incomes = $conn->prepare($sql1);
             $incomes->execute([$owner_id]);
 
-            $sql2 = "SELECT t.amount AS costs, DATE_FORMAT(t.time_event, '%e.%m') AS date 
-                     FROM transactions AS t
-                     JOIN transaction_categories AS tc ON(t.category_id = tc.id)
-                     JOIN accounts AS a ON(t.account_id = a.id)
-                     WHERE tc.type = 0 
-                     AND(t.time_event > NOW() - INTERVAL 30 DAY) AND (t.time_event < NOW() + INTERVAL 1 DAY)
-                     AND a.owner_id = ?
-                     ORDER BY t.time_event DESC;";
+            $sql2 = "
+            select DATE_FORMAT(NOW(), '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW()) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 1 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 1 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 2 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 2 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 3 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 3 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 4 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 4 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 5 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 5 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 6 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 6 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 7 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 7 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 8 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 8 DAY) AND a.owner_id = 14  UNION
+select DATE_FORMAT(NOW() - INTERVAL 9 DAY, '%e.%m') as day, COALESCE(SUM(t.amount), 0) AS outcomes FROM transactions t JOIN transaction_categories tc ON tc.id = t.category_id  JOIN accounts a ON a.id = t.account_id WHERE tc.type =0 AND DATE(t.time_event) = DATE(NOW() - INTERVAL 9 DAY) AND a.owner_id = 14 ";
             $costs = $conn->prepare($sql2);
             $costs->execute([$owner_id]);
 
             $stmt = [];
-            $stmt[] = $incomes->fetchAll(\PDO::FETCH_OBJ);
-            $stmt[] = $costs->fetchAll(\PDO::FETCH_OBJ);
+            $stmt[] = array_reverse($incomes->fetchAll(\PDO::FETCH_OBJ));
+            $stmt[] = array_reverse($costs->fetchAll(\PDO::FETCH_OBJ));
             return $stmt;
         } catch (\PDOException $exception) {
             return false;
