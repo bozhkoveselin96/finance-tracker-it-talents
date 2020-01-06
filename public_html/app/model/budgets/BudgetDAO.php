@@ -31,7 +31,7 @@ class BudgetDAO {
             $conn = Connection::get();
             $sql = "SELECT b.id, c.name, b.amount, 
                     (SELECT SUM(t.amount) FROM transactions AS t 
-                    WHERE t.time_event BETWEEN b.from_date AND b.to_date 
+                    WHERE t.time_event BETWEEN b.from_date AND b.to_date + INTERVAL 1 day
                     AND t.category_id = b.category_id) AS budget_status, 
                     b.from_date, b.to_date
                     FROM budgets AS b

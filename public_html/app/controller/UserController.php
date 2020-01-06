@@ -16,6 +16,9 @@ class UserController
                 $response["first_name"] = $_SESSION['logged_user_first_name'];
                 $response["last_name"] = $_SESSION['logged_user_last_name'];
                 $response["avatar_url"] = $_SESSION['logged_user_avatar_url'];
+                if ($_SESSION['logged_user_avatar_url'] == null) {
+                    $response['avatar_url'] = NO_AVATAR_URL;
+                }
                 $status = STATUS_OK;
             }
         }
@@ -41,6 +44,10 @@ class UserController
                     $response["first_name"] = $user->first_name;
                     $response["last_name"] = $user->last_name;
                     $response["avatar_url"] = $user->avatar_url;
+                    if ($user->avatar_url == null) {
+                        $response['avatar_url'] = NO_AVATAR_URL;
+                    }
+
                     $response["target"] = 'login';
                     $status = STATUS_OK;
                 }
@@ -110,6 +117,12 @@ class UserController
                     $response["first_name"] = $editedUser->getFirstName();
                     $response["last_name"] = $editedUser->getLastName();
                     $response["avatar_url"] = $editedUser->getAvatarUrl();
+                    if ($editedUser->getAvatarUrl() == null) {
+                        $response['avatar_url'] = NO_AVATAR_URL;
+                    }
+                    $_SESSION['logged_user_first_name'] = $editedUser->getFirstName();
+                    $_SESSION['logged_user_last_name'] = $editedUser->getLastName();
+                    $_SESSION['logged_user_avatar_url'] = $editedUser->getAvatarUrl();
             }
         }
         header($status);

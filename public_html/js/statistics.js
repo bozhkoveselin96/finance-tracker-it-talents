@@ -1,4 +1,4 @@
-function getIncomesAndOutcomes(fromDate = null, toDate = null) {
+function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = null) {
     $.get("app/index.php?target=statistic&action=getIncomesOutcomes", {
             from_date: fromDate,
             to_date: toDate
@@ -18,7 +18,7 @@ function getIncomesAndOutcomes(fromDate = null, toDate = null) {
             let pie = $('#allIncomesAndOutcomes');
 
             let myChart = new Chart(pie, {
-                type: 'pie',
+                type: diagramType,
                 data: {
                     labels: labelsTable,
                     datasets: [{
@@ -29,8 +29,7 @@ function getIncomesAndOutcomes(fromDate = null, toDate = null) {
                 },
                 options: {
                     title: {
-                        display: true,
-                        text: 'Income and outcome'
+                        display: false
                     },
                     tooltips: {
                         callbacks: {
@@ -56,7 +55,7 @@ function getIncomesAndOutcomes(fromDate = null, toDate = null) {
         });
 }
 
-function getIncomesByCategory(fromDate = null, toDate = null) {
+function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
     $.get("app/index.php?target=statistic&action=getIncomesByCategory", {
             from_date: fromDate,
             to_date: toDate
@@ -74,7 +73,7 @@ function getIncomesByCategory(fromDate = null, toDate = null) {
             let pie = $('#IncomesByCategory');
 
             let myChart = new Chart(pie, {
-                type: 'pie',
+                type: diagramType,
                 data: {
                     labels: labelsTable,
                     datasets: [{
@@ -84,12 +83,11 @@ function getIncomesByCategory(fromDate = null, toDate = null) {
                 },
                 options: {
                     title: {
-                        display: true,
-                        text: 'Incomes by category'
+                        display: false,
                     },
                     plugins: {
                         colorschemes: {
-                            scheme: 'tableau.Green20'
+                            scheme: 'brewer.DarkTwo8'
                         }
 
                     },
@@ -117,7 +115,7 @@ function getIncomesByCategory(fromDate = null, toDate = null) {
         });
 }
 
-function getOutcomesByCategory(fromDate = null, toDate = null) {
+function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
     $.get("app/index.php?target=statistic&action=getOutcomesByCategory", {
             from_date: fromDate,
             to_date: toDate
@@ -134,7 +132,7 @@ function getOutcomesByCategory(fromDate = null, toDate = null) {
             $("#thirdChart").append('<canvas id="OutcomesByCategory"></canvas>');
             let pie = $('#OutcomesByCategory');
             let myChart = new Chart(pie, {
-                type: 'pie',
+                type: diagramType,
                 data: {
                     labels: labelsTable,
                     datasets: [{
@@ -144,14 +142,12 @@ function getOutcomesByCategory(fromDate = null, toDate = null) {
                 },
                 options: {
                     title: {
-                        display: true,
-                        text: 'Outcomes by category'
+                        display: false,
                     },
                     plugins: {
                         colorschemes: {
-                            scheme: 'office.Tradition6'
+                            scheme: 'office.Excel16'
                         }
-
                     },
                     tooltips: {
                         callbacks: {

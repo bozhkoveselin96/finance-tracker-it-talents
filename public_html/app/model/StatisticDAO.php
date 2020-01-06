@@ -47,7 +47,7 @@ class StatisticDAO {
             $sql = "SELECT COALESCE(SUM(t.amount), 0) AS ? FROM transactions AS t
                     JOIN accounts AS a ON(a.id = t.account_id)
                     JOIN transaction_categories AS tc ON(t.category_id = tc.id)
-                    WHERE a.owner_id = ? AND tc.type = ? AND t.time_event BETWEEN ? AND ?;";
+                    WHERE a.owner_id = ? AND tc.type = ? AND t.time_event BETWEEN ? AND ? + INTERVAL 1 DAY;";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$name,$user_id, $type, $from_date, $to_date]);
             return $stmt->fetch(\PDO::FETCH_OBJ);

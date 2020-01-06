@@ -47,7 +47,7 @@ class TransactionDAO {
 
             $conn = Connection::get();
             $sql = "SELECT t.id, t.amount, t.account_id, a.name AS account_name, t.category_id,
-                    tc.name AS category_name, t.note, t.time_event
+                    tc.name AS category_name, tc.type AS transaction_type, t.note, t.time_event
                     FROM transactions AS t
                     JOIN accounts AS a ON t.account_id = a.id
                     JOIN transaction_categories AS tc ON t.category_id = tc.id

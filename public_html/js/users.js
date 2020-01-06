@@ -31,9 +31,7 @@ $(document).ready(function () {
                 sessionStorage.setItem("first_name", response.first_name);
                 sessionStorage.setItem("last_name", response.last_name);
                 sessionStorage.setItem("avatar_url", response.avatar_url);
-                $.get('view/user/edit.html', function (data) {
-                    $("#container").html(data);
-                });
+                window.location.replace('editprofile.html');
             },
             error: function (xhr, status, error) {
                 alert(error);
@@ -63,18 +61,17 @@ $(document).ready(function () {
             timeout: 600000,
             success: function (data) {
                 alert('Registration succesfull!');
-                $.get('view/user/login.html', function (data) {
-                    $("#container").html(data);
-                });
+                window.location.replace("login.html");
             },
             error: function (xhr, status, error) {
                 alert(error);
+                $("#btnSubmit").prop("disabled", false);
             }
         });
 
     });
 
-    $("#logout").off().on('click', function (event) {
+    $("#logout").on('click', function (event) {
         event.preventDefault();
 
         $.post("app/index.php?target=user&action=logout", function (data) {
@@ -83,10 +80,7 @@ $(document).ready(function () {
             sessionStorage.removeItem('last_name');
             sessionStorage.removeItem('avatar_url');
             alert('See ya!');
-            $("#menu").empty();
-            $.get('view/user/login.html', function (data) {
-                $("#container").html(data);
-            });
+            window.location.replace("login.html");
         })
         .fail(function (xhr, status, error) {
             alert(error);
