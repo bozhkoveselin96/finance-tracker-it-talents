@@ -31,7 +31,11 @@ function showUserBudgets() {
                     tr.attr("id", value.id);
 
                     let category = $("<td />");
-                    category.text(value.name);
+                    category.text(value.category.name);
+                    let icon = $("<i />");
+                    icon.addClass(value.category.icon);
+                    category.prepend(icon);
+
                     let amount = $("<td />");
                     amount.text(value.amount);
                     let spent = $("<td />");

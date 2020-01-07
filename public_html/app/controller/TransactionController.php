@@ -12,7 +12,7 @@ use model\transactions\TransactionDAO;
 class TransactionController {
     public function add() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly';
         if (isset($_POST['add_transaction']) && isset($_POST['account_id']) && isset($_POST['category_id']) &&
              !empty($_POST['time_event'])) {
             try {
@@ -20,10 +20,10 @@ class TransactionController {
                 $categoryDAO = new CategoryDAO();
                 $account = $accountDAO->getAccountById($_POST['account_id']);
                 $category = $categoryDAO->getCategoryById($_POST['category_id'], $account->getOwnerId());
-
                 $transaction = new Transaction($_POST['amount'], $account->getId(), $category->getId(), $_POST['note'], $_POST['time_event']);
+
                 if ($account && $account->getOwnerId() == $_SESSION['logged_user'] && $category &&
-                    Validator::validateAmount($transaction->getAmount()) && Validator::validateDate($transaction->getAmount()) &&
+                    Validator::validateAmount($transaction->getAmount()) && Validator::validateDate($transaction->getTimeEvent()) &&
                     Validator::validateName($transaction->getNote())) {
                     $transactionDAO = new TransactionDAO();
                     $transactionDAO->create($transaction, $category->getType());

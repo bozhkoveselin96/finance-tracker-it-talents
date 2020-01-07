@@ -2,10 +2,12 @@
 
 namespace model\budgets;
 
+use model\categories\Category;
+
 class Budget implements \JsonSerializable {
     private $id;
-    private $category_id;
-    private $category_name;
+    /** @var Category $category */
+    private $category;
     private $amount;
     private $owner_id;
     private $from_date;
@@ -13,8 +15,8 @@ class Budget implements \JsonSerializable {
     private $date_created;
     private $progress;
 
-    public function __construct($category_id, $amount, $owner_id, $from_date, $to_date) {
-        $this->category_id = $category_id;
+    public function __construct(Category $category, $amount, $owner_id, $from_date, $to_date) {
+        $this->category = $category;
         $this->amount = $amount;
         $this->owner_id = $owner_id;
         $this->from_date = $from_date;
@@ -33,8 +35,8 @@ class Budget implements \JsonSerializable {
         return $this->amount;
     }
 
-    public function getCategoryId() {
-        return $this->category_id;
+    public function getCategory() {
+        return $this->category;
     }
 
     public function getFromDate() {
@@ -69,7 +71,7 @@ class Budget implements \JsonSerializable {
     public function jsonSerialize(){
         return [
             'id'=>$this->id,
-            'name'=>$this->category_name,
+            'category'=>$this->category,
             'amount'=>$this->amount,
             'budget_status'=>$this->progress,
             'from_date'=>$this->from_date,

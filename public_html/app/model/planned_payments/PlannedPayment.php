@@ -4,22 +4,25 @@
 namespace model\planned_payments;
 
 
+use model\accounts\Account;
+use model\categories\Category;
+
 class PlannedPayment implements \JsonSerializable {
     private $id;
     private $day_for_payment;
     private $amount;
-    private $account_id;
-    private $account_name;
-    private $category_id;
-    private $category_name;
+    /** @var Account $account */
+    private $account;
+    /** @var Category $category */
+    private $category;
     private $status;
     private $date_created;
 
-    public function __construct($day_for_payment, $amount, $account_id, $category_id) {
+    public function __construct($day_for_payment, $amount, $account, $category) {
         $this->day_for_payment = $day_for_payment;
         $this->amount = $amount;
-        $this->account_id = $account_id;
-        $this->category_id = $category_id;
+        $this->account = $account;
+        $this->category = $category;
     }
 
     public function getDayForPayment() {
@@ -30,22 +33,16 @@ class PlannedPayment implements \JsonSerializable {
         return $this->amount;
     }
 
-    public function getAccountId() {
-        return $this->account_id;
+    public function getAccount() {
+        return $this->account;
     }
 
-    public function getCategoryId() {
-        return $this->category_id;
+    public function getCategory() {
+        return $this->category;
     }
 
-    public function setCategoryName($category_name): void
-    {
-        $this->category_name = $category_name;
-    }
-
-    public function setAccountName($account_name): void
-    {
-        $this->account_name = $account_name;
+    public function setStatus($status) {
+        $this->status = $status;
     }
 
     public function jsonSerialize() {
@@ -53,8 +50,8 @@ class PlannedPayment implements \JsonSerializable {
             'day_for_payment'=>$this->day_for_payment,
             'amount'=>$this->amount,
             'status'=>$this->status,
-            'account_name'=>$this->account_name,
-            'category_name'=>$this->category_name
+            'account'=>$this->account,
+            'category'=>$this->category
         ];
     }
 }

@@ -18,7 +18,7 @@ class BudgetController {
                 $categoryDAO = new CategoryDAO();
                 $category = $categoryDAO->getCategoryById($_POST["category_id"], $_SESSION['logged_user']);
 
-                $budget = new Budget($category->getId(), $_POST["amount"], $_SESSION["logged_user"], $_POST["from_date"], $_POST["to_date"]);
+                $budget = new Budget($category, $_POST["amount"], $_SESSION["logged_user"], $_POST["from_date"], $_POST["to_date"]);
                 if (Validator::validateAmount($budget->getAmount()) && Validator::validateDate($budget->getFromDate()) &&
                     Validator::validateDate($budget->getToDate())) {
                     $budgetDAO = new BudgetDAO();

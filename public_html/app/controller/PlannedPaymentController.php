@@ -19,9 +19,9 @@ class PlannedPaymentController {
                 $plannedPaymentDAO = new PlannedPaymentDAO();
                 $accountDAO = new AccountDAO();
                 $categoryDAO = new CategoryDAO();
-                $plannedPayment = new PlannedPayment($_POST['day_for_payment'], $_POST['amount'], $_POST['account_id'], $_POST['category_id']);
-                $account = $accountDAO->getAccountById($plannedPayment->getAccountId());
-                $category = $categoryDAO->getCategoryById($plannedPayment->getCategoryId(), $_SESSION['logged_user']);
+                $account = $accountDAO->getAccountById($_POST['account_id']);
+                $category = $categoryDAO->getCategoryById($_POST['category_id'], $_SESSION['logged_user']);
+                $plannedPayment = new PlannedPayment($_POST['day_for_payment'], $_POST['amount'], $account, $category);
                 if (Validator::validateAmount($plannedPayment->getAmount()) && $account && $category &&
                     Validator::validateDayOfMonth($plannedPayment->getDayForPayment()) &&
                     $account->getOwnerId() == $_SESSION['logged_user']) {

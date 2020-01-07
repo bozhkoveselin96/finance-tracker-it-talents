@@ -51,9 +51,14 @@ function showUserPlannedPayments() {
                 let amount = $("<td />");
                 amount.text(value.amount);
                 let account = $("<td />");
-                account.text(value.account_name);
+                account.text(value.account.name);
+
                 let category = $("<td />");
-                category.text(value.category_name);
+                let icon = $("<i />");
+                icon.addClass(value.category.icon);
+                category.text(value.category.name);
+                category.prepend(icon);
+
                 let status = $("<td />");
                 if (value.status == 0) {
                     status.text('Not active');

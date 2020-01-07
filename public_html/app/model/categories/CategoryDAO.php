@@ -33,7 +33,7 @@ class CategoryDAO {
         $categories = [];
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
             $category = new Category($value->name, $value->type, $value->icon, $value->owner_id);
-            $category->setId($conn->lastInsertId());
+            $category->setId($value->id);
             $categories[] = $category;
         }
         return $categories;

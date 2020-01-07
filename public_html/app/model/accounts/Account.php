@@ -4,6 +4,8 @@
 namespace model\accounts;
 
 
+use model\users\User;
+
 class Account implements \JsonSerializable {
     private $id;
     private $name;
