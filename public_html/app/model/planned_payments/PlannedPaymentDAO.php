@@ -28,7 +28,7 @@ class PlannedPaymentDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
 
-        $sql = "SELECT pp.day_for_payment, pp.amount, a.name AS account_name, c.name AS category_name, pp.status FROM planned_payments AS pp 
+        $sql = "SELECT pp.day_for_payment, pp.amount, a.name AS account_name, pp.account_id, c.name AS category_name, pp.category_id, pp.status FROM planned_payments AS pp 
                 JOIN accounts AS a ON pp.account_id = a.id
                 JOIN transaction_categories AS c ON pp.category_id = c.id
                 WHERE a.owner_id = ?
@@ -38,6 +38,8 @@ class PlannedPaymentDAO {
         $plannedPayments = [];
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
             $plannedPayment = new PlannedPayment($value->day_for_payment, $value->amount, $value->account_id, $value->category_id);
+            $plannedPayment->setCategoryName($value->category_name);
+            $plannedPayment->setAccountName($value->account_name);
             $plannedPayments[] = $plannedPayment;
         }
         return $plannedPayments;

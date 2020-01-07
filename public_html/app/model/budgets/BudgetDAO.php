@@ -39,6 +39,7 @@ class BudgetDAO {
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $response) {
             $budget = new Budget($response->category_id, $response->amount, $response->owner_id, $response->from_date, $response->to_date);
             $budget->setProgress($response->progress);
+            $budget->setCategoryName($response->name);
             $budgets[] = $budget;
         }
         return $budgets;

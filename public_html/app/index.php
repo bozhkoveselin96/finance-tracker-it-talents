@@ -29,6 +29,18 @@ define("STATUS_NOT_FOUND", $_SERVER["SERVER_PROTOCOL"] . " 404 ");
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
 
+//function handleExceptions(Exception $e){
+//    $resp = new stdClass();
+//    $resp->msg = $e->getMessage();
+//    $resp->status = 500;
+//    echo json_encode($resp);
+//}
+//
+//set_exception_handler("handleExceptions");
+//
+//
+//throw new Exception("ebasi tupoto");
+
 if ($controllerName != 'user' && ($methodName != 'login' || $methodName != 'register') && !isset($_SESSION['logged_user'])) {
     header(STATUS_UNAUTHORIZED . 'Please log in.');
     die();

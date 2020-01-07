@@ -4,7 +4,7 @@
 namespace model\categories;
 
 
-class Category {
+class Category implements \JsonSerializable {
     private $id;
     private $name;
     private $type;
@@ -40,6 +40,15 @@ class Category {
 
     public function setId($id) {
         $this->id = $id;
+    }
+
+    public function jsonSerialize() {
+        return [
+            'id'=>$this->id,
+            'name'=>$this->name,
+            'icon'=>$this->icon,
+            'type'=>$this->type
+        ];
     }
 
 }

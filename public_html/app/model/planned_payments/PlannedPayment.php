@@ -4,12 +4,14 @@
 namespace model\planned_payments;
 
 
-class PlannedPayment {
+class PlannedPayment implements \JsonSerializable {
     private $id;
     private $day_for_payment;
     private $amount;
     private $account_id;
+    private $account_name;
     private $category_id;
+    private $category_name;
     private $status;
     private $date_created;
 
@@ -34,5 +36,25 @@ class PlannedPayment {
 
     public function getCategoryId() {
         return $this->category_id;
+    }
+
+    public function setCategoryName($category_name): void
+    {
+        $this->category_name = $category_name;
+    }
+
+    public function setAccountName($account_name): void
+    {
+        $this->account_name = $account_name;
+    }
+
+    public function jsonSerialize() {
+        return [
+            'day_for_payment'=>$this->day_for_payment,
+            'amount'=>$this->amount,
+            'status'=>$this->status,
+            'account_name'=>$this->account_name,
+            'category_name'=>$this->category_name
+        ];
     }
 }

@@ -2,7 +2,7 @@ function addPlannedPayment() {
     let selectAccount = $("#account");
     $.get("app/index.php?target=account&action=getAll",
         function (data) {
-        $.each(data.data, function (key, value) {
+        $.each(data, function (key, value) {
             selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
         })
     }, 'json')
@@ -45,7 +45,6 @@ function showUserPlannedPayments() {
 
             $.each(data.data, function (key, value) {
                 let tr = $("<tr />");
-                //{"data":[{"day_for_payment":"15","amount":"240","account_name":"\u0411\u0430\u043d\u043a\u0430","category_name":"Loan","status":"1"}]}
 
                 let dayForPayment = $("<td />");
                 dayForPayment.text(value.day_for_payment);

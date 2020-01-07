@@ -2,9 +2,10 @@
 
 namespace model\budgets;
 
-class Budget {
+class Budget implements \JsonSerializable {
     private $id;
     private $category_id;
+    private $category_name;
     private $amount;
     private $owner_id;
     private $from_date;
@@ -58,5 +59,21 @@ class Budget {
 
     public function setId($id) {
         $this->id = $id;
+    }
+
+    public function setCategoryName($category_name): void
+    {
+        $this->category_name = $category_name;
+    }
+
+    public function jsonSerialize(){
+        return [
+            'id'=>$this->id,
+            'name'=>$this->category_name,
+            'amount'=>$this->amount,
+            'budget_status'=>$this->progress,
+            'from_date'=>$this->from_date,
+            'to_date'=>$this->to_date
+        ];
     }
 }
