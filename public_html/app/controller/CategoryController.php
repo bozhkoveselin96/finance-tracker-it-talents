@@ -8,20 +8,30 @@ use model\categories\Category;
 use model\categories\CategoryDAO;
 
 class CategoryController {
-    public function add(){
+    public function add() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
-        if (isset($_POST["add_category"]) && isset($_SESSION["logged_user"])) {
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly';
+        if (isset($_POST["add_category"])) {
             $name = $_POST["name"];
             $type = $_POST["type"];
             $icon = $_POST["icon"];
-            $category = new Category($name, $type, $icon, $_SESSION['logged_user']);
+            $owner_id = $_SESSION["logged_user"];
 
-            if (Validator::validateName($category->getName()) && Validator::validateCategoryType($type) &&
-                CategoryDAO::createCategory($category)) {
-                $response["target"] = "category";
-                $status = STATUS_CREATED;
+            $category = new Category($name, $type, $icon, $owner_id);
+            $categoryDAO = new CategoryDAO();
+
+            if (Validator::validateName($category->getName()) && Validator::validateCategoryType($category->getType())) {
+                try {
+                    $categoryDAO->createCategory($category);
+                    $response["target"] = "addCategory";
+                    $status = STATUS_CREATED;
+                } catch (\Exception $exception) {
+                    $status = STATUS_ACCEPTED . 'Not created. Please try again';
+                }
+
             }
+            $response["target"] = "category";
+            $status = STATUS_CREATED;
         }
         header($status);
         return $response;
@@ -29,14 +39,23 @@ class CategoryController {
 
     public function getAll() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'No categories available or you are not logged in.';
-        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"]) &&
-            Validator::validateCategoryType($_GET["category_type"])) {
-            $type = $_GET["category_type"];
-            $categories = CategoryDAO::getAll($_SESSION['logged_user'], $type);
-            if ($categories !== false) {
+        $status = STATUS_BAD_REQUEST . 'No categories available';
+        if ($_SERVER["REQUEST_METHOD"] == "GET") {
+            try {
+                $user_id = $_SESSION["logged_user"];
+                $type = $_GET["category_type"];
+                $categoriesDAO = new CategoryDAO();
+                $categories = $categoriesDAO->getAll($user_id, $type);
                 $status = STATUS_OK;
-                $response["data"] = $categories;
+                /** @var Category $category */
+                foreach ($categories as $category) {
+                    $response["data"][]["id"] = $category->getId();
+                    $response["data"][]["name"] = $category->getName();
+                    $response["data"][]["icon"] = $category->getIcon();
+                    $response["data"][]["type"] = $category->getType();
+                }
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again.';
             }
         }
         header($status);
@@ -44,22 +63,28 @@ class CategoryController {
     }
 
     public function edit() {
-        $status = STATUS_FORBIDDEN . 'Something is not filled correctly or you are not logged in.';
+        $status = STATUS_FORBIDDEN . 'Something is not filled correctly';
         if (isset($_POST["edit"])) {
-            $category_id = $_POST["category_id"];
-            $owner_id = $_SESSION["logged_user"];
-            $category = CategoryDAO::getCategoryById($category_id, $owner_id);
-            $name = $_POST["name"];
-            if ($category && Validator::validateName($name)) {
+            try {
+                $category_id = $_POST["category_id"];
+                $owner_id = $_SESSION["logged_user"];
+                $name = $_POST["name"];
                 $icon_url = $_POST["icon"];
-                $editedCategory = new Category($name, $category->type ,$icon_url, $owner_id);
-                $editedCategory->setId($category_id);
-                if ($editedCategory->getOwnerId() == $category->owner_id &&
-                    CategoryDAO::editCategory($editedCategory)) {
+
+                $categoryDAO = new CategoryDAO();
+                //** @Category $category */
+                $category = $categoryDAO->getCategoryById($category_id, $owner_id);
+                $editedCategory = new Category($name, $category->getType(), $icon_url, $owner_id);
+                $editedCategory->setId($category->getId());
+
+                if ($editedCategory->getOwnerId() == $category->getId()) {
+                    $categoryDAO->editCategory($category);
                     $status = STATUS_OK;
                 }
+            } catch (\PDOException $exception) {
+                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again.';
             }
+            return header($status);
         }
-        return header($status);
     }
 }

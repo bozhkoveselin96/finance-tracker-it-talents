@@ -79,7 +79,7 @@ class UserDAO {
         $stmt->execute([$token, $user_id]);
     }
 
-    public static function tokenExists($token) {
+    public function tokenExists($token) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         $sql = "SELECT user_id FROM reset_password

@@ -6,8 +6,10 @@ use model\users\User;
 use model\users\UserDAO;
 use PHPMailer\PHPMailer\PHPMailer;
 
-class UserController {
-    public function login() {
+class UserController
+{
+    public function login()
+    {
         $response = [];
         $status = STATUS_FORBIDDEN . 'Email and password mismatch.';
         if (isset($_POST["login"])) {
@@ -39,7 +41,8 @@ class UserController {
         return $response;
     }
 
-    public function register() {
+    public function register()
+    {
         $response = [];
         $status = STATUS_BAD_REQUEST . 'Something is not filled correctly.';
         if (isset($_POST["register"])) {
@@ -64,7 +67,8 @@ class UserController {
         return $response;
     }
 
-    public function edit() {
+    public function edit()
+    {
         $response = [];
         $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
 
@@ -111,7 +115,8 @@ class UserController {
         return $response;
     }
 
-    public function logout() {
+    public function logout()
+    {
         $status = STATUS_FORBIDDEN;
         if (isset($_SESSION['logged_user'])) {
             unset($_SESSION["logged_user"]);
@@ -123,7 +128,8 @@ class UserController {
         return header($status);
     }
 
-    private function uploadAvatar($email) {
+    private function uploadAvatar($email)
+    {
         $tempName = $_FILES["avatar"]["tmp_name"];
         $ext = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
 
@@ -140,57 +146,76 @@ class UserController {
     }
 
 //new methods
-    public function setNewPassword() {
-        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
+//    public function setNewPassword() {
+//        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly';
+//        if (isset($_POST["change"])) {
+//            try {
+//                if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
+//                    $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
+//                    $userDAO = new UserDAO();
+//                    $user = $userDAO->getUser($_POST["email"]);
+//                    $changed = new User($user->getEmail(), $user->getPassword(), $user->getFirstName(), $user->getLastName(), $user->getAvatarUrl());
+//                    $changed->setId($user->getId());
+//                    if ($changed->) {
+//
+//                    }
+//                    $changed = $userDAO->changeForgottenPassword($cryptedPass, $user->getId());
+//                    if ($changed) {
+//                        $status = STATUS_OK;
+//                    }
+//                }
+//            } catch (\PDOException $exception) {
+//                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again.';
+//            }
+//        }
+//        return header($status);
+//    }
 
-        if (isset($_POST["change"]) && isset($_SESSION["logged_user"])) {
-            if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
-                $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
-                $changed = UserDAO::changeForgottenPassword($cryptedPass, $_SESSION["logged_user"]);
-                if ($changed) {
-                    $status = STATUS_OK;
-                }
-            }
-        }
-        return header($status);
-    }
     public function sendEmail() {
-        if (isset($_POST["email"]) && UserDAO::getUser($_POST["email"])) {
-            $email = $_POST["email"];
-            $finance_tracker_email = "@gmail.com";
-            $finance_tracker_password = "";
-            $token = $this->generateRandomToken();
-            if (!$token) {
-                return false;
+        $user_id = $_SESSION["logged_user"];
+        $email = $_POST["email"];
+        if (isset($email)) {
+            try {
+                $userDAO = new UserDAO();
+                if ($userDAO->getUser($email)) {
+                    $finance_tracker_email = "@gmail.com";
+                    $finance_tracker_password = "";
+                    $token = $this->generateRandomToken();
+                    if (!$token) {
+                        return false;
+                    }
+
+                    require_once "../PHPMailer/PHPMailer.php";
+                    require_once "../PHPMailer/SMTP.php";
+                    require_once "../PHPMailer/Exception.php";
+                    $mail = new PHPMailer();
+
+                    //SMTP Settings
+                    $mail->isSMTP();
+                    $mail->Host = "smtp.gmail.com";
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $finance_tracker_email;
+                    $mail->Password = $finance_tracker_password;
+                    $mail->Port = 465; //587
+                    $mail->SMTPSecure = "ssl"; //tls
+
+                    //Email Settings
+                    $mail->isHTML(true);
+                    $mail->setFrom($finance_tracker_email, "Finance Tracker");
+                    $mail->addAddress($email);
+                    $mail->Body = 'Hello, click <a href="localhost/finance_tracker/app/index.php?target=user&action=changePass&token=' . $token . '">here</a> to change your password';
+
+                    if ($mail->send()) {
+                        $response = "Email is sent!";
+                        $userDAO->addToken($token, $user_id);
+                    } else {
+                        $response = "Something is wrong: <br>" . $mail->ErrorInfo;
+                    }
+                    exit(json_encode(array("response" => $response)));
+                }
+            } catch (\PDOException $exception) {
+
             }
-
-            require_once "../PHPMailer/PHPMailer.php";
-            require_once "../PHPMailer/SMTP.php";
-            require_once "../PHPMailer/Exception.php";
-            $mail = new PHPMailer();
-
-            //SMTP Settings
-            $mail->isSMTP();
-            $mail->Host = "smtp.gmail.com";
-            $mail->SMTPAuth = true;
-            $mail->Username = $finance_tracker_email;
-            $mail->Password = $finance_tracker_password;
-            $mail->Port = 465; //587
-            $mail->SMTPSecure = "ssl"; //tls
-
-            //Email Settings
-            $mail->isHTML(true);
-            $mail->setFrom($finance_tracker_email, "Finance Tracker");
-            $mail->addAddress($email);
-            $mail->Body =  'Hello, click <a href="localhost/finance_tracker/app/index.php?target=user&action=changePass&token='.$token.'">here</a> to change your password';
-
-            if ($mail->send()) {
-                $response = "Email is sent!";
-                UserDAO::addToken($token, $_SESSION["logged_user"]);
-            } else {
-                $response = "Something is wrong: <br>" . $mail->ErrorInfo;
-            }
-            exit(json_encode(array("response" => $response)));
         }
     }
 
@@ -204,10 +229,15 @@ class UserController {
             $token[] = $alphabet[$n];
         }
         $randomToken = implode($token);
-        if (!UserDAO::tokenExists($randomToken)) {
-            return $randomToken; //turn the array into a string
-        } else {
-            return false;
+        try {
+            $userDAO = new UserDAO();
+            if (!$userDAO->tokenExists($randomToken)) {
+                return $randomToken; //turn the array into a string
+            } else {
+                return false;
+            }
+        } catch (\PDOException $exception) {
+
         }
     }
 }
