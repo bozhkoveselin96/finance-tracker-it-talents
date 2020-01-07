@@ -51,7 +51,13 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
         },
         'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (xhr.status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
 }
 
@@ -111,7 +117,13 @@ function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = nul
         },
         'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (xhr.status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
 }
 
@@ -169,7 +181,13 @@ function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = nu
         },
         'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (xhr.status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
 }
 
@@ -214,6 +232,12 @@ function getIncomesAndOutcomesLastTenDays() {
         },
         'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (xhr.status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
 }

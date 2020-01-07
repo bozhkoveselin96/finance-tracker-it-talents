@@ -7,10 +7,10 @@ $(document).ready(function () {
         $.post(action, data, function (data) {
             if(data.target === 'login') {
                 alert("Login succesfull!");
-                sessionStorage.setItem("id", data.id);
-                sessionStorage.setItem("first_name", data.first_name);
-                sessionStorage.setItem("last_name", data.last_name);
-                sessionStorage.setItem("avatar_url", data.avatar_url);
+                localStorage.setItem("id", data.id);
+                localStorage.setItem("first_name", data.first_name);
+                localStorage.setItem("last_name", data.last_name);
+                localStorage.setItem("avatar_url", data.avatar_url);
                 window.location.replace('index.html');
             } else if(data.target === 'addaccount') {
                 alert('Account added succesfully!');
@@ -41,7 +41,13 @@ $(document).ready(function () {
             }
         }, 'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (xhr.status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
     });
 });

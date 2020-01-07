@@ -11,7 +11,13 @@ function addBudget() {
             });
         }, 'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (xhr.status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
 }
 
@@ -46,6 +52,12 @@ function showUserBudgets() {
 
         }, 'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (xhr.status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
 }

@@ -10,6 +10,7 @@ class Budget {
     private $from_date;
     private $to_date;
     private $date_created;
+    private $progress;
 
     public function __construct($category_id, $amount, $owner_id, $from_date, $to_date) {
         $this->category_id = $category_id;
@@ -45,5 +46,17 @@ class Budget {
 
     public function setCategoryId($category_id) {
         $this->category_id = $category_id;
+    }
+
+    public function getProgress() {
+        return $this->progress;
+    }
+
+    public function setProgress($progress) {
+        $this->progress = $progress;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
     }
 }

@@ -7,77 +7,63 @@ namespace model\accounts;
 use model\Connection;
 
 class AccountDAO {
-    public static function createAccount(Account $account) {
-        try {
-            $data = [];
-            $data[] = $account->getName();
-            $data[] = $account->getCurrentAmount();
-            $data[] = $account->getOwnerId();
+    public function createAccount(Account $account) {
+        $parameters = [];
+        $parameters[] = $account->getName();
+        $parameters[] = $account->getCurrentAmount();
+        $parameters[] = $account->getOwnerId();
 
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "INSERT INTO accounts(name, current_amount, owner_id, date_created)
-                VALUES (?, ?, ?, CURRENT_DATE);";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute($data);
-            return true;
-        } catch (\PDOException $exception) {
-            return false;
-        }
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "INSERT INTO accounts(name, current_amount, owner_id, date_created)
+            VALUES (?, ?, ?, CURRENT_DATE);";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($parameters);
     }
 
-    public static function getMyAccounts(int $user_id) {
-        try {
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "SELECT id, name, current_amount FROM accounts WHERE owner_id = ?;";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$user_id]);
-            return $stmt->fetchAll(\PDO::FETCH_OBJ);
-        } catch (\PDOException $exception) {
-            return false;
+    public function getMyAccounts(int $user_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT id, name, current_amount, owner_id FROM accounts WHERE owner_id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$user_id]);
+        $accounts = [];
+        foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
+            $account = new Account($value->name, $value->current_amount, $value->owner_id);
+            $account->setId($value->id);
+            $accounts[] = $account;
         }
+        return $accounts;
     }
 
-    public static function getAccountById(int $account_id) {
-        try {
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "SELECT id, name, current_amount, owner_id FROM accounts WHERE id = ?;";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$account_id]);
-            if ($stmt->rowCount() == 1) {
-                return $stmt->fetch(\PDO::FETCH_OBJ);
-            }
-            return false;
-        } catch (\PDOException $exception) {
-            return false;
+    public function getAccountById(int $account_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT id, name, current_amount, owner_id FROM accounts WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$account_id]);
+        if ($stmt->rowCount() == 1) {
+            $response = $stmt->fetch(\PDO::FETCH_OBJ);
+            $account = new Account($response->name, $response->current_amount, $response->owner_id);
+            $account->setId($response->id);
+            return $account;
         }
+        return false;
     }
 
-    public static function deleteAccount(int $account_id) {
-        try {
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "DELETE FROM accounts WHERE id = ?;";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$account_id]);
-            return true;
-        } catch (\PDOException $exception) {
-            return false;
-        }
+    public function deleteAccount(int $account_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "DELETE FROM accounts WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$account_id]);
     }
 
-    public static function editAccount(Account $account) {
-        try {
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "UPDATE accounts SET name = ? WHERE id = ?;";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$account->getName(), $account->getId()]);
-            return true;
-        } catch (\PDOException $exception) {
-            return false;
-        }
+    public function editAccount(Account $account) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "UPDATE accounts SET name = ? WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$account->getName(), $account->getId()]);
     }
 }

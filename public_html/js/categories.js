@@ -33,6 +33,12 @@ function getAllCategories(category_type) {
             });
         }, 'json')
         .fail(function (xhr, status, error) {
-            alert(error);
+            if (status === 401) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
+            }
         });
 }

@@ -6,27 +6,7 @@ use model\users\User;
 use model\users\UserDAO;
 use PHPMailer\PHPMailer\PHPMailer;
 
-class UserController
-{
-    public function checkLogin() {
-        $response = [];
-        $status = STATUS_FORBIDDEN;
-        if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            if (isset($_SESSION['logged_user'])) {
-                $response['id'] = $_SESSION['logged_user'];
-                $response["first_name"] = $_SESSION['logged_user_first_name'];
-                $response["last_name"] = $_SESSION['logged_user_last_name'];
-                $response["avatar_url"] = $_SESSION['logged_user_avatar_url'];
-                if ($_SESSION['logged_user_avatar_url'] == null) {
-                    $response['avatar_url'] = NO_AVATAR_URL;
-                }
-                $status = STATUS_OK;
-            }
-        }
-        header($status);
-        return $response;
-    }
-
+class UserController {
     public function login() {
         $response = [];
         $status = STATUS_FORBIDDEN . 'Email and password mismatch.';

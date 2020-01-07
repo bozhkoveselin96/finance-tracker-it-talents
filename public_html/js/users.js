@@ -1,7 +1,7 @@
 $(document).ready(function () {
-    $("input#first_name").attr('value', sessionStorage.getItem('first_name'));
-    $("input#last_name").attr('value', sessionStorage.getItem('last_name'));
-    $("img#img").attr('src', 'app/' + sessionStorage.getItem('avatar_url'));
+    $("input#first_name").attr('value', localStorage.getItem('first_name'));
+    $("input#last_name").attr('value', localStorage.getItem('last_name'));
+    $("img#img").attr('src', 'app/' + localStorage.getItem('avatar_url'));
 
     $("#btnEdit").click(function (event) {
         event.preventDefault();
@@ -28,13 +28,19 @@ $(document).ready(function () {
                 }
                 alert('Edit succesfull!' + isEditPassMsg);
 
-                sessionStorage.setItem("first_name", response.first_name);
-                sessionStorage.setItem("last_name", response.last_name);
-                sessionStorage.setItem("avatar_url", response.avatar_url);
+                localStorage.setItem("first_name", response.first_name);
+                localStorage.setItem("last_name", response.last_name);
+                localStorage.setItem("avatar_url", response.avatar_url);
                 window.location.replace('editprofile.html');
             },
             error: function (xhr, status, error) {
-                alert(error);
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                }
             }
         });
 
@@ -60,7 +66,6 @@ $(document).ready(function () {
             cache: false,
             timeout: 600000,
             success: function (data) {
-                alert('Registration succesfull!');
                 window.location.replace("login.html");
             },
             error: function (xhr, status, error) {
@@ -75,12 +80,11 @@ $(document).ready(function () {
         event.preventDefault();
 
         $.post("app/index.php?target=user&action=logout", function (data) {
-            sessionStorage.removeItem('id');
-            sessionStorage.removeItem('first_name');
-            sessionStorage.removeItem('last_name');
-            sessionStorage.removeItem('avatar_url');
-            alert('See ya!');
-            window.location.replace("login.html");
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                window.location.replace('login.html');
         })
         .fail(function (xhr, status, error) {
             alert(error);
