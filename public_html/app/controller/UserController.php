@@ -95,16 +95,16 @@ class UserController {
             if (Validator::validateName($editedUser->getFirstName()) &&
                 Validator::validateName($editedUser->getLastName()) &&
                 UserDAO::edit($editedUser)) {
-                    $status = STATUS_OK;
-                    $response["first_name"] = $editedUser->getFirstName();
-                    $response["last_name"] = $editedUser->getLastName();
-                    $response["avatar_url"] = $editedUser->getAvatarUrl();
-                    if ($editedUser->getAvatarUrl() == null) {
-                        $response['avatar_url'] = NO_AVATAR_URL;
-                    }
-                    $_SESSION['logged_user_first_name'] = $editedUser->getFirstName();
-                    $_SESSION['logged_user_last_name'] = $editedUser->getLastName();
-                    $_SESSION['logged_user_avatar_url'] = $editedUser->getAvatarUrl();
+                $status = STATUS_OK;
+                $response["first_name"] = $editedUser->getFirstName();
+                $response["last_name"] = $editedUser->getLastName();
+                $response["avatar_url"] = $editedUser->getAvatarUrl();
+                if ($editedUser->getAvatarUrl() == null) {
+                    $response['avatar_url'] = NO_AVATAR_URL;
+                }
+                $_SESSION['logged_user_first_name'] = $editedUser->getFirstName();
+                $_SESSION['logged_user_last_name'] = $editedUser->getLastName();
+                $_SESSION['logged_user_avatar_url'] = $editedUser->getAvatarUrl();
             }
         }
         header($status);

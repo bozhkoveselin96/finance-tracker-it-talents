@@ -43,4 +43,8 @@ class Transaction {
     public function getTimeEvent() {
         return $this->time_event;
     }
+
+    public function setId($id) {
+        $this->id = $id;
+    }
 }

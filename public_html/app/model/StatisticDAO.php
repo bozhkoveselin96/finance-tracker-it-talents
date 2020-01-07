@@ -6,8 +6,7 @@ namespace model;
 
 class StatisticDAO {
 
-    public static function getTransactionsSum($user_id, $type) {
-        try {
+    public function getTransactionsSum($user_id, $type) {
             $instance = Connection::getInstance();
             $conn = $instance->getConn();
             $name = ($type == 1 ? "income" : "outcome");
@@ -19,9 +18,6 @@ class StatisticDAO {
             $stmt = $conn->prepare($sql);
             $stmt->execute([$name, $user_id, $type]);
             return $stmt->fetch(\PDO::FETCH_OBJ);
-        } catch (\PDOException $exception) {
-            return false;
-        }
     }
 
     public static function getTransactionsByCategory($user_id, $type) {
@@ -99,11 +95,11 @@ class StatisticDAO {
             $instance = Connection::getInstance();
             $conn = $instance->getConn();
             $sql1 = "SELECT DATE_FORMAT(t.time_event, '%e.%m') AS date, tc.type AS category, ROUND(SUM(t.amount), 2) as sum FROM transactions AS t
-                    JOIN transaction_categories AS tc ON tc.id = t.category_id
-                    JOIN accounts AS a ON a.id = t.account_id
-                    WHERE a.owner_id = 14 AND t.time_event > NOW() - INTERVAL 10 day AND t.time_event < NOW()
-                    GROUP BY date, tc.type
-                    ORDER BY date";
+                     JOIN transaction_categories AS tc ON tc.id = t.category_id
+                     JOIN accounts AS a ON a.id = t.account_id
+                     WHERE a.owner_id = 14 AND t.time_event > NOW() - INTERVAL 10 day AND t.time_event < NOW()
+                     GROUP BY date, tc.type
+                     ORDER BY date";
             $transactions = $conn->prepare($sql1);
             $transactions->execute([$owner_id]);
             return $transactions->fetchAll(\PDO::FETCH_OBJ);

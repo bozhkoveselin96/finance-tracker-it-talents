@@ -7,74 +7,65 @@ namespace model\categories;
 use model\Connection;
 
 class CategoryDAO {
-    public static function createCategory(Category $category) {
-        try {
-            $data = [];
-            $data[] = $category->getName();
-            $data[] = $category->getType();
-            $data[] = $category->getIcon();
-            $data[] = $category->getOwnerId();
+    public function createCategory(Category $category) {
+        $parameters = [];
+        $parameters[] = $category->getName();
+        $parameters[] = $category->getType();
+        $parameters[] = $category->getIcon();
+        $parameters[] = $category->getOwnerId();
 
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "INSERT INTO transaction_categories(name, type, icon, owner_id)
-                    VALUES (?, ?, ?, ?);";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute($data);
-            return true;
-        } catch (\PDOException $exception) {
-            return false;
-        }
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "INSERT INTO transaction_categories(name, type, icon, owner_id)
+                VALUES (?, ?, ?, ?);";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($parameters);
     }
 
-    public static function getAll($owner_id, $type) {
-        try {
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "SELECT * FROM transaction_categories 
-                    WHERE (owner_id is NULL OR owner_id = ?) AND type = ?;";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$owner_id, $type]);
+    public function getAll($owner_id, $type) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT id, name, type, icon, owner_id FROM transaction_categories 
+                WHERE (owner_id is NULL OR owner_id = ?) AND type = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$owner_id, $type]);
 
-            return $stmt->fetchAll(\PDO::FETCH_OBJ);
-        } catch (\PDOException $exception) {
-            return false;
+        $categories = [];
+        foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
+            $category = new Category($value->name, $value->type, $value->icon, $value->owner_id);
+            $category->setId($conn->lastInsertId());
+            $categories[] = $category;
         }
+        return $categories;
     }
 
-    public static function editCategory(Category $category) {
-        try {
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "UPDATE transaction_categories SET name = ?, icon = ? 
-                    WHERE id = ? AND owner_id = ?;";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
-                $category->getName(),
-                $category->getIcon(),
-                $category->getId(),
-                $category->getOwnerId()
-                ]);
-            return true;
-        } catch (\PDOException $exception) {
-            return false;
-        }
+    public function editCategory(Category $category) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "UPDATE transaction_categories SET name = ?, icon = ? 
+                WHERE id = ? AND owner_id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            $category->getName(),
+            $category->getIcon(),
+            $category->getId(),
+            $category->getOwnerId()
+        ]);
     }
 
-    public static function getCategoryById($category_id, $owner_id) {
-        try {
-            $instance = Connection::getInstance();
-            $conn = $instance->getConn();
-            $sql = "SELECT id, name, type, icon, owner_id 
-                    FROM transaction_categories WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([$category_id, $owner_id]);
-            if ($stmt->rowCount() == 1) {
-                return $stmt->fetch(\PDO::FETCH_OBJ);
-            }
-            return false;
-        } catch (\PDOException $exception) {
-            return false;
+    public function getCategoryById($category_id, $owner_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT id, name, type, icon, owner_id 
+                FROM transaction_categories 
+                WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$category_id, $owner_id]);
+        if ($stmt->rowCount() == 1) {
+            $row = $stmt->fetch(\PDO::FETCH_OBJ);
+            $category = new Category($row->name, $row->type, $row->icon, $row->owner_id);
+            return $category;
         }
+        return false;
     }
 }
