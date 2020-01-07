@@ -14,7 +14,8 @@ class BudgetDAO {
             $data[] = $budget->getFromDate();
             $data[] = $budget->getToDate();
 
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "INSERT INTO budgets(category_id, amount, owner_id, from_date, to_date, date_created)
                     VALUES (?, ?, ?, ?, ?, CURRENT_DATE);";
             $stmt = $conn->prepare($sql);
@@ -28,7 +29,8 @@ class BudgetDAO {
 
     public static function getAll(int $user_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT b.id, c.name, b.amount, 
                     (SELECT SUM(t.amount) FROM transactions AS t 
                     WHERE t.time_event BETWEEN b.from_date AND b.to_date + INTERVAL 1 day
@@ -47,7 +49,8 @@ class BudgetDAO {
 
     public static function getBudgetById(int $budget_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT id, category_id, amount, from_date, to_date, owner_id 
                     FROM budgets
                     WHERE id = ?;";
@@ -64,7 +67,8 @@ class BudgetDAO {
 
     public static function deleteBudget(int $budget_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "DELETE FROM budgets WHERE id = ?;";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$budget_id]);

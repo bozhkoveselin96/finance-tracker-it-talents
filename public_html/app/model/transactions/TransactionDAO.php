@@ -10,7 +10,8 @@ class TransactionDAO {
     public static function create(Transaction $transaction, int $category_type) {
         try {
 
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $conn->beginTransaction();
                 $data = [];
                 $data[] = $transaction->getAmount();
@@ -45,7 +46,8 @@ class TransactionDAO {
             $data = [];
             $data[] = $user_id;
 
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT t.id, t.amount, t.account_id, a.name AS account_name, t.category_id,
                     tc.name AS category_name, tc.type AS transaction_type, t.note, t.time_event
                     FROM transactions AS t

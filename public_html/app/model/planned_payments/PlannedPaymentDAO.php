@@ -9,7 +9,9 @@ use model\Connection;
 class PlannedPaymentDAO {
     public static function create(PlannedPayment $plannedPayment) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
+
             $data = [];
             $data[] = $plannedPayment->getDayForPayment();
             $data[] = $plannedPayment->getAmount();
@@ -28,7 +30,8 @@ class PlannedPaymentDAO {
 
     public static function getAll($user_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
 
             $sql = "SELECT pp.day_for_payment, pp.amount, a.name AS account_name, c.name AS category_name, pp.status FROM planned_payments AS pp 
                     JOIN accounts AS a ON pp.account_id = a.id
@@ -46,7 +49,8 @@ class PlannedPaymentDAO {
 
     public static function changeStatus($planned_payment_id, bool $status) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
 
             $sql = "UPDATE planned_payments SET status = ? WHERE id = ?";
             $stmt = $conn->prepare($sql);
@@ -59,7 +63,8 @@ class PlannedPaymentDAO {
 
     public static function getPlannedPaymentById($planned_payment_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
 
             $sql = "SELECT pp.day_for_payment, pp.amount, a.name AS account_name, a.owner_id, c.name AS category_name, pp.status FROM planned_payments AS pp 
                     JOIN accounts AS a ON pp.account_id = a.id

@@ -15,7 +15,8 @@ class UserDAO {
             $data[] = $user->getLastName();
             $data[] = $user->getAvatarUrl();
 
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "INSERT INTO users(email, password, first_name, last_name, avatar_url, last_login, date_created)
                 VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_DATE);";
             $stmt = $conn->prepare($sql);
@@ -28,7 +29,8 @@ class UserDAO {
 
     public static function getUser($email_or_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT id, email, password, first_name, last_name, avatar_url FROM users ";
             if (is_int($email_or_id)) {
                 $sql .= "WHERE id = ?;";
@@ -55,7 +57,8 @@ class UserDAO {
             $data[] = $user->getAvatarUrl();
             $data[] = $user->getId();
 
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "UPDATE users SET password = ?, first_name = ?, last_name = ?, avatar_url = ? WHERE id = ?;";
             $stmt = $conn->prepare($sql);
             $stmt->execute($data);
@@ -67,7 +70,8 @@ class UserDAO {
 
     public static function updateLastLogin($user_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "UPDATE users SET last_login = CURRENT_TIMESTAMP 
                     WHERE id = ?;";
             $stmt = $conn->prepare($sql);
@@ -81,7 +85,8 @@ class UserDAO {
 
     public static function addToken($token, $user_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "INSERT INTO reset_password(token) VALUE ?
                     WHERE user_id = ?;";
             $stmt = $conn->prepare($sql);
@@ -95,7 +100,8 @@ class UserDAO {
 
     public static function tokenExists($token) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT user_id FROM reset_password
                     WHERE token = ?;";
             $stmt = $conn->prepare($sql);
@@ -111,7 +117,8 @@ class UserDAO {
 
     public static function changeForgottenPassword($newPassword, $user_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "UPDATE users SET password = ? WHERE id = ?;";
             $stmt = $conn->prepare($sql);
             $stmt->execute([$newPassword, $user_id]);

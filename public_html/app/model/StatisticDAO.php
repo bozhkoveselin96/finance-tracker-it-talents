@@ -8,7 +8,8 @@ class StatisticDAO {
 
     public static function getTransactionsSum($user_id, $type) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $name = ($type == 1 ? "income" : "outcome");
 
             $sql = "SELECT COALESCE(SUM(t.amount), 0) AS ? FROM transactions AS t
@@ -25,7 +26,8 @@ class StatisticDAO {
 
     public static function getTransactionsByCategory($user_id, $type) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT tc.name AS category_name, COALESCE(SUM(t.amount), 0) AS amount 
                     FROM transactions AS t
                     JOIN accounts AS a ON(a.id = t.account_id)
@@ -42,7 +44,8 @@ class StatisticDAO {
 
     public static function getTrForSelectedPeriod($user_id, $type, $from_date, $to_date) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $name = ($type == 1 ? "income" : "outcome");
             $sql = "SELECT COALESCE(SUM(t.amount), 0) AS ? FROM transactions AS t
                     JOIN accounts AS a ON(a.id = t.account_id)
@@ -58,7 +61,8 @@ class StatisticDAO {
 
     public static function getTrForSelectedPeriodByCategories($user_id, $type, $from_date, $to_date) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT tc.name AS category_name,
                     COALESCE(SUM(t.amount), 0) AS amount FROM transactions AS t
                     JOIN accounts AS a ON(a.id = t.account_id)
@@ -75,7 +79,8 @@ class StatisticDAO {
 
     public static function getBudgetProgress($budget_id, $owner_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql = "SELECT (b.amount-SUM(t.amount)) AS remainder, SUM(t.amount) AS spent_so_far
                     FROM budgets AS b
                     JOIN transactions AS t ON(b.category_id = t.category_id)
@@ -91,7 +96,8 @@ class StatisticDAO {
 
     public static function getForTheLastTenDays($owner_id) {
         try {
-            $conn = Connection::get();
+            $instance = Connection::getInstance();
+            $conn = $instance->getConn();
             $sql1 = "SELECT DATE_FORMAT(t.time_event, '%e.%m') AS date, tc.type AS category, ROUND(SUM(t.amount), 2) as sum FROM transactions AS t
                     JOIN transaction_categories AS tc ON tc.id = t.category_id
                     JOIN accounts AS a ON a.id = t.account_id
