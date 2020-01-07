@@ -63,7 +63,10 @@ class TransactionDAO {
 
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
             $transaction = new Transaction($value->amount, $value->account_id, $value->category_id, $value->note, $value->time_event);
-            $transaction->setId($conn->lastInsertId());
+            $transaction->setId($value->id);
+            $transaction->setAccountName($value->account_name);
+            $transaction->setCategoryName($value->category_name);
+            $transaction->setCategoryType($value->transaction_type);
             $transactions[] = $transaction;
         }
         return $transactions;

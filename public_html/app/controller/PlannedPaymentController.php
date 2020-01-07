@@ -12,17 +12,25 @@ use model\planned_payments\PlannedPaymentDAO;
 class PlannedPaymentController {
     public function add() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
-        if (isset($_POST['add_planned_payment']) && isset($_SESSION['logged_user']) && isset($_POST['day_for_payment']) &&
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly.';
+        if (isset($_POST['add_planned_payment']) && isset($_POST['day_for_payment']) &&
             isset($_POST['amount']) && isset($_POST['account_id']) && isset($_POST['category_id'])) {
-            $plannedPayment = new PlannedPayment($_POST['day_for_payment'], $_POST['amount'], $_POST['account_id'], $_POST['category_id']);
-            $account = AccountDAO::getAccountById($plannedPayment->getAccountId());
-            $category = CategoryDAO::getCategoryById($plannedPayment->getCategoryId(), $_SESSION['logged_user']);
-            if (Validator::validateAmount($plannedPayment->getAmount()) &&
-                Validator::validateDayOfMonth($plannedPayment->getDayForPayment()) &&
-                $account->owner_id == $_SESSION['logged_user'] && $category && PlannedPaymentDAO::create($plannedPayment)) {
-                $status = STATUS_CREATED;
-                $response['target'] = 'planned_payment';
+            try {
+                $plannedPaymentDAO = new PlannedPaymentDAO();
+                $accountDAO = new AccountDAO();
+                $categoryDAO = new CategoryDAO();
+                $plannedPayment = new PlannedPayment($_POST['day_for_payment'], $_POST['amount'], $_POST['account_id'], $_POST['category_id']);
+                $account = $accountDAO->getAccountById($plannedPayment->getAccountId());
+                $category = $categoryDAO->getCategoryById($plannedPayment->getCategoryId(), $_SESSION['logged_user']);
+                if (Validator::validateAmount($plannedPayment->getAmount()) && $account && $category &&
+                    Validator::validateDayOfMonth($plannedPayment->getDayForPayment()) &&
+                    $account->getOwnerId() == $_SESSION['logged_user']) {
+                    $plannedPaymentDAO->create($plannedPayment);
+                    $status = STATUS_CREATED;
+                    $response['target'] = 'planned_payment';
+                }
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Not created. Please try again';
             }
         }
         header($status);
@@ -31,12 +39,15 @@ class PlannedPaymentController {
 
     public function getAll() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'No planned payments available or you are not logged in.';
-        if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_SESSION['logged_user'])) {
-             $plannedPayments = PlannedPaymentDAO::getAll($_SESSION['logged_user']);
-            if ($plannedPayments !== false) {
+        $status = STATUS_BAD_REQUEST . 'No planned payments available.';
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            try {
+                $plannedPaymentsDAO = new PlannedPaymentDAO();
+                $plannedPayments = $plannedPaymentsDAO->getAll($_SESSION['logged_user']);
                 $status = STATUS_OK;
                 $response['data'] = $plannedPayments;
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again';
             }
         }
         header($status);

@@ -13,22 +13,25 @@ class TransactionController {
     public function add() {
         $response = [];
         $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
-        if (isset($_POST['add_transaction']) && isset($_SESSION['logged_user']) && isset($_POST['account_id']) &&
-            isset($_POST['category_id']) && Validator::validateName($_POST['note']) && !empty($_POST['time_event'])) {
-            $account = AccountDAO::getAccountById($_POST['account_id']);
-            $category = CategoryDAO::getCategoryById($_POST['category_id'], $account->owner_id);
-            $transaction_type = $category->type;
-            $amount = $_POST['amount'];
-            $note = $_POST['note'];
-            $time_event = $_POST['time_event'];
+        if (isset($_POST['add_transaction']) && isset($_POST['account_id']) && isset($_POST['category_id']) &&
+             !empty($_POST['time_event'])) {
+            try {
+                $accountDAO = new AccountDAO();
+                $categoryDAO = new CategoryDAO();
+                $account = $accountDAO->getAccountById($_POST['account_id']);
+                $category = $categoryDAO->getCategoryById($_POST['category_id'], $account->getOwnerId());
 
-            if ($account && $account->owner_id == $_SESSION['logged_user'] && $category &&
-                Validator::validateAmount($amount) && Validator::validateDate($time_event)) {
-                $transaction = new Transaction($amount, $account->id, $category->id, $note, $time_event);
-                if (TransactionDAO::create($transaction, $transaction_type)) {
+                $transaction = new Transaction($_POST['amount'], $account->getId(), $category->getId(), $_POST['note'], $_POST['time_event']);
+                if ($account && $account->getOwnerId() == $_SESSION['logged_user'] && $category &&
+                    Validator::validateAmount($transaction->getAmount()) && Validator::validateDate($transaction->getAmount()) &&
+                    Validator::validateName($transaction->getNote())) {
+                    $transactionDAO = new TransactionDAO();
+                    $transactionDAO->create($transaction, $category->getType());
                     $response['target'] = 'transaction';
                     $status = STATUS_CREATED;
                 }
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Not created. Please try again';
             }
         }
         header($status);
@@ -39,18 +42,17 @@ class TransactionController {
         $response = [];
         $status = STATUS_BAD_REQUEST . 'No transactions available or you are not logged in.';
 
-        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"])) {
-            $category_id = null;
-            if (isset($_GET["category_id"])) {
-                $category_id = $_GET["category_id"];
-            }
+        if ($_SERVER["REQUEST_METHOD"] == "GET") {
+            try {
+                $category_id = isset($_GET["category_id"]) ? $_GET["category_id"] : null;
 
-            $transactions = TransactionDAO::getByUserAndCategory($_SESSION['logged_user'], $category_id);
-            if ($transactions !== false) {
+                $transactionDAO = new TransactionDAO();
+                $transactions = $transactionDAO->getByUserAndCategory($_SESSION['logged_user'], $category_id);
                 $status = STATUS_OK;
                 $response["data"] = $transactions;
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again';
             }
-
         }
         header($status);
         return $response;

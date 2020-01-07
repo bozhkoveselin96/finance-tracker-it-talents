@@ -21,7 +21,6 @@ class UserDAO {
                 VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($data);
-        $user->setId($conn->lastInsertId());
     }
 
     public function getUser($email_or_id) {
@@ -60,7 +59,7 @@ class UserDAO {
         $stmt->execute($parameters);
     }
 
-    public static function updateLastLogin($user_id) {
+    public function updateLastLogin($user_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         $sql = "UPDATE users SET last_login = CURRENT_TIMESTAMP 

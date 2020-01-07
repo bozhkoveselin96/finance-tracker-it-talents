@@ -4,12 +4,15 @@
 namespace model\transactions;
 
 
-class Transaction {
+class Transaction implements \JsonSerializable {
     private $id;
     private $amount;
     private $account_id;
     private $category_id;
     private $note;
+    private $account_name;
+    private $category_name;
+    private $category_type;
     private $time_created;
     private $time_event;
 
@@ -46,5 +49,32 @@ class Transaction {
 
     public function setId($id) {
         $this->id = $id;
+    }
+
+    public function setAccountName($account_name): void
+    {
+        $this->account_name = $account_name;
+    }
+
+    public function setCategoryName($category_name): void
+    {
+        $this->category_name = $category_name;
+    }
+
+    public function setCategoryType($category_type): void
+    {
+        $this->category_type = $category_type;
+    }
+
+    public function jsonSerialize() {
+        return [
+            'id'=>$this->id,
+            'transaction_type' => $this->category_type,
+            'amount' => $this->amount,
+            'note' => $this->note,
+            'account_name' => $this->account_name,
+            'category_name' => $this->category_name,
+            'time_event' => $this->time_event
+        ];
     }
 }

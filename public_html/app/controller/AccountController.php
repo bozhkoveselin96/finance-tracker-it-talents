@@ -36,13 +36,13 @@ class AccountController {
                 $accountsDAO = new AccountDAO();
                 $accounts = $accountsDAO->getMyAccounts($_SESSION['logged_user']);
                 $status = STATUS_OK;
-                $response['data'] = $accounts;
+                return $accounts;
             } catch (\Exception $exception) {
                 $status = STATUS_ACCEPTED . 'Something went wrong. Please try again.';
             }
         }
         header($status);
-        return $response;
+//        return $response;
     }
 
     public function edit() {

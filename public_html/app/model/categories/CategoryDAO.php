@@ -64,6 +64,7 @@ class CategoryDAO {
         if ($stmt->rowCount() == 1) {
             $row = $stmt->fetch(\PDO::FETCH_OBJ);
             $category = new Category($row->name, $row->type, $row->icon, $row->owner_id);
+            $category->setId($row->id);
             return $category;
         }
         return false;

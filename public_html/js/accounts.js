@@ -3,7 +3,7 @@ function getAllAccounts() {
         function (response) {
             let table = $("#accounts");
 
-            $.each(response.data, function (key, value) {
+            $.each(response, function (key, value) {
                 let tr = $("<tr />");
                 tr.attr("id", value.id);
 
@@ -97,9 +97,7 @@ function getAllAccounts() {
 function getAccountsMain() {
     $.get("app/index.php?target=account&action=getAll",
         function (response) {
-
-
-            $.each(response.data, function (key, value) {
+            $.each(response, function (key, value) {
                 let mainDiv = $("<div class=\"col-xl-3 col-sm-6 mb-3\"></div>");
                 let secondDiv = $("<div class=\"card text-white bg-success o-hidden h-100\"></div>");
 

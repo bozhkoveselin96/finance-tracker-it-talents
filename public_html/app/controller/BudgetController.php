@@ -11,22 +11,24 @@ use model\categories\CategoryDAO;
 class BudgetController {
     public function add() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
-        if (isset($_POST["add_budget"]) && isset($_SESSION["logged_user"]) &&
-            isset($_POST["category_id"]) && isset($_POST["amount"]) &&
+        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly.';
+        if (isset($_POST["add_budget"]) && isset($_POST["category_id"]) && isset($_POST["amount"]) &&
             isset($_POST["from_date"]) && isset($_POST["to_date"])) {
-                $category = CategoryDAO::getCategoryById($_POST["category_id"], $_SESSION['logged_user']);
-                $amount = $_POST["amount"];
-                $owner_id = $_SESSION["logged_user"];
-                $from_date = $_POST["from_date"];
-                $to_date = $_POST["to_date"];
+            try {
+                $categoryDAO = new CategoryDAO();
+                $category = $categoryDAO->getCategoryById($_POST["category_id"], $_SESSION['logged_user']);
 
-                $budget = new Budget($category->id, $amount, $owner_id, $from_date, $to_date);
-                if ($category && Validator::validateAmount($budget->getAmount()) && Validator::validateDate($from_date) &&
-                    Validator::validateDate($to_date) && BudgetDAO::createBudget($budget)) {
+                $budget = new Budget($category->getId(), $_POST["amount"], $_SESSION["logged_user"], $_POST["from_date"], $_POST["to_date"]);
+                if (Validator::validateAmount($budget->getAmount()) && Validator::validateDate($budget->getFromDate()) &&
+                    Validator::validateDate($budget->getToDate())) {
+                    $budgetDAO = new BudgetDAO();
+                    $budgetDAO->createBudget($budget);
                     $status = STATUS_CREATED;
                     $response["target"] = "budget";
                 }
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Not created. Please try again';
+            }
         }
         header($status);
         return $response;
@@ -34,14 +36,16 @@ class BudgetController {
 
     public function getAll() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'No budgets available or you are not logged in.';
-        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_SESSION["logged_user"])) {
-            $budgets = BudgetDAO::getAll($_SESSION['logged_user']);
-            if ($budgets !== false) {
+        $status = STATUS_BAD_REQUEST . 'No budgets available.';
+        if ($_SERVER["REQUEST_METHOD"] == "GET") {
+            try {
+                $budgetDAO = new BudgetDAO();
+                $budgets = $budgetDAO->getAll($_SESSION['logged_user']);
                 $response["data"] = $budgets;
                 $status = STATUS_OK;
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Not available. Please try again';
             }
-
         }
         header($status);
         return $response;
@@ -50,11 +54,16 @@ class BudgetController {
     public function delete() {
         $response = [];
         $status = STATUS_FORBIDDEN . 'You do not have access to this!';
-        if (isset($_POST["delete"]) && isset($_SESSION['logged_user'])) {
-            $budget = BudgetDAO::getBudgetById($_POST["budget_id"]);
-
-            if ($budget && $_SESSION['logged_user'] == $budget->owner_id && BudgetDAO::deleteBudget($budget->id)) {
-                $status = STATUS_OK;
+        if (isset($_POST["delete"])) {
+            try {
+                $budgetDAO = new BudgetDAO();
+                $budget = $budgetDAO->getBudgetById($_POST["budget_id"]);
+                if ($budget->getOwnerId() == $_SESSION['logged_user']) {
+                    $budgetDAO->deleteBudget($budget->getId());
+                    $status = STATUS_OK;
+                }
+            } catch (\Exception $exception) {
+                $status = STATUS_ACCEPTED . 'Not deleted. Please try again';
             }
         }
         header($status);

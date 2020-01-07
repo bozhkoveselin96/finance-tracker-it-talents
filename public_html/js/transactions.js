@@ -1,8 +1,8 @@
 function addTransaction() {
     let selectAccount = $("#account");
     $.get("app/index.php?target=account&action=getAll",
-        function (data) {
-        $.each(data.data, function (key, value) {
+        function (response) {
+        $.each(response, function (key, value) {
             selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
         })
     }, 'json');
@@ -28,10 +28,10 @@ function addTransaction() {
 
 function getTransactionsMain() {
     $.get("app/index.php?target=transaction&action=showUserTransactions",
-        function (data) {
+        function (response) {
             let table = $("#transactions");
 
-            $.each(data.data, function (key, value) {
+            $.each(response.data, function (key, value) {
                 let tr = $("<tr />");
 
                 let amount = $("<td></td>");

@@ -4,7 +4,7 @@
 namespace model\accounts;
 
 
-class Account {
+class Account implements \JsonSerializable {
     private $id;
     private $name;
     private $current_amount;
@@ -35,5 +35,13 @@ class Account {
 
     public function setId($id) {
         $this->id = $id;
+    }
+
+    public function jsonSerialize() {
+        return [
+            'id' =>$this->id,
+            'name' => $this->name,
+            'current_amount' => $this->current_amount
+        ];
     }
 }
