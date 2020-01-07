@@ -11,6 +11,18 @@ spl_autoload_register(function ($class) {
     }
 });
 
+function handleExceptions(Exception $exception) {
+    $status = $exception instanceof BaseException ? $exception->getStatusCode() : 500;
+    $message = $exception->getMessage();
+    $object = new stdClass();
+    $object->message = $message;
+    $object->status = $status;
+    echo json_encode($object);
+    http_response_code($status);
+}
+
+set_exception_handler("handleExceptions");
+
 define("MIN_LENGTH_PASSWORD", 8);
 define("MIN_LENGTH_NAME", 3);
 //8 symbols, one letter and one number
@@ -21,25 +33,10 @@ define("NO_AVATAR_URL", 'avatars' . DIRECTORY_SEPARATOR . 'no-avatar.png');
 define("STATUS_OK", $_SERVER["SERVER_PROTOCOL"] . " 200 OK ");
 define("STATUS_CREATED", $_SERVER["SERVER_PROTOCOL"] . " 201 Created ");
 define("STATUS_ACCEPTED", $_SERVER["SERVER_PROTOCOL"] . " 202 ");
-define("STATUS_BAD_REQUEST", $_SERVER["SERVER_PROTOCOL"] . " 400 ");
-define("STATUS_UNAUTHORIZED", $_SERVER["SERVER_PROTOCOL"] . " 401 ");
-define("STATUS_FORBIDDEN", $_SERVER["SERVER_PROTOCOL"] . " 403 ");
-define("STATUS_NOT_FOUND", $_SERVER["SERVER_PROTOCOL"] . " 404 ");
+
 
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
-
-//function handleExceptions(Exception $e){
-//    $resp = new stdClass();
-//    $resp->msg = $e->getMessage();
-//    $resp->status = 500;
-//    echo json_encode($resp);
-//}
-//
-//set_exception_handler("handleExceptions");
-//
-//
-//throw new Exception("ebasi tupoto");
 
 if ($controllerName != 'user' && ($methodName != 'login' || $methodName != 'register') && !isset($_SESSION['logged_user'])) {
     header(STATUS_UNAUTHORIZED . 'Please log in.');
