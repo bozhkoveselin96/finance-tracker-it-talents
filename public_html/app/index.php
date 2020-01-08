@@ -28,13 +28,9 @@ define("MIN_LENGTH_PASSWORD", 8);
 define("MIN_LENGTH_NAME", 3);
 //8 symbols, one letter and one number
 define("PASSWORD_PATTERN", "^(?=.*[A-Za-z])(?=.*\d)[a-zA-Z0-9,.;\^!@#$%&*()+=:_'\s-]{8,}$^");
+define("PASSWORD_WRONG_PATTERN_MESSAGE", 'Password must have 8 symbols containing at least one letter and one number.');
 define("MAX_AMOUNT", 10000000);
 define("NO_AVATAR_URL", 'avatars' . DIRECTORY_SEPARATOR . 'no-avatar.png');
-
-define("STATUS_OK", $_SERVER["SERVER_PROTOCOL"] . " 200 OK ");
-define("STATUS_CREATED", $_SERVER["SERVER_PROTOCOL"] . " 201 Created ");
-define("STATUS_ACCEPTED", $_SERVER["SERVER_PROTOCOL"] . " 202 ");
-
 
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
@@ -51,8 +47,8 @@ if(class_exists($controllerClassName)){
     if(method_exists($controller, $methodName)){
         echo json_encode($controller->$methodName());
     } else{
-        throw new NotFoundException('Not found');
+        throw new NotFoundException('Not Found');
     }
 } else{
-    throw new NotFoundException();
+    throw new NotFoundException('Not Found');
 }

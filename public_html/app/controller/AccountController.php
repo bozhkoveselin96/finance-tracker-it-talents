@@ -4,9 +4,10 @@
 namespace controller;
 
 
+use exceptions\BadRequestException;
+use exceptions\ForbiddenException;
 use model\accounts\Account;
 use model\accounts\AccountDAO;
-use mysql_xdevapi\Exception;
 
 class AccountController
 {
@@ -17,9 +18,9 @@ class AccountController
             $account = new Account($_POST['name'], $_POST['current_amount'], $_SESSION['logged_user']);
             $accountDAO = new AccountDAO();
             if (!Validator::validateName($account->getName())) {
-                throw new \BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
+                throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             } elseif (!Validator::validateAmount($account->getCurrentAmount())) {
-                throw new \BadRequestException("Amount must be between 0 and" . MAX_AMOUNT . "inclusive");
+                throw new BadRequestException("Amount must be between 0 and" . MAX_AMOUNT . "inclusive");
             } else {
                 $accountDAO->createAccount($account);
                 $response['target'] = 'addaccount';
@@ -39,7 +40,7 @@ class AccountController
     public function edit() {
         if (isset($_POST["edit"])) {
             if (!Validator::validateName($_POST["name"])) {
-                throw new \BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
+                throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             }
             $account_id = $_POST["account_id"];
             $accountDAO = new AccountDAO();
@@ -51,7 +52,7 @@ class AccountController
             if ($newAccountName->getOwnerId() == $account->getOwnerId()) {
                 $accountDAO->editAccount($newAccountName);
             } else {
-                throw new \ForbiddenException("This account is not yours");
+                throw new ForbiddenException("This account is not yours");
             }
         }
     }
@@ -65,7 +66,7 @@ class AccountController
             if ($account->getOwnerId() == $_SESSION['logged_user']) {
                 $accountDAO->deleteAccount($account->getId());
             } else {
-                throw new \ForbiddenException("This account is not yours");
+                throw new ForbiddenException("This account is not yours");
             }
         }
     }

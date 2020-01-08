@@ -3,6 +3,7 @@
 namespace controller;
 
 use exceptions\BadRequestException;
+use exceptions\UnauthorizedException;
 use model\users\User;
 use model\users\UserDAO;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -14,131 +15,136 @@ class UserController
         if (isset($_POST["login"])) {
             $email = $_POST["email"];
             $password = $_POST["password"];
-            if (Validator::validateEmail($email) && Validator::validatePassword($password)) {
-                try {
-                    $userDAO = new UserDAO();
-                    $user = $userDAO->getUser($email);
-                    if ($user && password_verify($password, $user->getPassword())) {
-                        $_SESSION["logged_user"] = $user->getId();
-                        $_SESSION["logged_user_first_name"] = $user->getFirstName();
-                        $_SESSION["logged_user_last_name"] = $user->getLastName();
-                        $_SESSION["logged_user_avatar_url"] = $user->getAvatarUrl();
-
-                        $response['id'] = $user->getId();
-                        $response["first_name"] = $user->getFirstName();
-                        $response["last_name"] = $user->getLastName();
-                        $response["avatar_url"] = $user->getAvatarUrl();
-                        if ($user->getAvatarUrl() == null) {
-                            $response['avatar_url'] = NO_AVATAR_URL;
-                        }
-
-                        $response["target"] = 'login';
-                        $userDAO->updateLastLogin($user->getId());
-                    }
-                } catch (\Exception $exception) {
-                    $status = STATUS_ACCEPTED . 'Something went wrong. Please try again';
-                }
+            if (!Validator::validateEmail($email)) {
+                throw new BadRequestException("Not a valid email");
+            } elseif (!Validator::validatePassword($password)) {
+                throw new BadRequestException("Not a valid password");
             }
+
+            $userDAO = new UserDAO();
+            $user = $userDAO->getUser($email);
+
+            if (!$user || !password_verify($password, $user->getPassword())) {
+                throw new UnauthorizedException('Email and/or password missmatch.');
+            }
+
+            $_SESSION["logged_user"] = $user->getId();
+            $_SESSION["logged_user_first_name"] = $user->getFirstName();
+            $_SESSION["logged_user_last_name"] = $user->getLastName();
+            $_SESSION["logged_user_avatar_url"] = $user->getAvatarUrl();
+
+            $response['id'] = $user->getId();
+            $response["first_name"] = $user->getFirstName();
+            $response["last_name"] = $user->getLastName();
+            $response["avatar_url"] = $user->getAvatarUrl();
+            if ($user->getAvatarUrl() == null) {
+                $response['avatar_url'] = NO_AVATAR_URL;
+            }
+            $response["target"] = 'login';
+            $userDAO->updateLastLogin($user->getId());
         }
         return $response;
     }
 
-    public function register()
-    {
-        $response = [];
-        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly.';
+    public function register() {
         if (isset($_POST["register"])) {
-            try {
-                $avatar_url = $this->uploadAvatar($_POST["email"]);
-                $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name'], $avatar_url);
-                $userDAO = new UserDAO();
-                if (Validator::validateEmail($user->getEmail()) && !$userDAO->getUser($user->getEmail()) &&
-                    Validator::validatePassword($user->getPassword()) &&
-                    Validator::validateName($user->getFirstName()) &&
-                    Validator::validateName($user->getLastName()) &&
-                    strcmp($user->getPassword(), $_POST["rpassword"]) == 0) {
 
-                    $cryptedPass = password_hash($user->getPassword(), PASSWORD_BCRYPT);
-                    $user->setPassword($cryptedPass);
-                    $userDAO->register($user);
-                    $status = STATUS_OK;
-                }
-            } catch (\Exception $exception) {
-                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again';
+            $avatar_url = $this->uploadAvatar($_POST["email"]);
+            $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name'], $avatar_url);
+            $userDAO = new UserDAO();
+            $msg = null;
+            if (!Validator::validateEmail($user->getEmail())) {
+                $msg = "Not a valid email";
+            } elseif ($userDAO->getUser($user->getEmail())) {
+                $msg = "This email is already registered.";
+            } elseif (!Validator::validatePassword($user->getPassword())) {
+                $msg = PASSWORD_WRONG_PATTERN_MESSAGE;
+            } elseif (strcmp($user->getPassword(), $_POST["rpassword"]) != 0) {
+                $msg = "Passwords missmatch.";
+            }elseif (!Validator::validateName($user->getFirstName())) {
+                $msg = 'First name must have at least ' . MIN_LENGTH_NAME . ' letters.';
+            } elseif (!Validator::validateName($user->getLastName())) {
+                $msg = 'Last name must have at least ' . MIN_LENGTH_NAME . ' letters.';
             }
+
+            if ($msg) {
+                throw new BadRequestException($msg);
+            }
+
+            $cryptedPass = password_hash($user->getPassword(), PASSWORD_BCRYPT);
+            $user->setPassword($cryptedPass);
+            $userDAO->register($user);
+        } else {
+            throw new BadRequestException("Bad request");
         }
-        header($status);
-        return $response;
     }
 
-    public function edit()
-    {
+    public function edit() {
         $response = [];
-        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly or you are not logged in.';
-
         if (isset($_POST["edit"]) && isset($_SESSION["logged_user"])) {
-            try {
-                $userDAO = new UserDAO();
-                $user_id = $_SESSION["logged_user"];
-                $user = $userDAO->getUser(intval($user_id));
-                $oldAvatar = $user->getAvatarUrl();
-                $avatar_url = $this->uploadAvatar($user->getEmail());
-                if ($avatar_url) {
-                    if (file_exists($oldAvatar)) {
-                        unlink($oldAvatar);
-                    }
-                } else {
-                    $avatar_url = $oldAvatar;
-                }
 
-                $editedUser = new User($user->getEmail(), $_POST["password"], $_POST["first_name"], $_POST["last_name"], $avatar_url);
-                $editedUser->setId($user_id);
-
-                if (Validator::validatePassword($editedUser->getPassword()) && strcmp($editedUser->getPassword(), $_POST["rpassword"]) == 0) {
-                    $cryptedPass = password_hash($editedUser->getPassword(), PASSWORD_BCRYPT);
-                    $editedUser->setPassword($cryptedPass);
-                    $response['password_edited'] = true;
-                } else {
-                    $response['password_edited'] = false;
-                    $editedUser->setPassword($user->getPassword());
+            $userDAO = new UserDAO();
+            $user_id = $_SESSION["logged_user"];
+            $user = $userDAO->getUser(intval($user_id));
+            $oldAvatar = $user->getAvatarUrl();
+            $avatar_url = $this->uploadAvatar($user->getEmail());
+            if ($avatar_url) {
+                if (file_exists($oldAvatar)) {
+                    unlink($oldAvatar);
                 }
-                if (Validator::validateName($editedUser->getFirstName()) &&
-                    Validator::validateName($editedUser->getLastName())) {
-                    $userDAO->edit($editedUser);
-                    $status = STATUS_OK;
-                    $response["first_name"] = $editedUser->getFirstName();
-                    $response["last_name"] = $editedUser->getLastName();
-                    $response["avatar_url"] = $editedUser->getAvatarUrl();
-                    if ($editedUser->getAvatarUrl() == null) {
-                        $response['avatar_url'] = NO_AVATAR_URL;
-                    }
-                    $_SESSION['logged_user_first_name'] = $editedUser->getFirstName();
-                    $_SESSION['logged_user_last_name'] = $editedUser->getLastName();
-                    $_SESSION['logged_user_avatar_url'] = $editedUser->getAvatarUrl();
-                }
-            } catch (\Exception $exception) {
-                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again';
+            } else {
+                $avatar_url = $oldAvatar;
             }
+
+            $editedUser = new User($user->getEmail(), $_POST["password"], $_POST["first_name"], $_POST["last_name"], $avatar_url);
+            $editedUser->setId($user_id);
+
+            if (!Validator::validateName($editedUser->getFirstName())) {
+                throw new BadRequestException('First name must have at least ' . MIN_LENGTH_NAME . ' letters.');
+            } elseif (!Validator::validateName($editedUser->getLastName())) {
+                throw new BadRequestException('Last name must have at least ' . MIN_LENGTH_NAME . ' letters.');
+            }
+
+            if (Validator::validatePassword($editedUser->getPassword()) && strcmp($editedUser->getPassword(), $_POST["rpassword"]) == 0) {
+                $cryptedPass = password_hash($editedUser->getPassword(), PASSWORD_BCRYPT);
+                $editedUser->setPassword($cryptedPass);
+                $response['password_edited'] = true;
+            } else {
+                $response['password_edited'] = false;
+                $editedUser->setPassword($user->getPassword());
+            }
+
+            $userDAO->edit($editedUser);
+
+            $response["first_name"] = $editedUser->getFirstName();
+            $response["last_name"] = $editedUser->getLastName();
+            $response["avatar_url"] = $editedUser->getAvatarUrl();
+            if ($editedUser->getAvatarUrl() == null) {
+                $response['avatar_url'] = NO_AVATAR_URL;
+            }
+            $_SESSION['logged_user_first_name'] = $editedUser->getFirstName();
+            $_SESSION['logged_user_last_name'] = $editedUser->getLastName();
+            $_SESSION['logged_user_avatar_url'] = $editedUser->getAvatarUrl();
+
+
+        } else {
+            throw new BadRequestException("Bad request");
         }
-        header($status);
         return $response;
     }
 
-    public function logout()
-    {
-        $status = STATUS_FORBIDDEN;
+    public function logout() {
         if (isset($_SESSION['logged_user'])) {
             unset($_SESSION["logged_user"]);
             unset($_SESSION["logged_user_first_name"]);
             unset($_SESSION["logged_user_last_name"]);
             unset($_SESSION['logged_user_avatar_url']);
-            $status = STATUS_OK;
+        } else {
+            throw new UnauthorizedException('You are not logged in to logout!');
         }
-        return header($status);
     }
 
-    private function uploadAvatar($email)
-    {
+    private function uploadAvatar($email) {
         $tempName = $_FILES["avatar"]["tmp_name"];
         $ext = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
 

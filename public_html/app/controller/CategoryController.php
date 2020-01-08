@@ -4,6 +4,8 @@
 namespace controller;
 
 
+use exceptions\BadRequestException;
+use exceptions\ForbiddenException;
 use model\categories\Category;
 use model\categories\CategoryDAO;
 
@@ -20,9 +22,9 @@ class CategoryController {
             $categoryDAO = new CategoryDAO();
 
             if (!Validator::validateName($category->getName())) {
-                throw new \BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
+                throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             } elseif (!Validator::validateCategoryType($category->getType())) {
-                throw new \BadRequestException("Type must be have income or outcome");
+                throw new BadRequestException("Type must be have income or outcome");
             } else {
                 $categoryDAO->createCategory($category);
                 $response["target"] = "category";
@@ -51,7 +53,7 @@ class CategoryController {
             $name = $_POST["name"];
             $icon_url = $_POST["icon"];
             if (!Validator::validateName($name)) {
-                throw new \BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
+                throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             }
             $categoryDAO = new CategoryDAO();
 
@@ -62,7 +64,7 @@ class CategoryController {
             if ($editedCategory->getOwnerId() == $category->getId()) {
                 $categoryDAO->editCategory($category);
             } else {
-                throw new \ForbiddenException("This category is not yours");
+                throw new ForbiddenException("This category is not yours");
             }
         }
     }
