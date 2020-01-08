@@ -92,4 +92,25 @@ $(document).ready(function () {
             showModal(error, xhr.responseJSON.message);
         });
     });
+
+    $("form#login").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name");
+        $.post(action, data, function (data) {
+            localStorage.setItem("id", data.id);
+            localStorage.setItem("first_name", data.first_name);
+            localStorage.setItem("last_name", data.last_name);
+            localStorage.setItem("avatar_url", data.avatar_url);
+            showModal('Success', 'You logged in successfully!');
+            setTimeout(function () {
+                window.location.replace('index.html');
+            }, 2000);
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                showModal(error, xhr.responseJSON.message);
+            });
+    });
+
 });

@@ -25,11 +25,10 @@ class BudgetController {
                 throw new BadRequestException("Please select valid date");
             }
             $budgetDAO = new BudgetDAO();
-            $budgetDAO->createBudget($budget);
-            $response["target"] = "budget";
-
+            $id = $budgetDAO->createBudget($budget);
+            $budget->setId($id);
         }
-        return $response;
+        return new ResponseBody('Budget added successfully!', $budget);
     }
 
     public function getAll() {

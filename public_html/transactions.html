@@ -21,7 +21,6 @@
 
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
 
-    <script src="js/formHandler.js"></script>
     <script src="js/transactions.js"></script>
     <script src="js/users.js"></script>
     <script src="js/modal.js"></script>
@@ -186,7 +185,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="app/index.php?target=transaction&action=add" method="POST">
+                <form action="app/index.php?target=transaction&action=add" id="addtransaction" method="POST">
                     <div class="form-group">
                         <label for="account">Account</label>
                         <select class="form-control" name="account_id" id="account"></select>

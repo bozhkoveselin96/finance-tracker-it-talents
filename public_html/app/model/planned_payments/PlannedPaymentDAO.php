@@ -50,15 +50,6 @@ class PlannedPaymentDAO {
 
     }
 
-    public function changeStatus($planned_payment_id, bool $status) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-
-        $sql = "UPDATE planned_payments SET status = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$planned_payment_id, $status]);
-    }
-
     public function getPlannedPaymentById($planned_payment_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
@@ -92,12 +83,12 @@ class PlannedPaymentDAO {
     public function editPlannedPayment(PlannedPayment $planned_payment) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "UPDATE planned_payment SET day_for_payment = ?, amount = ?, account_id= ?, category_id = ?
+        $sql = "UPDATE planned_payment SET day_for_payment = ?, amount = ?, status = ?
                 WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$planned_payment->getDayForPayment(),
-                        $planned_payment->getAmount(),
-                        $planned_payment->getAccount(),
-                        $planned_payment->getCategory()]);
+                        $planned_payment->getCategory(),
+                        $planned_payment->getStatus(),
+                        $planned_payment->getId()]);
     }
 }

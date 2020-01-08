@@ -23,7 +23,6 @@
     <link rel="stylesheet" href="css/icon-picker.min.css">
     <script type="text/javascript" src="js/icon-picker.min.js"></script>
 
-    <script src="js/formHandler.js"></script>
     <script src="js/categories.js"></script>
     <script src="js/users.js"></script>
     <script src="js/modal.js"></script>
@@ -181,7 +180,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="app/index.php?target=category&action=add" method="POST">
+                <form action="app/index.php?target=category&action=add" id="addcategory" method="POST">
                     <div class="form-group">
                         <div class="form-label-group">
                             <input type="text" id="name" name="name" class="form-control" placeholder="Name" required="required" autofocus="autofocus">
@@ -238,8 +237,7 @@
             'save': 'class'
         });
 
-        getAllCategories(1);
-        getAllCategories(0);
+        getAllCategories();
         setTimeout(function () {
                 $('#dataTable').DataTable( {
                     "order": [[ 0, "asc" ]],

@@ -20,7 +20,14 @@ class TransactionController {
             $categoryDAO = new CategoryDAO();
             $account = $accountDAO->getAccountById($_POST['account_id']);
             $category = $categoryDAO->getCategoryById($_POST['category_id'], $account->getOwnerId());
-            $transaction = new Transaction($_POST['amount'], $account->getId(), $category->getId(), $_POST['note'], $_POST['time_event']);
+
+            if (!$account) {
+                throw new BadRequestException("No such account.");
+            } elseif (!$category) {
+                throw new BadRequestException("No such category.");
+            }
+
+            $transaction = new Transaction($_POST['amount'], $account, $category, $_POST['note'], $_POST['time_event']);
 
             if (!Validator::validateAmount($transaction->getAmount())) {
                 throw new BadRequestException("Amount must be between 0 and" . MAX_AMOUNT . "inclusive");
@@ -28,14 +35,17 @@ class TransactionController {
                 throw new BadRequestException("Please select valid day");
             } elseif (!Validator::validateName($transaction->getNote())) {
                 throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
+            } elseif ($account->getOwnerId() != $_SESSION['logged_user']) {
+                throw new ForbiddenException("This account is not yours.");
             }
-            if ($account && $account->getOwnerId() == $_SESSION['logged_user'] && $category) {
-                $transactionDAO = new TransactionDAO();
-                $transactionDAO->create($transaction, $category->getType());
-                $response['target'] = 'transaction';
-            }
+
+            $transactionDAO = new TransactionDAO();
+            $id = $transactionDAO->create($transaction);
+            $transaction->setId($id);
+        } else {
+            throw new BadRequestException("Bad request.");
         }
-        return $response;
+        return new ResponseBody('Transaction added successfully!', $transaction);
     }
 
     public function showUserTransactions() {

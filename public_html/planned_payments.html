@@ -19,7 +19,6 @@
             crossorigin="anonymous"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    <script src="js/formHandler.js"></script>
     <script src="js/planned_payments.js"></script>
     <script src="js/users.js"></script>
     <script src="js/modal.js"></script>
@@ -180,7 +179,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="app/index.php?target=plannedPayment&action=add" method="POST">
+                <form action="app/index.php?target=plannedPayment&action=add" id="add_planned_payment" method="POST">
                     <div class="form-group">
                         <label for="account">Account</label>
                         <select class="form-control" name="account_id" id="account"></select>

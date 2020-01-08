@@ -61,4 +61,11 @@ class Validator {
         return false;
     }
 
+    public static function validateStatusPlannedPayment($status) {
+        if ($status == 1 || $status == 0) {
+            return true;
+        }
+        return false;
+    }
+
 }

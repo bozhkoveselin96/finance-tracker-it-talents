@@ -69,3 +69,29 @@ function showUserBudgets() {
             }
         });
 }
+
+$(document).ready(function () {
+    $("form#add_budget").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name");
+        $.post(action, data, function (data) {
+            $("#addBudget").modal('hide');
+            showModal('Success', 'You added budget successfully!');
+            $("#budgets").empty();
+            showUserBudgets();
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                }else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    });
+});

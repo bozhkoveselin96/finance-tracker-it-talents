@@ -53,6 +53,21 @@ class PlannedPayment implements \JsonSerializable {
         $this->id = $id;
     }
 
+    public function setDayForPayment($day_for_payment): void
+    {
+        $this->day_for_payment = $day_for_payment;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setAmount($amount): void
+    {
+        $this->amount = $amount;
+    }
+
     public function jsonSerialize() {
         return [
             'day_for_payment'=>$this->day_for_payment,

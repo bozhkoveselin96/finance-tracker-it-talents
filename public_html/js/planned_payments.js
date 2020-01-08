@@ -1,8 +1,7 @@
 function addPlannedPayment() {
     let selectAccount = $("#account");
-    $.get("app/index.php?target=account&action=getAll",
-        function (data) {
-        $.each(data, function (key, value) {
+    $.get("app/index.php?target=account&action=getAll", function (data) {
+        $.each(data.data, function (key, value) {
             selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
         })
     }, 'json')
@@ -91,3 +90,29 @@ function showUserPlannedPayments() {
             }
         });
 }
+
+$(document).ready(function () {
+    $("form#add_planned_payment").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name");
+        $.post(action, data, function (data) {
+            $("#addPlannedPayment").modal('hide');
+            showModal('Success', 'You added planned payment successfully!');
+            $("#planned_payments").empty();
+            showUserPlannedPayments();
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                }else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    });
+});

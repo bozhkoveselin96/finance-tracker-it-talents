@@ -14,7 +14,6 @@ class AccountController
 {
     public function add()
     {
-        $response = [];
         if (isset($_POST['add_account'])) {
             $account = new Account($_POST['name'], $_POST['current_amount'], $_SESSION['logged_user']);
             $accountDAO = new AccountDAO();
@@ -23,18 +22,20 @@ class AccountController
             } elseif (!Validator::validateAmount($account->getCurrentAmount())) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive");
             } else {
-                $accountDAO->createAccount($account);
-                $response['target'] = 'addaccount';
+                $id = $accountDAO->createAccount($account);
+                $account->setId($id);
             }
+        } else {
+            throw new BadRequestException("Bad request");
         }
-        return $response;
+        return new ResponseBody("Account created successfully", $account);
     }
 
     public function getAll() {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $accountsDAO = new AccountDAO();
             $accounts = $accountsDAO->getMyAccounts($_SESSION['logged_user']);
-            return $accounts;
+            return new ResponseBody(null, $accounts);
         }
     }
 

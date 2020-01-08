@@ -40,7 +40,6 @@ class UserController
             if ($user->getAvatarUrl() == null) {
                 $response['avatar_url'] = NO_AVATAR_URL;
             }
-            $response["target"] = 'login';
             $userDAO->updateLastLogin($user->getId());
         } else {
             throw new BadRequestException("Bad request.");

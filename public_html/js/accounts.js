@@ -1,9 +1,67 @@
+let _editButton = function (event) {
+    let trId = $(this).closest("tr").attr("id");
+    let tdRename = $("#" + trId + " .name");
+    let form = $("<input class='renamer' type='text' value='" + tdRename.text() + "' name='name'>");
+    tdRename.html(form);
+    $(this).text("Save");
+    $(this).unbind(event);
+    $(this).bind("click", function (event2) {
+        let trId = $(this).closest("tr").attr("id");
+        let renamer = $("#" + trId + " .renamer");
+        $.post("app/index.php?target=account&action=edit",
+            {
+                edit : true,
+                account_id : trId,
+                name : renamer.val(),
+            }, function (data) {
+                $("#accounts").empty();
+                getAllAccounts();
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    })
+};
+
+let _deleteButton = function (event) {
+    let trId = $(this).closest("tr").attr("id");
+    let accountName = $("#" + trId + " .name").text();
+    if (confirm("Are you sure you want to delete " + accountName + "?")) {
+        $.post("app/index.php?target=account&action=delete",
+            {
+                delete : true,
+                account_id : trId,
+            }, function (data) {
+                $("#"+trId).fadeOut(1500);
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    }
+}
+
 function getAllAccounts() {
     $.get("app/index.php?target=account&action=getAll",
         function (response) {
             let table = $("#accounts");
 
-            $.each(response, function (key, value) {
+            $.each(response.data, function (key, value) {
                 let tr = $("<tr />");
                 tr.attr("id", value.id);
 
@@ -25,62 +83,8 @@ function getAllAccounts() {
                 let deleteItemButton = $("<button>Delete</button>");
                 deleteItemButton.addClass('btn btn-danger');
                 deleteItem.append(deleteItemButton);
-                deleteItemButton.bind("click", function () {
-                    let trId = $(this).closest("tr").attr("id");
-                    let accountName = $("#" + trId + " .name").text();
-                    if (confirm("Are you sure you want to delete " + accountName + "?")) {
-                        $.post("app/index.php?target=account&action=delete",
-                            {
-                                delete : true,
-                                account_id : trId,
-                            }, function (data) {
-                                $("#"+trId).fadeOut(1500);
-                            }, 'json')
-                            .fail(function (xhr, status, error) {
-                                if (xhr.status === 401) {
-                                    localStorage.removeItem("id");
-                                    localStorage.removeItem("first_name");
-                                    localStorage.removeItem("last_name");
-                                    localStorage.removeItem("avatar_url");
-                                    window.location.replace('login.html');
-                                } else {
-                                    showModal(error, xhr.responseJSON.message);
-                                }
-                            });
-                    }
-                });
-                editItemButton.bind("click", function (event) {
-                    let trId = $(this).closest("tr").attr("id");
-                    let tdRename = $("#" + trId + " .name");
-                    let form = $("<input class='renamer' type='text' value='" + tdRename.text() + "' name='name'>");
-                    tdRename.html(form);
-                    $(this).text("Save");
-                    $(this).unbind(event);
-                    $(this).bind("click", function (event2) {
-                        let trId = $(this).closest("tr").attr("id");
-                        let renamer = $("#" + trId + " .renamer");
-                        $.post("app/index.php?target=account&action=edit",
-                            {
-                                edit : true,
-                                account_id : trId,
-                                name : renamer.val(),
-                            }, function (data) {
-                                $("#accounts").empty();
-                                getAllAccounts();
-                            }, 'json')
-                            .fail(function (xhr, status, error) {
-                                if (xhr.status === 401) {
-                                    localStorage.removeItem("id");
-                                    localStorage.removeItem("first_name");
-                                    localStorage.removeItem("last_name");
-                                    localStorage.removeItem("avatar_url");
-                                    window.location.replace('login.html');
-                                } else {
-                                    showModal(error, xhr.responseJSON.message);
-                                }
-                            });
-                    })
-                });
+                deleteItemButton.bind("click", _deleteButton);
+                editItemButton.bind("click", _editButton);
                 tr.append(editItem);
                 tr.append(deleteItem);
                 table.append(tr);
@@ -103,7 +107,7 @@ function getAllAccounts() {
 function getAccountsMain() {
     $.get("app/index.php?target=account&action=getAll",
         function (response) {
-            $.each(response, function (key, value) {
+            $.each(response.data, function (key, value) {
                 let mainDiv = $("<div class=\"col-xl-3 col-sm-6 mb-3\"></div>");
                 let secondDiv = $("<div class=\"card text-white bg-success o-hidden h-100\"></div>");
 
@@ -144,3 +148,57 @@ function getAccountsMain() {
             }
         });
 }
+
+$(document).ready(function () {
+    $("form#addaccount").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name");
+        $.post(action, data, function (data) {
+            $("#addAcountModal").modal('hide');
+            showModal('Success', 'You added account successfully!');
+
+            let table = $("#accounts");
+
+            let tr = $("<tr />");
+            tr.attr("id", data.data.id);
+
+            let accName = $("<td></td>");
+            accName.addClass('name');
+            accName.text(data.data.name);
+
+            let accAmount = $("<td></td>");
+            accAmount.text(data.data.current_amount);
+
+            tr.append(accName);
+            tr.append(accAmount);
+
+            let editItem = $("<td></td>");
+            let editItemButton = $("<button>Edit</button>");
+            editItemButton.addClass('btn btn-primary');
+            editItem.append(editItemButton);
+            let deleteItem = $("<td></td>");
+            let deleteItemButton = $("<button>Delete</button>");
+            deleteItemButton.addClass('btn btn-danger');
+            deleteItem.append(deleteItemButton);
+            deleteItemButton.bind("click", _deleteButton);
+            editItemButton.bind("click", _editButton);
+            tr.append(editItem);
+            tr.append(deleteItem);
+            table.prepend(tr);
+
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                }else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    });
+});

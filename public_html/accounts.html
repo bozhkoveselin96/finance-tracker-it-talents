@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
 
 
-    <script src="js/formHandler.js"></script>
     <script src="js/accounts.js"></script>
     <script src="js/users.js"></script>
     <script src="js/modal.js"></script>
@@ -178,7 +177,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="app/index.php?target=account&action=add" method="POST">
+                <form action="app/index.php?target=account&action=add" id="addaccount" method="POST">
                     <div class="form-group">
                         <div class="form-label-group">
                             <input type="text" id="name" name="name" class="form-control" placeholder="Account name" required="required" autofocus="autofocus">

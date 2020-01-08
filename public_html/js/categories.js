@@ -1,4 +1,4 @@
-function getAllCategories(category_type) {
+function getAllCategories() {
     $.get("app/index.php?target=category&action=getAll",
         function (data) {
             let table = $("#categories");
@@ -41,3 +41,29 @@ function getAllCategories(category_type) {
             }
         });
 }
+
+$(document).ready(function () {
+    $("form#addcategory").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name");
+        $.post(action, data, function (data) {
+            $("#addCategoryModal").modal('hide');
+            showModal('Success', 'You added category successfully!');
+            $("#categories").empty();
+            getAllCategories();
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                }else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    });
+});

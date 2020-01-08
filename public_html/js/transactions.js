@@ -2,7 +2,7 @@ function addTransaction() {
     let selectAccount = $("#account");
     $.get("app/index.php?target=account&action=getAll",
         function (response) {
-        $.each(response, function (key, value) {
+        $.each(response.data, function (key, value) {
             selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
         })
     }, 'json')
@@ -43,15 +43,18 @@ function getTransactionsMain() {
                 let amount = $("<td></td>");
                 amount.text(value.amount);
                 let transactionType = $("<td></td>");
-                if (value.transaction_type == 0) {
+                if (value.category.type == 0) {
                     transactionType.text('Outcome');
                 } else {
                     transactionType.text('Income');
                 }
                 let accountName = $("<td></td>");
-                accountName.text(value.account_name);
+                accountName.text(value.account.name);
                 let categoryName = $("<td></td>");
-                categoryName.text(value.category_name);
+                categoryName.text(value.category.name);
+                let icon = $("<i class='pull-right' />");
+                icon.addClass(value.category.icon);
+                categoryName.append(icon);
                 let note = $("<td></td>");
                 note.text(value.note);
                 let timeEvent = $("<td></td>");
@@ -80,3 +83,29 @@ function getTransactionsMain() {
             }
         });
 }
+
+$(document).ready(function () {
+    $("form#addtransaction").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name");
+        $.post(action, data, function (data) {
+            $("#addTransactionModal").modal('hide');
+            showModal('Success', 'You added transaction successfully!');
+            $("#transactions").empty();
+            getTransactionsMain();
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                }else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    });
+});

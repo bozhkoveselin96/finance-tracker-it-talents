@@ -4,19 +4,21 @@
 namespace model\transactions;
 
 
+use model\accounts\AccountDAO;
+use model\categories\CategoryDAO;
 use model\Connection;
 use mysql_xdevapi\Exception;
 
 class TransactionDAO {
-    public function create(Transaction $transaction, int $category_type) {
+    public function create(Transaction $transaction) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         try {
             $conn->beginTransaction();
                 $parameters = [];
                 $parameters[] = $transaction->getAmount();
-                $parameters[] = $transaction->getAccountId();
-                $parameters[] = $transaction->getCategoryId();
+                $parameters[] = $transaction->getAccount()->getId();
+                $parameters[] = $transaction->getCategory()->getId();
                 $parameters[] = $transaction->getNote();
                 $parameters[] = $transaction->getTimeEvent();
 
@@ -26,14 +28,15 @@ class TransactionDAO {
                 $stmt->execute($parameters);
 
                 $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2) WHERE id = ?";
-                if ($category_type == 0) {
+                if ($transaction->getCategory()->getType() == 0) {
                     $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount - ?, 2) WHERE id = ?";
                 }
 
                 $stmt2 = $conn->prepare($sql2);
-                $stmt2->execute([$transaction->getAmount(), $transaction->getAccountId()]);
+                $stmt2->execute([$transaction->getAmount(), $transaction->getAccount()->getId()]);
 
             $conn->commit();
+            return $conn->lastInsertId();
         } catch (\PDOException $exception) {
             $conn->rollBack();
             throw new Exception($exception->getMessage());
@@ -59,14 +62,14 @@ class TransactionDAO {
         $sql .= "ORDER BY time_created DESC";
         $stmt = $conn->prepare($sql);
         $stmt->execute($data);
-        $transactions = [];
 
+        $transactions = [];
+        $accountDAO = new AccountDAO();
+        $categoryDAO = new CategoryDAO();
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
-            $transaction = new Transaction($value->amount, $value->account_id, $value->category_id, $value->note, $value->time_event);
+            $transaction = new Transaction($value->amount, $accountDAO->getAccountById($value->account_id),
+                $categoryDAO->getCategoryById($value->category_id, $_SESSION['logged_user']), $value->note, $value->time_event);
             $transaction->setId($value->id);
-            $transaction->setAccountName($value->account_name);
-            $transaction->setCategoryName($value->category_name);
-            $transaction->setCategoryType($value->transaction_type);
             $transactions[] = $transaction;
         }
         return $transactions;
@@ -79,8 +82,12 @@ class TransactionDAO {
         $stmt = $conn->prepare($sql);
         $stmt->execute([$transaction_id]);
         if ($stmt->rowCount() == 1) {
+            $accountDAO = new AccountDAO();
+            $categoryDAO = new CategoryDAO();
+
             $response = $stmt->fetch(\PDO::FETCH_OBJ);
-            $transaction = new Transaction($response->amount, $response->account_id, $response->category_id, $response->note, $response->time_event);
+            $transaction = new Transaction($response->amount, $accountDAO->getAccountById($response->account_id),
+                $categoryDAO->getCategoryById($response->category_id, $_SESSION['logged_user']), $response->note, $response->time_event);
             $transaction->setId($response->id);
             return $transaction;
         }

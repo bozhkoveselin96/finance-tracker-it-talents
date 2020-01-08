@@ -19,6 +19,7 @@ class AccountDAO {
                 VALUES (?, ?, ?, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
+        return $conn->lastInsertId();
     }
 
     public function getMyAccounts(int $user_id) {
