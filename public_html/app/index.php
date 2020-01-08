@@ -1,5 +1,8 @@
 <?php
+use exceptions\NotFoundException;
+use exceptions\UnauthorizedException;
 session_start();
+set_exception_handler("handleExceptions");
 
 spl_autoload_register(function ($class) {
     $class = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
@@ -12,16 +15,14 @@ spl_autoload_register(function ($class) {
 });
 
 function handleExceptions(Exception $exception) {
-    $status = $exception instanceof BaseException ? $exception->getStatusCode() : 500;
+    $status = $exception instanceof \exceptions\BaseException ? $exception->getStatusCode() : 500;
     $message = $exception->getMessage();
     $object = new stdClass();
     $object->message = $message;
     $object->status = $status;
-    echo json_encode($object);
     http_response_code($status);
+    echo json_encode($object);
 }
-
-set_exception_handler("handleExceptions");
 
 define("MIN_LENGTH_PASSWORD", 8);
 define("MIN_LENGTH_NAME", 3);
@@ -38,9 +39,8 @@ define("STATUS_ACCEPTED", $_SERVER["SERVER_PROTOCOL"] . " 202 ");
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
 
-if ($controllerName != 'user' && ($methodName != 'login' || $methodName != 'register') && !isset($_SESSION['logged_user'])) {
-    header(STATUS_UNAUTHORIZED . 'Please log in.');
-    die();
+if (($controllerName != 'user' || ($methodName != 'login' || $methodName != 'register')) && !isset($_SESSION['logged_user'])) {
+    throw new UnauthorizedException("Please log in.");
 }
 
 $controllerClassName = '\\controller\\' . ucfirst($controllerName) . ucfirst('controller');
@@ -51,8 +51,8 @@ if(class_exists($controllerClassName)){
     if(method_exists($controller, $methodName)){
         echo json_encode($controller->$methodName());
     } else{
-        header(STATUS_BAD_REQUEST);
+        throw new NotFoundException('Not found');
     }
 } else{
-    header(STATUS_NOT_FOUND);
+    throw new NotFoundException();
 }

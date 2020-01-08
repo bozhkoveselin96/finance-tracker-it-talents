@@ -2,16 +2,15 @@
 
 namespace controller;
 
+use exceptions\BadRequestException;
 use model\users\User;
 use model\users\UserDAO;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class UserController
 {
-    public function login()
-    {
+    public function login() {
         $response = [];
-        $status = STATUS_FORBIDDEN . 'Email and password mismatch.';
         if (isset($_POST["login"])) {
             $email = $_POST["email"];
             $password = $_POST["password"];
@@ -34,7 +33,6 @@ class UserController
                         }
 
                         $response["target"] = 'login';
-                        $status = STATUS_OK;
                         $userDAO->updateLastLogin($user->getId());
                     }
                 } catch (\Exception $exception) {
@@ -42,7 +40,6 @@ class UserController
                 }
             }
         }
-        header($status);
         return $response;
     }
 
