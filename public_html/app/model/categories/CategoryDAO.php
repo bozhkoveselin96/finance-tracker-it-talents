@@ -22,13 +22,13 @@ class CategoryDAO {
         $stmt->execute($parameters);
     }
 
-    public function getAll($owner_id, $type) {
+    public function getAll($owner_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         $sql = "SELECT id, name, type, icon, owner_id FROM transaction_categories 
-                WHERE (owner_id is NULL OR owner_id = ?) AND type = ?;";
+                WHERE owner_id is NULL OR owner_id = ?;";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$owner_id, $type]);
+        $stmt->execute([$owner_id]);
 
         $categories = [];
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {

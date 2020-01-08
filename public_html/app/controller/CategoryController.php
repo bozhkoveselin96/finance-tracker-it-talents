@@ -37,10 +37,21 @@ class CategoryController {
         $response = [];
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $user_id = $_SESSION["logged_user"];
-            $type = $_GET["category_type"];
             $categoriesDAO = new CategoryDAO();
-            $categories = $categoriesDAO->getAll($user_id, $type);
-            $response['data'] = $categories;
+            $categories = $categoriesDAO->getAll($user_id);
+            if (isset($_GET["category_type"])) {
+                $type = $_GET["category_type"];
+                /** @var Category $category */
+                $categoriesByType = [];
+                foreach ($categories as $category) {
+                    if ($type == $category->getType()) {
+                        $categoriesByType[] = $category;
+                    }
+                }
+                $response["data"] = $categoriesByType;
+            } else {
+                $response['data'] = $categories;
+            }
         }
         return $response;
     }

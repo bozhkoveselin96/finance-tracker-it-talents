@@ -25,6 +25,10 @@ class PlannedPayment implements \JsonSerializable {
         $this->category = $category;
     }
 
+    public function getId() {
+        return $this->id;
+    }
+
     public function getDayForPayment() {
         return $this->day_for_payment;
     }
@@ -43,6 +47,10 @@ class PlannedPayment implements \JsonSerializable {
 
     public function setStatus($status) {
         $this->status = $status;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
     }
 
     public function jsonSerialize() {

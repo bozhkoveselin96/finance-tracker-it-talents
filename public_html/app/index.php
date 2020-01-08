@@ -27,6 +27,7 @@ function handleExceptions(Exception $exception) {
 
 define("MIN_LENGTH_PASSWORD", 8);
 define("MIN_LENGTH_NAME", 3);
+define("MAX_LENGTH_NAME", 100);
 //8 symbols, one letter and one number
 define("PASSWORD_PATTERN", "^(?=.*[A-Za-z])(?=.*\d)[a-zA-Z0-9,.;\^!@#$%&*()+=:_'\s-]{8,}$^");
 define("PASSWORD_WRONG_PATTERN_MESSAGE", 'Password must have 8 symbols containing at least one letter and one number.');

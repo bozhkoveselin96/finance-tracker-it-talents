@@ -5,6 +5,7 @@ namespace controller;
 
 
 use exceptions\BadRequestException;
+use exceptions\ForbiddenException;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\planned_payments\PlannedPayment;
@@ -43,5 +44,44 @@ class PlannedPaymentController {
                 $response['data'] = $plannedPayments;
         }
         return $response;
+    }
+
+    //new methods
+    public function edit() {
+        if (isset($_POST["day_for_payment"])) {
+            if (!Validator::validateDayOfMonth($_POST["day_for_payment"])) {
+                throw new BadRequestException("Day must be have valid day from current month");
+            }
+            $planned_payment_id = $_POST["planned_payment_id"];
+            $planned_payment_DAO = new PlannedPaymentDAO();
+
+
+            $planned_payment = $planned_payment_DAO->getPlannedPaymentById($planned_payment_id);
+            $editedPlannedPayment = new PlannedPayment($_POST["day_for_payment"], $_POST["amount"], $_POST["account_id"], $_POST["category_id"]);
+            $editedPlannedPayment->setId($planned_payment->getId());
+            if ($editedPlannedPayment->getAccount()->getOwnerId() == $planned_payment->getAccount()->getOwnerId()) {
+                $planned_payment_DAO->editPlannedPayment($editedPlannedPayment);
+            } else {
+                throw new ForbiddenException("This account is not yours");
+            }
+        }
+    }
+
+    public function delete(){
+        if ($_POST["delete"]) {
+            $planned_payment_id = $_POST["planned_payment_id"];
+            $planned_payment_DAO = new PlannedPaymentDAO();
+            $planned_payment = $planned_payment_DAO->getPlannedPaymentById($planned_payment_id);
+
+            $account_id = $_POST["account_id"];
+            $accountDAO = new AccountDAO();
+            $account = $accountDAO->getAccountById($account_id);
+
+            if ($account->getOwnerId() == $_SESSION['logged_user'] && $account->getId() == $planned_payment->getAccount()->getId()) {
+                $planned_payment_DAO->deletePlannedPayment($planned_payment->getId());
+            } else {
+                throw new ForbiddenException("This transaction is not yours");
+            }
+        }
     }
 }
