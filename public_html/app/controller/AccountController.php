@@ -40,7 +40,7 @@ class AccountController
     public function edit() {
         if (isset($_POST["edit"])) {
             if (!Validator::validateName($_POST["name"])) {
-                throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
+                throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". " symbols");
             }
             $account_id = $_POST["account_id"];
             $accountDAO = new AccountDAO();

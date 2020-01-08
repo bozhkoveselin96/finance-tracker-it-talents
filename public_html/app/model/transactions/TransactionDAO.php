@@ -71,4 +71,41 @@ class TransactionDAO {
         }
         return $transactions;
     }
+
+    public function getTransactionById(int $transaction_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT id, amount, account_id, category_id, note, time_event FROM accounts WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$transaction_id]);
+        if ($stmt->rowCount() == 1) {
+            $response = $stmt->fetch(\PDO::FETCH_OBJ);
+            $transaction = new Transaction($response->amount, $response->account_id, $response->category_id, $response->note, $response->time_event);
+            $transaction->setId($response->id);
+            return $transaction;
+        }
+        return false;
+    }
+
+    public function deleteTransaction($transaction_id, $account_id, $transaction_amount, $account_amount) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        try {
+            $conn->beginTransaction();
+
+            $sql1 = "DELETE FROM transaction WHERE id = ?;";
+            $stmt = $conn->prepare($sql1);
+            $stmt->execute([$transaction_id]);
+
+            $account_amount += $transaction_amount ;
+            $sql2 = "UPDATE accounts SET current_amount = ? WHERE id = ?;";
+            $stmt = $conn->prepare($sql2);
+            $stmt->execute([$account_amount, $account_id]);
+
+            $conn->commit();
+        } catch (\PDOException $exception) {
+            $conn->rollBack();
+            throw new Exception($exception->getMessage());
+        }
+    }
 }

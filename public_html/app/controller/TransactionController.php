@@ -5,6 +5,7 @@ namespace controller;
 
 
 use exceptions\BadRequestException;
+use exceptions\ForbiddenException;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\transactions\Transaction;
@@ -26,7 +27,7 @@ class TransactionController {
             } elseif (!Validator::validateDate($transaction->getTimeEvent())) {
                 throw new BadRequestException("Please select valid day");
             } elseif (!Validator::validateName($transaction->getNote())) {
-                throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
+                throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             }
             if ($account && $account->getOwnerId() == $_SESSION['logged_user'] && $category) {
                 $transactionDAO = new TransactionDAO();
@@ -46,5 +47,23 @@ class TransactionController {
             $response["data"] = $transactions;
         }
         return $response;
+    }
+
+    public function delete() {
+        if ($_POST["delete"]) {
+            $transaction_id = $_POST["transaction_id"];
+            $transactionDAO = new TransactionDAO();
+            $transaction = $transactionDAO->getTransactionById($transaction_id);
+
+            $account_id = $_POST["account_id"];
+            $accountDAO = new AccountDAO();
+            $account = $accountDAO->getAccountById($account_id);
+
+            if ($account->getOwnerId() == $_SESSION['logged_user'] && $account->getId() == $transaction->getAccountId()) {
+                $transactionDAO->deleteTransaction($transaction->getAccountId(), $account->getId(), $transaction->getAmount(),$account->getCurrentAmount());
+            } else {
+                throw new ForbiddenException("This transaction is not yours");
+            }
+        }
     }
 }

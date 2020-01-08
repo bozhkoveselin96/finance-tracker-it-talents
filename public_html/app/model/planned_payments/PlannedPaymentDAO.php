@@ -80,4 +80,24 @@ class PlannedPaymentDAO {
         }
         return false;
     }
+
+    public function deletePlannedPayment($planned_payment_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "DELETE FROM planned_payment WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$planned_payment_id]);
+    }
+
+    public function editPlannedPayment(PlannedPayment $planned_payment) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "UPDATE planned_payment SET day_for_payment = ?, amount = ?, account_id= ?, category_id = ?
+                WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$planned_payment->getDayForPayment(),
+                        $planned_payment->getAmount(),
+                        $planned_payment->getAccount(),
+                        $planned_payment->getCategory()]);
+    }
 }

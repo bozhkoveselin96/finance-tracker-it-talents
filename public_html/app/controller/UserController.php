@@ -62,9 +62,9 @@ class UserController
             } elseif (strcmp($user->getPassword(), $_POST["rpassword"]) != 0) {
                 $msg = "Passwords missmatch.";
             }elseif (!Validator::validateName($user->getFirstName())) {
-                $msg = 'First name must have at least ' . MIN_LENGTH_NAME . ' letters.';
+                $msg = "First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive";
             } elseif (!Validator::validateName($user->getLastName())) {
-                $msg = 'Last name must have at least ' . MIN_LENGTH_NAME . ' letters.';
+                $msg = "Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive";
             }
 
             if ($msg) {
@@ -100,9 +100,9 @@ class UserController
             $editedUser->setId($user_id);
 
             if (!Validator::validateName($editedUser->getFirstName())) {
-                throw new BadRequestException('First name must have at least ' . MIN_LENGTH_NAME . ' letters.');
+                throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             } elseif (!Validator::validateName($editedUser->getLastName())) {
-                throw new BadRequestException('Last name must have at least ' . MIN_LENGTH_NAME . ' letters.');
+                throw new BadRequestException("Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             }
 
             if (Validator::validatePassword($editedUser->getPassword()) && strcmp($editedUser->getPassword(), $_POST["rpassword"]) == 0) {
