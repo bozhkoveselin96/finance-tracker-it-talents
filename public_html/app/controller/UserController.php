@@ -42,6 +42,8 @@ class UserController
             }
             $response["target"] = 'login';
             $userDAO->updateLastLogin($user->getId());
+        } else {
+            throw new BadRequestException("Bad request.");
         }
         return $response;
     }

@@ -270,7 +270,7 @@
             event.preventDefault();
             let from_date = $("#outcomes-by-category :input[name ='from_date']").val();
             let to_date = $("#outcomes-by-category :input[name ='to_date']").val();
-            let diagram = $("#incomes-by-category select#diagramOutcomes").val();
+            let diagram = $("#outcomes-by-category select#diagramOutcomes").val();
 
             getOutcomesByCategory(diagram, from_date, to_date);
         });
