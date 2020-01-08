@@ -113,11 +113,18 @@
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-chart-area"></i>
-            Incomes and Outcomes last 10 days</div>
+            Incomes/Outcomes</div>
           <div class="card-body">
-            <canvas id="myAreaChart" width="100%" height="30"></canvas>
             <div id="mainChart" >
-              <canvas id="incomesOutcomesThirdyDays" width="100%" height="30"></canvas>
+              <div class="form-group">
+                <select class="form-control" id="days">
+                  <option value="7">Last 7 days</option>
+                  <option value="14">Last 14 days</option>
+                  <option value="30">Last Month</option>
+                </select>
+              </div>
+              <div id="mainChartLine">
+              </div>
             </div>
           </div>
         </div>
@@ -199,9 +206,12 @@
   <script>
     $(document).ready(function () {
       $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
+      $("#days").on('change', function () {
+        getIncomesAndOutcomesLastXDays(this.value);
+      });
       getAccountsMain();
       getTransactionsMain();
-      getIncomesAndOutcomesLastTenDays();
+      getIncomesAndOutcomesLastXDays();
       setTimeout(function () {
           $('#dataTable').DataTable( {
             "order": [[ 4, "desc" ]],

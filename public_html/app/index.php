@@ -1,6 +1,7 @@
 <?php
 use exceptions\NotFoundException;
 use exceptions\UnauthorizedException;
+use exceptions\BaseException;
 session_start();
 set_exception_handler("handleExceptions");
 
@@ -15,7 +16,7 @@ spl_autoload_register(function ($class) {
 });
 
 function handleExceptions(Exception $exception) {
-    $status = $exception instanceof \exceptions\BaseException ? $exception->getStatusCode() : 500;
+    $status = $exception instanceof BaseException ? $exception->getStatusCode() : 500;
     $message = $exception->getMessage();
     $object = new stdClass();
     $object->message = $message;
@@ -38,7 +39,7 @@ define("CATEGORY_OUTCOME", 0);
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
 
-if (($controllerName != 'user' || ($methodName != 'login' || $methodName != 'register')) && !isset($_SESSION['logged_user'])) {
+if (!isset($_SESSION['logged_user']) && $methodName != 'login' && $methodName != 'register') {
     throw new UnauthorizedException("Please log in.");
 }
 

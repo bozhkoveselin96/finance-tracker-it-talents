@@ -7,10 +7,8 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
             let labelsTable = [];
             let dataTable = [];
             $.each(response, function (key, value) {
-                $.each(value, function (k, v) {
-                    labelsTable.push(k);
-                    dataTable.push(v);
-                })
+                labelsTable.push(value.category_type);
+                dataTable.push(value.sum);
             });
 
             $("#allIncomesAndOutcomes").remove();
@@ -23,7 +21,7 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
                     labels: labelsTable,
                     datasets: [{
                         label: labelsTable,
-                        backgroundColor: ["#00ff00", "#ff0000"],
+                        backgroundColor: ["#ff0000", "#00ff00"],
                         data: dataTable
                     }]
                 },
@@ -62,14 +60,15 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
 }
 
 function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
-    $.get("app/index.php?target=statistic&action=getIncomesByCategory", {
+    $.get("app/index.php?target=statistic&action=getSumByCategory", {
             from_date: fromDate,
-            to_date: toDate
+            to_date: toDate,
+            category_type: 1
         },
         function (response) {
             let labelsTable = [];
             let dataTable = [];
-            $.each(response, function (key, value) {
+            $.each(response.data, function (key, value) {
                 labelsTable.push(value.category_name);
                 dataTable.push(value.amount);
             });
@@ -128,14 +127,15 @@ function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = nul
 }
 
 function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
-    $.get("app/index.php?target=statistic&action=getOutcomesByCategory", {
+    $.get("app/index.php?target=statistic&action=getSumByCategory", {
             from_date: fromDate,
-            to_date: toDate
+            to_date: toDate,
+            category_type: 0
         },
         function (response) {
             let labelsTable = [];
             let dataTable = [];
-            $.each(response, function (key, value) {
+            $.each(response.data, function (key, value) {
                 labelsTable.push(value.category_name);
                 dataTable.push(value.amount);
             });
@@ -191,8 +191,10 @@ function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = nu
         });
 }
 
-function getIncomesAndOutcomesLastTenDays() {
-    $.get("app/index.php?target=statistic&action=getDataForTheLastTenDays",
+function getIncomesAndOutcomesLastXDays(days = 7) {
+    $.get("app/index.php?target=statistic&action=getDataForTheLastXDays", {
+      days : days
+    },
         function (response) {
             let labelsTable = [];
 
@@ -204,10 +206,10 @@ function getIncomesAndOutcomesLastTenDays() {
                 labelsTable.push(key);
             });
 
-
-
-            let chart = $('#incomesOutcomesThirdyDays');
-
+            let myMainChart = $("#mainChartLine");
+            myMainChart.empty();
+            let chart = $('<canvas id="incomesOutcomesXDays" width="100%" height="30"></canvas>');
+            myMainChart.append(chart);
             let myChart = new Chart(chart, {
                 type: 'line',
                 data: {
