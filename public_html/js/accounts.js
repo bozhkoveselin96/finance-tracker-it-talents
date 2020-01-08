@@ -43,6 +43,8 @@ function getAllAccounts() {
                                     localStorage.removeItem("last_name");
                                     localStorage.removeItem("avatar_url");
                                     window.location.replace('login.html');
+                                } else {
+                                    showModal(error, xhr.responseJSON.message);
                                 }
                             });
                     }
@@ -73,6 +75,8 @@ function getAllAccounts() {
                                     localStorage.removeItem("last_name");
                                     localStorage.removeItem("avatar_url");
                                     window.location.replace('login.html');
+                                } else {
+                                    showModal(error, xhr.responseJSON.message);
                                 }
                             });
                     })
@@ -90,6 +94,8 @@ function getAllAccounts() {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            } else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }
@@ -133,6 +139,8 @@ function getAccountsMain() {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            } else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }

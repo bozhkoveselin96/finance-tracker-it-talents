@@ -13,6 +13,8 @@ function addPlannedPayment() {
             localStorage.removeItem("last_name");
             localStorage.removeItem("avatar_url");
             window.location.replace('login.html');
+        }else {
+            showModal(error, xhr.responseJSON.message);
         }
     });
 
@@ -34,6 +36,8 @@ function addPlannedPayment() {
             localStorage.removeItem("last_name");
             localStorage.removeItem("avatar_url");
             window.location.replace('login.html');
+        }else {
+            showModal(error, xhr.responseJSON.message);
         }
     });
 }
@@ -82,6 +86,8 @@ function showUserPlannedPayments() {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }

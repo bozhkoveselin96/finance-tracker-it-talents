@@ -6,36 +6,38 @@ $(document).ready(function () {
         let data = form.serialize() + '&' + $("#submit").attr("name");
         $.post(action, data, function (data) {
             if(data.target === 'login') {
-                alert("Login succesfull!");
                 localStorage.setItem("id", data.id);
                 localStorage.setItem("first_name", data.first_name);
                 localStorage.setItem("last_name", data.last_name);
                 localStorage.setItem("avatar_url", data.avatar_url);
-                window.location.replace('index.html');
+                showModal('Success', 'You logged in successfully!');
+                setTimeout(function () {
+                    window.location.replace('index.html');
+                }, 2000);
             } else if(data.target === 'addaccount') {
-                alert('Account added succesfully!');
                 $("#addAcountModal").modal('hide');
+                showModal('Success', 'You added account successfully!');
                 $("#accounts").empty();
                 getAllAccounts();
             } else if(data.target === 'category') {
-                alert("Category added!");
                 $("#addCategoryModal").modal('hide');
+                showModal('Success', 'You added category successfully!');
                 $("#categories").empty();
                 getAllCategories(1);
                 getAllCategories(0);
             } else if(data.target === 'transaction') {
-                alert('Transaction added!');
                 $("#addTransactionModal").modal('hide');
+                showModal('Success', 'You added transaction successfully!');
                 $("#transactions").empty();
                 getTransactionsMain();
             } else if (data.target === 'planned_payment') {
-                alert('Planned payment added succesfully!');
                 $("#addPlannedPayment").modal('hide');
+                showModal('Success', 'You added planned payment successfully!');
                 $("#planned_payments").empty();
                 showUserPlannedPayments();
             } else if(data.target === 'budget') {
-                alert("Budget added succesfully!");
                 $("#addBudget").modal('hide');
+                showModal('Success', 'You added budget successfully!');
                 $("#budgets").empty();
                 showUserBudgets();
             }
@@ -47,6 +49,8 @@ $(document).ready(function () {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
     });

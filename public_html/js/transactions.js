@@ -5,7 +5,10 @@ function addTransaction() {
         $.each(response, function (key, value) {
             selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
         })
-    }, 'json');
+    }, 'json')
+        .fail(function (xhr, status, error) {
+            showModal(error, xhr.responseJSON.message);
+        });
 
     let type = $("#type");
     type.on("change", function () {
@@ -21,7 +24,10 @@ function addTransaction() {
                     $.each(data.data, function (key, value) {
                         selectCategory.append($("<option />").val(value.id).text(value.name));
                     });
-                }, 'json');
+                }, 'json')
+                .fail(function (xhr, status, error) {
+                    showModal(error, xhr.responseJSON.message);
+                });
         }
     });
 }
@@ -69,6 +75,8 @@ function getTransactionsMain() {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }

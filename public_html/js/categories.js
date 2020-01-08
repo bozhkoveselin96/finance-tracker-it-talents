@@ -1,8 +1,5 @@
 function getAllCategories(category_type) {
     $.get("app/index.php?target=category&action=getAll",
-        {
-            category_type: category_type,
-        },
         function (data) {
             let table = $("#categories");
 
@@ -39,6 +36,8 @@ function getAllCategories(category_type) {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }

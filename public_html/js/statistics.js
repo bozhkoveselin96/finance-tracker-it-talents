@@ -55,6 +55,8 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }
@@ -122,6 +124,8 @@ function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = nul
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }
@@ -187,6 +191,8 @@ function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = nu
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }
@@ -240,6 +246,8 @@ function getIncomesAndOutcomesLastXDays(days = 7) {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
+            }else {
+                showModal(error, xhr.responseJSON.message);
             }
         });
 }

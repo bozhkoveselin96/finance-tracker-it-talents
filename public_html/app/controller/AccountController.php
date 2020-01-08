@@ -6,6 +6,7 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use exceptions\NotFoundException;
 use model\accounts\Account;
 use model\accounts\AccountDAO;
 
@@ -20,7 +21,7 @@ class AccountController
             if (!Validator::validateName($account->getName())) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             } elseif (!Validator::validateAmount($account->getCurrentAmount())) {
-                throw new BadRequestException("Amount must be between 0 and" . MAX_AMOUNT . "inclusive");
+                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive");
             } else {
                 $accountDAO->createAccount($account);
                 $response['target'] = 'addaccount';
@@ -47,7 +48,10 @@ class AccountController
 
             //** @Account $account */
             $account = $accountDAO->getAccountById($account_id);
-            $newAccountName = new Account($_POST["name"], $account->getCurrentAmount(), $account->getOwnerId());
+            if (!$account) {
+                throw new ForbiddenException("This account is not yours");
+            }
+            $newAccountName = new Account($_POST["name"], $account->getCurrentAmount(), $_SESSION['logged_user']);
             $newAccountName->setId($account->getId());
             if ($newAccountName->getOwnerId() == $account->getOwnerId()) {
                 $accountDAO->editAccount($newAccountName);

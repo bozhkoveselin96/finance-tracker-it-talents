@@ -26,7 +26,7 @@ $(document).ready(function () {
                 if (response.password_edited === false) {
                     isEditPassMsg = ' Password is not changed!'
                 }
-                alert('Edit succesfull!' + isEditPassMsg);
+                showModal('Success', 'Edit succesfull!' + isEditPassMsg);
 
                 localStorage.setItem("first_name", response.first_name);
                 localStorage.setItem("last_name", response.last_name);
@@ -40,6 +40,8 @@ $(document).ready(function () {
                     localStorage.removeItem("last_name");
                     localStorage.removeItem("avatar_url");
                     window.location.replace('login.html');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
                 }
             }
         });
@@ -69,7 +71,7 @@ $(document).ready(function () {
                 window.location.replace("login.html");
             },
             error: function (xhr, status, error) {
-                alert(error);
+                showModal(error, xhr.responseJSON.message);
                 $("#btnSubmit").prop("disabled", false);
             }
         });
@@ -87,7 +89,7 @@ $(document).ready(function () {
                 window.location.replace('login.html');
         })
         .fail(function (xhr, status, error) {
-            alert(error);
+            showModal(error, xhr.responseJSON.message);
         });
     });
 });
