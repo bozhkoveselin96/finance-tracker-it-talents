@@ -2,5 +2,5 @@
 /public_html/app/model/config.php
 /public_html/app/model/Connection.php
 /public_html/app/avatars
-/PHPMailer
-/app/controller/gmail_config.php
+/public_html//app/PHPMailer
+/public_html/app/controller/gmail_config.php
