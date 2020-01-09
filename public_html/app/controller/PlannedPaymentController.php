@@ -13,7 +13,6 @@ use model\planned_payments\PlannedPaymentDAO;
 
 class PlannedPaymentController {
     public function add() {
-        $response = [];
         if (isset($_POST['add_planned_payment']) && isset($_POST['day_for_payment']) &&
             isset($_POST['amount']) && isset($_POST['account_id']) && isset($_POST['category_id'])) {
             $plannedPaymentDAO = new PlannedPaymentDAO();
@@ -28,22 +27,23 @@ class PlannedPaymentController {
             } elseif (!Validator::validateDayOfMonth($plannedPayment->getDayForPayment())) {
                 throw new BadRequestException("Day must be have valid day from current month");
             }
+
             if ($account && $category && $account->getOwnerId() == $_SESSION['logged_user']) {
-                $plannedPaymentDAO->create($plannedPayment);
-                $response['target'] = 'planned_payment';
+                $id = $plannedPaymentDAO->create($plannedPayment);
+                $plannedPayment->setId($id);
+                return new ResponseBody("Planned payment added successfully!", $plannedPayment);
             }
         }
-        return $response;
+        throw new BadRequestException("Bad request.");
     }
 
     public function getAll() {
-        $response = [];
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-                $plannedPaymentsDAO = new PlannedPaymentDAO();
-                $plannedPayments = $plannedPaymentsDAO->getAll($_SESSION['logged_user']);
-                $response['data'] = $plannedPayments;
+            $plannedPaymentsDAO = new PlannedPaymentDAO();
+            $plannedPayments = $plannedPaymentsDAO->getAll($_SESSION['logged_user']);
+            return new ResponseBody(null, $plannedPayments);
         }
-        return $response;
+        throw new BadRequestException("Bad request.");
     }
 
     //new methods
@@ -54,12 +54,12 @@ class PlannedPaymentController {
 
             if (!$planned_payment) {
                 throw new ForbiddenException("This account is not yours.");
-            }elseif ($planned_payment->getAccount()->getOwnerId() != $_SESSION['logged_user']) {
+            } elseif ($planned_payment->getAccount()->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours.");
             } elseif (!Validator::validateDayOfMonth($_POST["day_for_payment"])) {
                 throw new BadRequestException("Day must be have valid day from current month.");
             } elseif (!Validator::validateAmount($_POST['amount'])) {
-                throw new BadRequestException("Amount must be between 0 and" . MAX_AMOUNT . "inclusive");
+                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive");
             } elseif (!Validator::validateStatusPlannedPayment($_POST['status'])) {
                 throw new BadRequestException("Status must be Active or Not active.");
             }
@@ -69,7 +69,9 @@ class PlannedPaymentController {
             $planned_payment->setAmount($_POST['amount']);
 
             $planned_payment_DAO->editPlannedPayment($planned_payment);
+            return new ResponseBody("Planned payment edited successfully!", $planned_payment);
         }
+        throw new BadRequestException("Bad request.");
     }
 
     public function delete(){
@@ -79,9 +81,11 @@ class PlannedPaymentController {
 
             if ($planned_payment && $planned_payment->getAccount()->getOwnerId() == $_SESSION['logged_user']) {
                 $planned_payment_DAO->deletePlannedPayment($planned_payment->getId());
+                return new ResponseBody("Planned payment deleted successfully!", $planned_payment);
             } else {
                 throw new ForbiddenException("This transaction is not yours.");
             }
         }
+        throw new BadRequestException("Bad request.");
     }
 }

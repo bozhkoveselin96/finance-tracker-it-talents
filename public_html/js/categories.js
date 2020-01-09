@@ -50,9 +50,33 @@ $(document).ready(function () {
         let data = form.serialize() + '&' + $("#submit").attr("name");
         $.post(action, data, function (data) {
             $("#addCategoryModal").modal('hide');
-            showModal('Success', 'You added category successfully!');
-            $("#categories").empty();
-            getAllCategories();
+            showModal('Success', data.msg);
+            form.trigger("reset");
+            let table = $("#categories");
+
+            let tr = $("<tr />");
+            tr.attr("id", data.data.id);
+
+            let name = $("<td></td>");
+            name.text(data.data.name);
+
+            let icon = $("<td></td>");
+            let iconI = $("<i />");
+            iconI.addClass(data.data.icon);
+            icon.append(iconI);
+
+            let type = $("<td></td>");
+            if (data.data.type == 0) {
+                type.text('Outcome');
+            } else {
+                type.text('Income');
+            }
+
+            tr.append(name);
+            tr.append(icon);
+            tr.append(type);
+
+            table.prepend(tr);
         }, 'json')
             .fail(function (xhr, status, error) {
                 if (xhr.status === 401) {

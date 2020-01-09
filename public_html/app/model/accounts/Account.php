@@ -39,6 +39,14 @@ class Account implements \JsonSerializable {
         $this->id = $id;
     }
 
+    /**
+     * @param mixed $name
+     */
+    public function setName($name): void
+    {
+        $this->name = $name;
+    }
+
     public function jsonSerialize() {
         return [
             'id' =>$this->id,

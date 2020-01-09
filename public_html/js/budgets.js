@@ -78,9 +78,35 @@ $(document).ready(function () {
         let data = form.serialize() + '&' + $("#submit").attr("name");
         $.post(action, data, function (data) {
             $("#addBudget").modal('hide');
-            showModal('Success', 'You added budget successfully!');
-            $("#budgets").empty();
-            showUserBudgets();
+            showModal('Success', data.msg);
+            form.trigger("reset");
+            let table = $("#budgets");
+            let tr = $("<tr />");
+            tr.attr("id", data.data.id);
+
+            let category = $("<td />");
+            category.text(data.data.category.name);
+            let icon = $("<i />");
+            icon.addClass(data.data.category.icon);
+            category.prepend(icon);
+
+            let amount = $("<td />");
+            amount.text(data.data.amount);
+            let spent = $("<td />");
+            spent.text(data.data.budget_status);
+            let fromDate = $("<td />");
+            fromDate.text(data.data.from_date);
+            let toDate = $("<td />");
+            toDate.text(data.data.to_date);
+
+            tr.append(category);
+            tr.append(amount);
+            tr.append(spent);
+            tr.append(fromDate);
+            tr.append(toDate);
+
+            table.append(tr);
+
         }, 'json')
             .fail(function (xhr, status, error) {
                 if (xhr.status === 401) {

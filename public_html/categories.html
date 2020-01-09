@@ -22,6 +22,12 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="css/icon-picker.min.css">
     <script type="text/javascript" src="js/icon-picker.min.js"></script>
+    <style>
+        #iconPickerGroup i {
+            margin: 0 0 0 0;
+            padding: 0 0 0 0;
+        }
+    </style>
 
     <script src="js/categories.js"></script>
     <script src="js/users.js"></script>
@@ -194,8 +200,8 @@
                             <option value="1">Income</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <div class="icon-picker" data-pickerid="fa" data-iconsets='{"fa":"Pick Icon"}'>
+                    <div id="iconPickerGroup" class="form-group">
+                        <div class="icon-picker" id="icon_picker" data-pickerid="fa" data-iconsets='{"fa":"Pick Icon"}'>
                             <input type="hidden" name="icon" />
                         </div>
                     </div>
@@ -265,7 +271,7 @@
             }, 100);
     });
 </script>
-<div class="fa-set icon-set">
+<div id="iconSelector" class="fa-set icon-set">
     <ul>
         <li data-code="f042" data-class="fa fa-adjust" class="fa fa-adjust"></li>
         <li data-code="f037" data-class="fa fa-align-center" class="fa fa-align-center"></li>

@@ -3,10 +3,11 @@ let _editButton = function (event) {
     let tdRename = $("#" + trId + " .name");
     let form = $("<input class='renamer' type='text' value='" + tdRename.text() + "' name='name'>");
     tdRename.html(form);
-    $(this).text("Save");
-    $(this).unbind(event);
-    $(this).bind("click", function (event2) {
-        let trId = $(this).closest("tr").attr("id");
+    let button = $(this);
+    button.text("Save");
+    button.unbind(event);
+    button.bind("click", function (event2) {
+        let trId = button.closest("tr").attr("id");
         let renamer = $("#" + trId + " .renamer");
         $.post("app/index.php?target=account&action=edit",
             {
@@ -14,8 +15,11 @@ let _editButton = function (event) {
                 account_id : trId,
                 name : renamer.val(),
             }, function (data) {
-                $("#accounts").empty();
-                getAllAccounts();
+                let accounts = $("#accounts");
+                tdRename.text(data.data.name);
+                button.unbind();
+                button.text('Edit');
+                button.bind('click', _editButton);
             }, 'json')
             .fail(function (xhr, status, error) {
                 if (xhr.status === 401) {
@@ -54,7 +58,7 @@ let _deleteButton = function (event) {
                 }
             });
     }
-}
+};
 
 function getAllAccounts() {
     $.get("app/index.php?target=account&action=getAll",
@@ -157,8 +161,8 @@ $(document).ready(function () {
         let data = form.serialize() + '&' + $("#submit").attr("name");
         $.post(action, data, function (data) {
             $("#addAcountModal").modal('hide');
-            showModal('Success', 'You added account successfully!');
-
+            showModal('Success', data.msg);
+            form.trigger("reset");
             let table = $("#accounts");
 
             let tr = $("<tr />");

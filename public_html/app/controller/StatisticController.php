@@ -9,7 +9,6 @@ use model\StatisticDAO;
 
 class StatisticController {
     public function getIncomesOutcomes() {
-        $response = [];
         $statisticDAO = new StatisticDAO();
 
         if (isset($_GET['from_date']) && Validator::validateDate($_GET['from_date']) &&
@@ -18,13 +17,10 @@ class StatisticController {
         } else {
             $transactions = $statisticDAO->getTransactionsSum($_SESSION['logged_user']);
         }
-        $response[] = $transactions[0];
-        $response[] = $transactions[1];
-        return $response;
+        return new ResponseBody(null, $transactions);
     }
 
     public function getSumByCategory() {
-        $response = [];
         $statisticDAO = new StatisticDAO();
 
         if (isset($_GET['from_date']) && Validator::validateDate($_GET['from_date']) &&
@@ -35,16 +31,19 @@ class StatisticController {
         } else {
             $sumsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user']);
         }
+        $response = [];
         if (isset($_GET['category_type'])) {
             $categoryType = $_GET['category_type'];
             foreach ($sumsByCategory as $item) {
                 if ($item->type == $categoryType) {
-                    $response['data'][] = $item;
+                    $response[] = $item;
                 }
             }
+        } else {
+            $response = $sumsByCategory;
         }
 
-        return $response;
+        return new ResponseBody(null, $response);
     }
 
     public function getDataForTheLastXDays() {
@@ -65,6 +64,6 @@ class StatisticController {
             }
         }
 
-        return array_reverse($days);
+        return new ResponseBody(null, array_reverse($days));
     }
 }

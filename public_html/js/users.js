@@ -1,8 +1,4 @@
 $(document).ready(function () {
-    $("input#first_name").attr('value', localStorage.getItem('first_name'));
-    $("input#last_name").attr('value', localStorage.getItem('last_name'));
-    $("img#img").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-
     $("#btnEdit").click(function (event) {
         event.preventDefault();
 
@@ -22,16 +18,14 @@ $(document).ready(function () {
             cache: false,
             timeout: 600000,
             success: function (response) {
-                let isEditPassMsg = ' Password is changed!';
-                if (response.password_edited === false) {
-                    isEditPassMsg = ' Password is not changed!'
-                }
-                showModal('Success', 'Edit succesfull!' + isEditPassMsg);
+                showModal('Success', response.msg);
+                localStorage.setItem("first_name", response.data.first_name);
+                localStorage.setItem("last_name", response.data.last_name);
+                localStorage.setItem("avatar_url", response.data.avatar_url);
 
-                localStorage.setItem("first_name", response.first_name);
-                localStorage.setItem("last_name", response.last_name);
-                localStorage.setItem("avatar_url", response.avatar_url);
-                window.location.replace('editprofile.html');
+                $("input#first_name").attr('value', response.data.first_name);
+                $("input#last_name").attr('value', response.data.last_name);
+                $("img#img").attr('src', 'app/' + response.data.avatar_url);
             },
             error: function (xhr, status, error) {
                 if (xhr.status === 401) {
@@ -86,6 +80,7 @@ $(document).ready(function () {
                 localStorage.removeItem("first_name");
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
+                localStorage.removeItem("email");
                 window.location.replace('login.html');
         })
         .fail(function (xhr, status, error) {
@@ -99,14 +94,31 @@ $(document).ready(function () {
         let action = form.attr("action");
         let data = form.serialize() + '&' + $("#submit").attr("name");
         $.post(action, data, function (data) {
-            localStorage.setItem("id", data.id);
-            localStorage.setItem("first_name", data.first_name);
-            localStorage.setItem("last_name", data.last_name);
-            localStorage.setItem("avatar_url", data.avatar_url);
-            showModal('Success', 'You logged in successfully!');
+            localStorage.setItem("id", data.data.id);
+            localStorage.setItem("first_name", data.data.first_name);
+            localStorage.setItem("last_name", data.data.last_name);
+            localStorage.setItem("avatar_url", data.data.avatar_url);
+            localStorage.setItem("email", data.data.email);
+            showModal('Success', data.msg);
             setTimeout(function () {
                 window.location.replace('index.html');
             }, 2000);
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                showModal(error, xhr.responseJSON.message);
+            });
+    });
+
+    $("form#forgotPass").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name");
+        $.post(action, data, function (data) {
+            showModal('Success', data.msg);
+            setTimeout(function () {
+                window.location.replace('login.html');
+            }, 5000);
         }, 'json')
             .fail(function (xhr, status, error) {
                 showModal(error, xhr.responseJSON.message);

@@ -57,6 +57,22 @@ class User implements \JsonSerializable {
         $this->avatar_url = $avatar_url;
     }
 
+    /**
+     * @param mixed $first_name
+     */
+    public function setFirstName($first_name): void
+    {
+        $this->first_name = $first_name;
+    }
+
+    /**
+     * @param mixed $last_name
+     */
+    public function setLastName($last_name): void
+    {
+        $this->last_name = $last_name;
+    }
+
     public function jsonSerialize() {
        return [
            'id' => $this->getId(),

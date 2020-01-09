@@ -35,11 +35,13 @@ define("MAX_AMOUNT", 10000000);
 define("NO_AVATAR_URL", 'avatars' . DIRECTORY_SEPARATOR . 'no-avatar.png');
 define("CATEGORY_INCOME", 1);
 define("CATEGORY_OUTCOME", 0);
+define("TOKEN_LENGTH", 30);
+define("TOKEN_EXPIRATION_MINUTES", 30);
 
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
 
-if (!isset($_SESSION['logged_user']) && $methodName != 'login' && $methodName != 'register') {
+if (!isset($_SESSION['logged_user']) && $methodName != 'login' && $methodName != 'register' && $methodName != 'sendEmail') {
     throw new UnauthorizedException("Please log in.");
 }
 
