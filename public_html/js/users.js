@@ -100,6 +100,11 @@ $(document).ready(function () {
             localStorage.setItem("avatar_url", data.data.avatar_url);
             localStorage.setItem("email", data.data.email);
             showModal('Success', data.msg);
+            let buttonLogin = $("#toLogin");
+            buttonLogin.text('To main');
+            buttonLogin.on("click", function () {
+                window.location.replace('index.html');
+            });
             setTimeout(function () {
                 window.location.replace('index.html');
             }, 2000);
@@ -136,6 +141,11 @@ $(document).ready(function () {
         let data = form.serialize() + '&' + $("#submit").attr("name") + '&token=' + token;
         $.post(action, data, function (data) {
             showModal('Success', data.msg);
+            let buttonLogin = $("#toLogin");
+            buttonLogin.text('To login');
+            buttonLogin.on("click", function () {
+                window.location.replace('login.html');
+            });
             setTimeout(function () {
                 window.location.replace('login.html');
             }, 2000);

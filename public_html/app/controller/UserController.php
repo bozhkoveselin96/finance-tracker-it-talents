@@ -214,7 +214,7 @@ class UserController {
 
 
             //Email Settings
-            $mail->setFrom($finance_tracker_email, "Finance Tracker");
+            $mail->setFrom(GMAIL_EMAIL, "Finance Tracker");
             $mail->Subject = 'Forgotten password - Finance Tracker';
             $mail->addAddress($user->getEmail());
             $mail->Body = '
