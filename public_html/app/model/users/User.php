@@ -4,7 +4,7 @@
 namespace model\users;
 
 
-class User {
+class User implements \JsonSerializable {
     private $id;
     private $email;
     private $password;
@@ -51,5 +51,19 @@ class User {
 
     public function setPassword($password) {
         $this->password = $password;
+    }
+
+    public function setAvatarUrl($avatar_url) {
+        $this->avatar_url = $avatar_url;
+    }
+
+    public function jsonSerialize() {
+       return [
+           'id' => $this->getId(),
+           'email' => $this->getEmail(),
+           'first_name' => $this->getFirstName(),
+           'last_name' => $this->getLastName(),
+           'avatar_url' => $this->getAvatarUrl()
+       ];
     }
 }

@@ -20,6 +20,7 @@ class CategoryDAO {
                 VALUES (?, ?, ?, ?);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
+        return $conn->lastInsertId();
     }
 
     public function getAll($owner_id) {
@@ -68,5 +69,13 @@ class CategoryDAO {
             return $category;
         }
         return false;
+    }
+
+    public function deleteCategory(int $category_id, $owner_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "DELETE FROM category WHERE id = ? AND owner_id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$category_id, $owner_id]);
     }
 }
