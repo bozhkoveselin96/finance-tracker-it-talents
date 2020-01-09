@@ -60,6 +60,14 @@ class UserDAO {
         $stmt->execute($parameters);
     }
 
+    public function deleteProfile($user_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "DELETE FROM users WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$user_id]);
+    }
+
     public function updateLastLogin($user_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
@@ -100,7 +108,7 @@ class UserDAO {
         return false;
     }
 
-    public function changeForgottenPassword($new_password, $user_id) {
+    public function changeForgottenPassword(User $user) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         try {
@@ -108,11 +116,11 @@ class UserDAO {
 
             $sql1 = "UPDATE users SET password = ? WHERE id = ?;";
             $stmt = $conn->prepare($sql1);
-            $stmt->execute([$new_password, $user_id]);
+            $stmt->execute([$user->getPassword(), $user->getId()]);
 
-            $sql2 = "DELETE FROM password_reset WHERE user_id = ?;";
+            $sql2 = "DELETE FROM reset_password WHERE owner_id = ?;";
             $stmt = $conn->prepare($sql2);
-            $stmt->execute([$user_id]);
+            $stmt->execute([$user->getId()]);
 
             $conn->commit();
         } catch (\PDOException $exception) {

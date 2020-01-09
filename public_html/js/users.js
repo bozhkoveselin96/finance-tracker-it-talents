@@ -133,7 +133,7 @@ $(document).ready(function () {
         var token = url.searchParams.get("token");
 
         let action = form.attr("action");
-        let data = form.serialize() + '&' + $("#submit").attr("name") + '&' + token;
+        let data = form.serialize() + '&' + $("#submit").attr("name") + '&token=' + token;
         $.post(action, data, function (data) {
             showModal('Success', data.msg);
             setTimeout(function () {

@@ -3,6 +3,7 @@
 namespace controller;
 
 use exceptions\BadRequestException;
+use exceptions\ForbiddenException;
 use exceptions\NotFoundException;
 use exceptions\UnauthorizedException;
 use model\users\User;
@@ -71,7 +72,7 @@ class UserController {
     }
 
     public function edit() {
-        if (isset($_POST["edit"]) && isset($_SESSION["logged_user"])) {
+        if (isset($_POST["edit"])) {
             $userDAO = new UserDAO();
             $user_id = $_SESSION["logged_user"];
             $user = $userDAO->getUser(intval($user_id));
@@ -117,6 +118,22 @@ class UserController {
         throw new UnauthorizedException('You are not logged in to logout!');
     }
 
+    public function  delete() {
+        if (isset($_POST["delete"])) {
+            $user_id = $_SESSION["logged_user"];
+            $userDAO = new UserDAO();
+            $user = $userDAO->getUser($user_id);
+
+            if ($user) {
+                $userDAO->deleteProfile($user->getId());
+                return new ResponseBody("Your profile deleted successfully.", $user);
+            } else {
+                throw new ForbiddenException("This profile is not yours!");
+            }
+        }
+        throw new BadRequestException("Bad request.");
+    }
+
     private function uploadAvatar($email) {
         $tempName = $_FILES["avatar"]["tmp_name"];
         $ext = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
@@ -133,27 +150,28 @@ class UserController {
         }
     }
 
-//new methods
-//    public function setNewPassword() {
-//        if (isset($_POST["change"])) {
-//                if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
-//                    $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
-//                    $userDAO = new UserDAO();
-//                    $user = $userDAO->getUser($_POST["email"]);
-//                    $changed = new User($user->getEmail(), $user->getPassword(), $user->getFirstName(), $user->getLastName(), $user->getAvatarUrl());
-//                    $changed->setId($user->getId());
-//                    if ($changed->) {
-//
-//                    }
-//                    $changed = $userDAO->changeForgottenPassword($cryptedPass, $user->getId());
-//                    if ($changed) {
-//                        $status = STATUS_OK;
-//                    }
-//                }
-//            }
-//        }
-//        return header($status);
-//    }
+    public function setNewPassword() {
+        if (isset($_POST["change"]) && $_POST["token"]) {
+            if (!Validator::validatePassword($_POST["password"])) {
+                throw new BadRequestException(PASSWORD_WRONG_PATTERN_MESSAGE);
+            }elseif (strcmp($_POST["password"], $_POST["rpassword"]) != 0) {
+                throw new BadRequestException("Passwords do not match!");
+            }
+
+            $userDAO = new UserDAO();
+            $token = $userDAO->tokenExists($_POST["token"], true);
+            if (!$token) {
+                throw new NotFoundException("You did not want to change password!");
+            }
+
+            $user = $userDAO->getUser(intval($token->owner_id));
+            $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
+            $user->setPassword($cryptedPass);
+            $userDAO->changeForgottenPassword($user);
+            return new ResponseBody("You changed your password successfully.", $user);
+        }
+        throw new BadRequestException("Bad request");
+    }
 
     public function sendEmail() {
         if (isset($_POST['changePassword'])) {

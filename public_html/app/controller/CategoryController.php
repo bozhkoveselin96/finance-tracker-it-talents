@@ -93,9 +93,9 @@ class CategoryController {
                 $categoryDAO->deleteCategory($category->getId(), $_SESSION["logged_user"]);
                 return new ResponseBody("Category deleted successfully.", $category);
             } else {
-                throw new ForbiddenException("This account is not yours");
+                throw new ForbiddenException("This account is not yours.");
             }
         }
-        throw new BadRequestException("Bad request");
+        throw new BadRequestException("Bad request.");
     }
 }
