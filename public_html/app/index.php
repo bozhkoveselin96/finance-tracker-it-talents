@@ -41,7 +41,7 @@ define("TOKEN_EXPIRATION_MINUTES", 30);
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
 
-if (!isset($_SESSION['logged_user']) && $methodName != 'login' && $methodName != 'register' && $methodName != 'sendEmail') {
+if (!isset($_SESSION['logged_user']) && $methodName != 'login' && $methodName != 'register' && $methodName != 'sendEmail' && $methodName != 'setNewPassword') {
     throw new UnauthorizedException("Please log in.");
 }
 

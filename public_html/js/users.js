@@ -125,4 +125,23 @@ $(document).ready(function () {
             });
     });
 
+    $("form#changeForgottenPass").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+
+        var url = new URL(window.location.href);
+        var token = url.searchParams.get("token");
+
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#submit").attr("name") + '&' + token;
+        $.post(action, data, function (data) {
+            showModal('Success', data.msg);
+            setTimeout(function () {
+                window.location.replace('login.html');
+            }, 2000);
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                showModal(error, xhr.responseJSON.message);
+            });
+    });
 });

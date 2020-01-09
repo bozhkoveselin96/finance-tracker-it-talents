@@ -80,16 +80,24 @@ class UserDAO {
         }
     }
 
-    public function tokenExists($user_id) {
+    public function tokenExists($userIdOrToken, $byToken = false) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "SELECT token FROM reset_password
-                WHERE owner_id = ? AND expiration_time > CURRENT_TIMESTAMP ORDER BY expiration_time DESC;";
+        $sql = "SELECT token, owner_id FROM reset_password ";
+
+        if (!$byToken) {
+            $sql .= "WHERE owner_id = ? ";
+        } else {
+            $sql .= "WHERE token = ? ";
+        }
+
+        $sql .= "AND expiration_time > CURRENT_TIMESTAMP ORDER BY expiration_time DESC LIMIT 1;";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$user_id]);
-
-        return $stmt->fetch(\PDO::FETCH_OBJ);
-
+        $stmt->execute([$userIdOrToken]);
+        if ($stmt->rowCount() == 1) {
+            return $stmt->fetch(\PDO::FETCH_OBJ);
+        }
+        return false;
     }
 
     public function changeForgottenPassword($new_password, $user_id) {
