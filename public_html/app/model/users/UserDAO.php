@@ -91,7 +91,7 @@ class UserDAO {
     public function tokenExists($user_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "SELECT token FROM reset_password
+        $sql = "SELECT token, owner_id FROM reset_password
                 WHERE owner_id = ? AND expiration_time > CURRENT_TIMESTAMP ORDER BY expiration_time DESC;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$user_id]);
@@ -100,7 +100,7 @@ class UserDAO {
 
     }
 
-    public function changeForgottenPassword($new_password, $user_id) {
+    public function changeForgottenPassword($new_password, $owner_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         try {
@@ -108,11 +108,11 @@ class UserDAO {
 
             $sql1 = "UPDATE users SET password = ? WHERE id = ?;";
             $stmt = $conn->prepare($sql1);
-            $stmt->execute([$new_password, $user_id]);
+            $stmt->execute([$new_password, $owner_id]);
 
-            $sql2 = "DELETE FROM password_reset WHERE user_id = ?;";
+            $sql2 = "DELETE FROM reset_password WHERE owner_id = ?;";
             $stmt = $conn->prepare($sql2);
-            $stmt->execute([$user_id]);
+            $stmt->execute([$owner_id]);
 
             $conn->commit();
         } catch (\PDOException $exception) {

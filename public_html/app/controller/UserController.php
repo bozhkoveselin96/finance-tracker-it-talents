@@ -151,26 +151,25 @@ class UserController {
     }
 
 //new methods
-//    public function setNewPassword() {
-//        if (isset($_POST["change"])) {
-//                if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
-//                    $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
-//                    $userDAO = new UserDAO();
-//                    $user = $userDAO->getUser($_POST["email"]);
-//                    $changed = new User($user->getEmail(), $user->getPassword(), $user->getFirstName(), $user->getLastName(), $user->getAvatarUrl());
-//                    $changed->setId($user->getId());
-//                    if ($changed->) {
-//
-//                    }
-//                    $changed = $userDAO->changeForgottenPassword($cryptedPass, $user->getId());
-//                    if ($changed) {
-//                        $status = STATUS_OK;
-//                    }
-//                }
-//            }
-//        }
-//        return header($status);
-//    }
+    public function setNewPassword() {
+        if (isset($_POST["change"]) && $_POST["token"]) {
+            if (!Validator::validatePassword($_POST["password"])) {
+                throw new BadRequestException(PASSWORD_WRONG_PATTERN_MESSAGE);
+            }
+            if (strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
+                $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
+            }
+            $userDAO = new UserDAO();
+            $user = $userDAO->getUser($_POST["email"]);
+            $token = $userDAO->tokenExists($_POST["token"], true);
+            if (!$token) {
+                throw new NotFoundException("You did not want to change password");
+            }
+            $user->setPassword($cryptedPass);
+            return new ResponseBody("You changed your password successfully.", $user);
+        }
+        throw new BadRequestException("Bad request");
+    }
 
     public function sendEmail() {
         if (isset($_POST['changePassword'])) {
