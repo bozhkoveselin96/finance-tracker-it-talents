@@ -60,6 +60,14 @@ class UserDAO {
         $stmt->execute($parameters);
     }
 
+    public function deleteProfile($user_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "DELETE FROM users WHERE id = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$user_id]);
+    }
+
     public function updateLastLogin($user_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();

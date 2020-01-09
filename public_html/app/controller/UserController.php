@@ -3,6 +3,7 @@
 namespace controller;
 
 use exceptions\BadRequestException;
+use exceptions\ForbiddenException;
 use exceptions\NotFoundException;
 use exceptions\UnauthorizedException;
 use model\users\User;
@@ -71,7 +72,7 @@ class UserController {
     }
 
     public function edit() {
-        if (isset($_POST["edit"]) && isset($_SESSION["logged_user"])) {
+        if (isset($_POST["edit"])) {
             $userDAO = new UserDAO();
             $user_id = $_SESSION["logged_user"];
             $user = $userDAO->getUser(intval($user_id));
@@ -111,6 +112,22 @@ class UserController {
             return new ResponseBody("You successfully logged out.", null);
         }
         throw new UnauthorizedException('You are not logged in to logout!');
+    }
+
+    public function  delete() {
+        if (isset($_POST["delete"])) {
+            $user_id = $_SESSION["logged_user"];
+            $userDAO = new UserDAO();
+            $user = $userDAO->getUser($user_id);
+
+            if ($user) {
+                $userDAO->deleteProfile($user->getId());
+                return new ResponseBody("Your profile deleted successfully.", $user);
+            } else {
+                throw new ForbiddenException("This profile is not yours!");
+            }
+        }
+        throw new BadRequestException("Bad request.");
     }
 
     private function uploadAvatar($email) {
