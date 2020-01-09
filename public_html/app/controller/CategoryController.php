@@ -11,7 +11,6 @@ use model\categories\CategoryDAO;
 
 class CategoryController {
     public function add() {
-        $response = [];
         if (isset($_POST["add_category"])) {
             $name = $_POST["name"];
             $type = $_POST["type"];
@@ -26,15 +25,16 @@ class CategoryController {
             } elseif (!Validator::validateCategoryType($category->getType())) {
                 throw new BadRequestException("Type must be have income or outcome");
             } else {
-                $categoryDAO->createCategory($category);
-                $response["target"] = "category";
+                $id = $categoryDAO->createCategory($category);
+                $category->setId($id);
             }
+        } else {
+            throw new BadRequestException("Bad request");
         }
-        return $response;
+        return new ResponseBody("Category added successfully.", $category);
     }
 
     public function getAll() {
-        $response = [];
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $user_id = $_SESSION["logged_user"];
             $categoriesDAO = new CategoryDAO();
@@ -48,12 +48,13 @@ class CategoryController {
                         $categoriesByType[] = $category;
                     }
                 }
-                $response["data"] = $categoriesByType;
+                $response = $categoriesByType;
             } else {
-                $response['data'] = $categories;
+                $response = $categories;
             }
+            return new ResponseBody(null, $response);
         }
-        return $response;
+        throw new BadRequestException("Bad request");
     }
 
 
@@ -66,17 +67,35 @@ class CategoryController {
             if (!Validator::validateName($name)) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             }
+
             $categoryDAO = new CategoryDAO();
-
             $category = $categoryDAO->getCategoryById($category_id, $owner_id);
-            $editedCategory = new Category($name, $category->getType(), $icon_url, $owner_id);
-            $editedCategory->setId($category->getId());
+            $category->setIcon($icon_url);
+            $category->setName($name);
 
-            if ($editedCategory->getOwnerId() == $category->getId()) {
+            if ($category->getOwnerId() == $_SESSION["logged_user"]) {
                 $categoryDAO->editCategory($category);
+                return new ResponseBody("Category edited successfully", $category);
             } else {
                 throw new ForbiddenException("This category is not yours");
             }
         }
+        throw new BadRequestException("Bad request");
+    }
+
+    public function delete() {
+        if (isset($_POST["delete"])) {
+            $category_id = $_POST["category_id"];
+            $categoryDAO = new CategoryDAO();
+            $category = $categoryDAO->getCategoryById($category_id, $_SESSION["logged_user"]);
+
+            if ($category && $category->getOwnerId() == $_SESSION['logged_user']) {
+                $categoryDAO->deleteCategory($category->getId(), $_SESSION["logged_user"]);
+                return new ResponseBody("Category deleted successfully.", $category);
+            } else {
+                throw new ForbiddenException("This account is not yours");
+            }
+        }
+        throw new BadRequestException("Bad request");
     }
 }

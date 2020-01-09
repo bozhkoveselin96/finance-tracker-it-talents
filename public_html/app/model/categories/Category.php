@@ -42,6 +42,14 @@ class Category implements \JsonSerializable {
         $this->id = $id;
     }
 
+    public function setIcon($icon) {
+        $this->icon = $icon;
+    }
+
+    public function setName($name){
+        $this->name = $name;
+    }
+
     public function jsonSerialize() {
         return [
             'id'=>$this->id,

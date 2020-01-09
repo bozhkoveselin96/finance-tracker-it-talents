@@ -50,7 +50,6 @@ class PlannedPaymentController {
     public function edit() {
         if (isset($_POST["day_for_payment"])) {
             $planned_payment_DAO = new PlannedPaymentDAO();
-
             $planned_payment = $planned_payment_DAO->getPlannedPaymentById($_POST["planned_payment_id"]);
 
             if (!$planned_payment) {
