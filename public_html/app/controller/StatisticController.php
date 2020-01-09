@@ -11,9 +11,17 @@ class StatisticController {
     public function getIncomesOutcomes() {
         $statisticDAO = new StatisticDAO();
 
-        if (isset($_GET['from_date']) && Validator::validateDate($_GET['from_date']) &&
-            isset($_GET['to_date']) && Validator::validateDate($_GET['to_date'])) {
-            $transactions = $statisticDAO->getTransactionsSum($_SESSION['logged_user'], $_GET['from_date'], $_GET['to_date']);
+        if (!empty($_GET['daterange'])) {
+            $daterange = explode(" - ", $_GET['daterange']);
+            if (count($daterange) != 2) {
+                throw new BadRequestException("Please select valid daterange.");
+            }
+            $from_date = date_format(date_create($daterange[0]), "Y-m-d");
+            $to_date = date_format(date_create($daterange[1]), "Y-m-d");
+            if (!Validator::validateDate($from_date) || !Validator::validateDate($to_date)) {
+                throw new BadRequestException("Not valid dates.");
+            }
+            $transactions = $statisticDAO->getTransactionsSum($_SESSION['logged_user'], $from_date, $to_date);
         } else {
             $transactions = $statisticDAO->getTransactionsSum($_SESSION['logged_user']);
         }
@@ -23,10 +31,16 @@ class StatisticController {
     public function getSumByCategory() {
         $statisticDAO = new StatisticDAO();
 
-        if (isset($_GET['from_date']) && Validator::validateDate($_GET['from_date']) &&
-            isset($_GET['to_date']) && Validator::validateDate($_GET['to_date'])) {
-            $from_date = $_GET['from_date'];
-            $to_date = $_GET['to_date'];
+        if (!empty($_GET['daterange'])) {
+            $daterange = explode(" - ", $_GET['daterange']);
+            if (count($daterange) != 2) {
+                throw new BadRequestException("Please select valid daterange.");
+            }
+            $from_date = date_format(date_create($daterange[0]), "Y-m-d");
+            $to_date = date_format(date_create($daterange[1]), "Y-m-d");
+            if (!Validator::validateDate($from_date) || !Validator::validateDate($to_date)) {
+                throw new BadRequestException("Not valid dates.");
+            }
             $sumsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user'], $from_date, $to_date);
         } else {
             $sumsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user']);

@@ -1,7 +1,6 @@
-function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = null) {
+function getIncomesAndOutcomes(diagramType = 'pie', daterange) {
     $.get("app/index.php?target=statistic&action=getIncomesOutcomes", {
-            from_date: fromDate,
-            to_date: toDate
+            daterange: daterange,
         },
         function (response) {
             let labelsTable = [];
@@ -61,10 +60,9 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
         });
 }
 
-function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
+function getIncomesByCategory(diagramType = 'pie', daterange) {
     $.get("app/index.php?target=statistic&action=getSumByCategory", {
-            from_date: fromDate,
-            to_date: toDate,
+            daterange: daterange,
             category_type: 1
         },
         function (response) {
@@ -130,10 +128,9 @@ function getIncomesByCategory(diagramType = 'pie', fromDate = null, toDate = nul
         });
 }
 
-function getOutcomesByCategory(diagramType = 'pie', fromDate = null, toDate = null) {
+function getOutcomesByCategory(diagramType = 'pie', daterange) {
     $.get("app/index.php?target=statistic&action=getSumByCategory", {
-            from_date: fromDate,
-            to_date: toDate,
+            daterange: daterange,
             category_type: 0
         },
         function (response) {
