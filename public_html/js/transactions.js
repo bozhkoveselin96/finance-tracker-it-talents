@@ -92,9 +92,41 @@ $(document).ready(function () {
         let data = form.serialize() + '&' + $("#submit").attr("name");
         $.post(action, data, function (data) {
             $("#addTransactionModal").modal('hide');
-            showModal('Success', 'You added transaction successfully!');
-            $("#transactions").empty();
-            getTransactionsMain();
+            showModal('Success', data.msg);
+            form.trigger("reset");
+            $("#category").empty();
+            let table = $("#transactions");
+            let tr = $("<tr />");
+
+            let amount = $("<td></td>");
+            amount.text(data.data.amount);
+            let transactionType = $("<td></td>");
+            if (data.data.category.type == 0) {
+                transactionType.text('Outcome');
+            } else {
+                transactionType.text('Income');
+            }
+            let accountName = $("<td></td>");
+            accountName.text(data.data.account.name);
+            let categoryName = $("<td></td>");
+            categoryName.text(data.data.category.name);
+            let icon = $("<i class='pull-right' />");
+            icon.addClass(data.data.category.icon);
+            categoryName.append(icon);
+            let note = $("<td></td>");
+            note.text(data.data.note);
+            let timeEvent = $("<td></td>");
+            timeEvent.text(data.data.time_event);
+
+            tr.append(transactionType);
+            tr.append(amount);
+            tr.append(accountName);
+            tr.append(categoryName);
+            tr.append(note);
+            tr.append(timeEvent);
+
+            table.prepend(tr);
+
         }, 'json')
             .fail(function (xhr, status, error) {
                 if (xhr.status === 401) {

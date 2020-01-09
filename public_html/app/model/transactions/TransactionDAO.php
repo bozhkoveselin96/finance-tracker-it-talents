@@ -94,7 +94,7 @@ class TransactionDAO {
         return false;
     }
 
-    public function deleteTransaction($transaction_id, $account_id, $transaction_amount, $account_amount) {
+    public function deleteTransaction(Transaction $transaction) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         try {
@@ -102,12 +102,11 @@ class TransactionDAO {
 
             $sql1 = "DELETE FROM transaction WHERE id = ?;";
             $stmt = $conn->prepare($sql1);
-            $stmt->execute([$transaction_id]);
+            $stmt->execute([$transaction->getId()]);
 
-            $account_amount += $transaction_amount ;
-            $sql2 = "UPDATE accounts SET current_amount = ? WHERE id = ?;";
+            $sql2 = "UPDATE accounts SET current_amount = current_amount + ? WHERE id = ?;";
             $stmt = $conn->prepare($sql2);
-            $stmt->execute([$account_amount, $account_id]);
+            $stmt->execute([$transaction->getAmount(), $transaction->getAccount()->getId()]);
 
             $conn->commit();
         } catch (\PDOException $exception) {

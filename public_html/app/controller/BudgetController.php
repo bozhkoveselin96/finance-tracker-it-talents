@@ -20,38 +20,38 @@ class BudgetController {
             $budget = new Budget($category, $_POST["amount"], $_SESSION["logged_user"], $_POST["from_date"], $_POST["to_date"]);
 
             if (!Validator::validateAmount($budget->getAmount())) {
-                throw new BadRequestException("Amount must be between 0 and" . MAX_AMOUNT . "inclusive");
+                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
             } elseif (!Validator::validateDate($budget->getFromDate()) && !Validator::validateDate($budget->getToDate())) {
                 throw new BadRequestException("Please select valid date");
             }
             $budgetDAO = new BudgetDAO();
             $id = $budgetDAO->createBudget($budget);
             $budget->setId($id);
+            return new ResponseBody('Budget added successfully!', $budget);
         }
-        return new ResponseBody('Budget added successfully!', $budget);
+        throw new BadRequestException("Bad request.");
     }
 
     public function getAll() {
-        $response = [];
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $budgetDAO = new BudgetDAO();
             $budgets = $budgetDAO->getAll($_SESSION['logged_user']);
-            $response["data"] = $budgets;
+            return new ResponseBody(null, $budgets);
         }
-        return $response;
+        throw new BadRequestException("Bad request.");
     }
 
     public function delete() {
-        $response = [];
         if (isset($_POST["delete"])) {
             $budgetDAO = new BudgetDAO();
             $budget = $budgetDAO->getBudgetById($_POST["budget_id"]);
-            if ($budget->getOwnerId() == $_SESSION['logged_user']) {
+            if ($budget && $budget->getOwnerId() == $_SESSION['logged_user']) {
                 $budgetDAO->deleteBudget($budget->getId());
+                return new ResponseBody("Delete successfully!", $budget);
             } else {
                 throw new ForbiddenException("This budget is not yours");
             }
         }
-        return $response;
+        throw new BadRequestException("Bad request.");
     }
 }

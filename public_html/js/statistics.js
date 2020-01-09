@@ -6,7 +6,7 @@ function getIncomesAndOutcomes(diagramType = 'pie', fromDate = null, toDate = nu
         function (response) {
             let labelsTable = [];
             let dataTable = [];
-            $.each(response, function (key, value) {
+            $.each(response.data, function (key, value) {
                 labelsTable.push(value.category_type);
                 dataTable.push(value.sum);
             });
@@ -206,7 +206,7 @@ function getIncomesAndOutcomesLastXDays(days = 7) {
 
             let incomes = [];
             let outcomes = [];
-            $.each(response, function (key, value) {
+            $.each(response.data, function (key, value) {
                 incomes.push(value.income);
                 outcomes.push(value.outcome);
                 labelsTable.push(key);

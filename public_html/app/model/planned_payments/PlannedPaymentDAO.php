@@ -23,6 +23,7 @@ class PlannedPaymentDAO {
                 VALUES (?, ?, ?, ?, 1, CURRENT_DATE)";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
+        return $conn->lastInsertId();
     }
 
     public function getAll($user_id)

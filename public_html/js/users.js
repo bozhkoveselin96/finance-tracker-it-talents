@@ -1,8 +1,4 @@
 $(document).ready(function () {
-    $("input#first_name").attr('value', localStorage.getItem('first_name'));
-    $("input#last_name").attr('value', localStorage.getItem('last_name'));
-    $("img#img").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-
     $("#btnEdit").click(function (event) {
         event.preventDefault();
 

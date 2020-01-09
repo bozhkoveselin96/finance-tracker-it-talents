@@ -99,9 +99,39 @@ $(document).ready(function () {
         let data = form.serialize() + '&' + $("#submit").attr("name");
         $.post(action, data, function (data) {
             $("#addPlannedPayment").modal('hide');
-            showModal('Success', 'You added planned payment successfully!');
-            $("#planned_payments").empty();
-            showUserPlannedPayments();
+            showModal('Success', data.msg);
+            form.trigger("reset");
+
+            let table = $("#planned_payments");
+            let tr = $("<tr />");
+
+            let dayForPayment = $("<td />");
+            dayForPayment.text(data.data.day_for_payment);
+            let amount = $("<td />");
+            amount.text(data.data.amount);
+            let account = $("<td />");
+            account.text(data.data.account.name);
+
+            let category = $("<td />");
+            let icon = $("<i />");
+            icon.addClass(data.data.category.icon);
+            category.text(data.data.category.name);
+            category.prepend(icon);
+
+            let status = $("<td />");
+            if (data.data.status == 0) {
+                status.text('Not active');
+            } else {
+                status.text('Active');
+            }
+
+            tr.append(dayForPayment);
+            tr.append(amount);
+            tr.append(account);
+            tr.append(category);
+            tr.append(status);
+            table.append(tr);
+
         }, 'json')
             .fail(function (xhr, status, error) {
                 if (xhr.status === 401) {

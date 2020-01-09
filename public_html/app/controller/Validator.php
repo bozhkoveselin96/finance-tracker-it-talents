@@ -47,7 +47,7 @@ class Validator {
     }
 
     public static function validateCategoryType($type) {
-        if ($type == 0 || $type == 1) {
+        if ($type == CATEGORY_OUTCOME || $type == CATEGORY_INCOME) {
             return true;
         }
         return false;
