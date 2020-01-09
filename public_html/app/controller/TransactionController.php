@@ -13,7 +13,6 @@ use model\transactions\TransactionDAO;
 
 class TransactionController {
     public function add() {
-        $response = [];
         if (isset($_POST['add_transaction']) && isset($_POST['account_id']) &&
             isset($_POST['category_id']) && !empty($_POST['time_event'])) {
             $accountDAO = new AccountDAO();
@@ -49,9 +48,19 @@ class TransactionController {
 
     public function showUserTransactions() {
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
+            $from_date = null;
+            $to_date = null;
+            if (!empty($_GET['date_range'])) {
+                $date_range = explode(" - ", $_GET['date_range']);
+                if (count($date_range) != 2) {
+                    throw new BadRequestException("Please select valid date_range.");
+                }
+                $from_date = date_format(date_create($date_range[0]), "Y-m-d");
+                $to_date = date_format(date_create($date_range[1]), "Y-m-d");
+            }
             $category_id = isset($_GET["category_id"]) ? $_GET["category_id"] : null;
             $transactionDAO = new TransactionDAO();
-            $transactions = $transactionDAO->getByUserAndCategory($_SESSION['logged_user'], $category_id);
+            $transactions = $transactionDAO->getByUserAndCategory($_SESSION['logged_user'], $category_id, $from_date, $to_date);
             return new ResponseBody(null, $transactions);
         }
         throw new BadRequestException("Bad request.");

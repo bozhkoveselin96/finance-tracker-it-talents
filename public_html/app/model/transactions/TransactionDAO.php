@@ -43,7 +43,7 @@ class TransactionDAO {
         }
     }
 
-    public function getByUserAndCategory(int $user_id, int $category = null) {
+    public function getByUserAndCategory(int $user_id, int $category = null, $from_date, $to_date) {
         $data = [];
         $data[] = $user_id;
 
@@ -59,7 +59,12 @@ class TransactionDAO {
             $data[] = $category;
             $sql .= "AND tc.id = ? ";
         }
-        $sql .= "ORDER BY time_created DESC";
+        if ($from_date != null && $to_date != null) {
+            $data[] = $from_date;
+            $data[] = $to_date;
+            $sql .= "AND (time_event BETWEEN ? AND ? + INTERVAL 1 DAY )";
+        }
+        $sql .= "ORDER BY time_created DESC;";
         $stmt = $conn->prepare($sql);
         $stmt->execute($data);
 
@@ -67,8 +72,10 @@ class TransactionDAO {
         $accountDAO = new AccountDAO();
         $categoryDAO = new CategoryDAO();
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
-            $transaction = new Transaction($value->amount, $accountDAO->getAccountById($value->account_id),
-                $categoryDAO->getCategoryById($value->category_id, $_SESSION['logged_user']), $value->note, $value->time_event);
+            $transaction = new Transaction($value->amount,
+                                           $accountDAO->getAccountById($value->account_id),
+                                           $categoryDAO->getCategoryById($value->category_id, $_SESSION['logged_user']),
+                                           $value->note, $value->time_event);
             $transaction->setId($value->id);
             $transactions[] = $transaction;
         }
