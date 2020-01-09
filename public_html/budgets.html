@@ -12,11 +12,34 @@
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
     <link href="css/sb-admin.css" rel="stylesheet">
+    <style>
+        .modal {
+            text-align: center;
+        }
+
+        @media screen and (min-width: 768px) {
+            .modal:before {
+                display: inline-block;
+                vertical-align: middle;
+                content: " ";
+                height: 100%;
+            }
+        }
+
+        .modal-dialog {
+            display: inline-block;
+            text-align: left;
+            vertical-align: middle;
+        }
+    </style>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
     <script src="js/budgets.js"></script>
     <script src="js/users.js"></script>
@@ -192,14 +215,8 @@
                     </div>
                     <div class="form-group">
                         <div class="form-label-group">
-                            <input type="date" id="from_date" name="from_date" class="form-control" placeholder="From date" required="required" autofocus="autofocus">
-                            <label for="from_date">From date</label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="form-label-group">
-                            <input type="date" id="to_date" name="to_date" class="form-control" placeholder="To date" required="required" autofocus="autofocus">
-                            <label for="to_date">From date</label>
+                            <input class="form-control" autocomplete="off" id="daterange" type="text" value="" name="daterange">
+                            <label for="daterange">Range</label>
                         </div>
                     </div>
                     <input type="submit" id="submit" class="btn btn-primary" name="add_budget" value="Add budget">

@@ -71,6 +71,8 @@ function showUserBudgets() {
 }
 
 $(document).ready(function () {
+    $('input[name="daterange"]').daterangepicker({drops : 'up'});
+    $('input[name="daterange"]').val('');
     $("form#add_budget").on("submit", function (e) {
         e.preventDefault();
         let form = $(this);

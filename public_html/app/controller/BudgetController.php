@@ -14,16 +14,25 @@ class BudgetController {
     public function add() {
         $response = [];
         if (isset($_POST["add_budget"]) && isset($_POST["category_id"]) && isset($_POST["amount"]) &&
-            isset($_POST["from_date"]) && isset($_POST["to_date"])) {
+            isset($_POST["daterange"]) && !empty($_POST['daterange'])) {
+
+            $daterange = explode(" - ", $_POST['daterange']);
+            if (count($daterange) != 2) {
+                throw new BadRequestException("Please select valid daterange.");
+            }
+            $from_date = date_format(date_create($daterange[0]), "Y-m-d");
+            $to_date = date_format(date_create($daterange[1]), "Y-m-d");
+            if (!Validator::validateDate($from_date) || !Validator::validateDate($to_date)) {
+                throw new BadRequestException("Please select valid daterange.");
+            }
             $categoryDAO = new CategoryDAO();
             $category = $categoryDAO->getCategoryById($_POST["category_id"], $_SESSION['logged_user']);
-            $budget = new Budget($category, $_POST["amount"], $_SESSION["logged_user"], $_POST["from_date"], $_POST["to_date"]);
+            $budget = new Budget($category, $_POST["amount"], $_SESSION["logged_user"], $from_date, $to_date);
 
             if (!Validator::validateAmount($budget->getAmount())) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
-            } elseif (!Validator::validateDate($budget->getFromDate()) && !Validator::validateDate($budget->getToDate())) {
-                throw new BadRequestException("Please select valid date");
             }
+
             $budgetDAO = new BudgetDAO();
             $id = $budgetDAO->createBudget($budget);
             $budget->setId($id);
