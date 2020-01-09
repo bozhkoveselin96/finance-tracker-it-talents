@@ -73,23 +73,23 @@ class UserDAO {
 
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "INSERT INTO reset_password(token) VALUE ?
-                WHERE user_id = ?;";
+        $sql = "INSERT INTO reset_password(token, owner_id, expiration_time) VALUES (?, ?, NOW() + INTERVAL ? MINUTE );";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$token, $user_id]);
-    }
-
-    public function tokenExists($token) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-        $sql = "SELECT user_id FROM reset_password
-                WHERE token = ?;";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$token]);
-        if ($stmt->rowCount() == 1) {
+        if ($stmt->execute([$token, $user_id, TOKEN_EXPIRATION_MINUTES])) {
             return true;
         }
-        return false;
+    }
+
+    public function tokenExists($user_id) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT token FROM reset_password
+                WHERE owner_id = ? AND expiration_time > CURRENT_TIMESTAMP ORDER BY expiration_time DESC;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$user_id]);
+
+        return $stmt->fetch(\PDO::FETCH_OBJ);
+
     }
 
     public function changeForgottenPassword($new_password, $user_id) {

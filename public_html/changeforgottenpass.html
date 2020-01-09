@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Finance tracker - Login</title>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <link href="css/sb-admin.css" rel="stylesheet">
+    <script src="js/modal.js"></script>
+    <script src="js/users.js"></script>
+
+</head>
+
+<body class="bg-dark">
+
+<div class="container">
+    <div class="card card-login mx-auto mt-5">
+        <div class="card-header">Login</div>
+        <div class="card-body">
+            <form action="app/index.php?target=user&action=login" id="login" method="post">
+                <div class="form-group">
+                    <div class="form-label-group">
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Password" required="required">
+                        <label for="password">Password</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-label-group">
+                        <input type="password" name="password" id="rpassword" class="form-control" placeholder="Password" required="required">
+                        <label for="rpassword">Repeat password</label>
+                    </div>
+                </div>
+                <input class="btn btn-primary btn-block" id="submit" name="login" type="submit" value="Login">
+            </form>
+            <div class="text-center">
+                <a class="d-block small mt-3" href="register.html">Register an Account</a>
+                <a class="d-block small" href="forgot-password.html">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="dialogModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>
+
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+</body>
+
+</html>

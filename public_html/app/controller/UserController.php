@@ -85,22 +85,26 @@ class UserController {
                 $avatar_url = $oldAvatar;
             }
             $user->setAvatarUrl($avatar_url);
-            if (!Validator::validateName($_POST["first_name"])) {
+            $user->setFirstName($_POST['first_name']);
+            $user->setLastName($_POST['last_name']);
+            if (!Validator::validateName($user->getFirstName())) {
                 throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
-            } elseif (!Validator::validateName($_POST["last_name"])) {
+            } elseif (!Validator::validateName($user->getLastName())) {
                 throw new BadRequestException("Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             }
 
+            $isEditedPass = " The password is not changed.";
             if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
                 $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
                 $user->setPassword($cryptedPass);
+                $isEditedPass = " The password is changed.";
             }
 
             $userDAO->edit($user);
             if ($user->getAvatarUrl() == null) {
                 $user->setAvatarUrl(NO_AVATAR_URL);
             }
-            return new ResponseBody("Your profile edited successfully.", $user);
+            return new ResponseBody("Your profile edited successfully." . $isEditedPass, $user);
         }
         throw new BadRequestException("Bad request");
     }
@@ -131,9 +135,7 @@ class UserController {
 
 //new methods
 //    public function setNewPassword() {
-//        $status = STATUS_BAD_REQUEST . 'Something is not filled correctly';
 //        if (isset($_POST["change"])) {
-//            try {
 //                if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
 //                    $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
 //                    $userDAO = new UserDAO();
@@ -148,70 +150,89 @@ class UserController {
 //                        $status = STATUS_OK;
 //                    }
 //                }
-//            } catch (\PDOException $exception) {
-//                $status = STATUS_ACCEPTED . 'Something went wrong. Please try again.';
 //            }
 //        }
 //        return header($status);
 //    }
 
-//    public function sendEmail() {
-//        $user_id = $_SESSION["logged_user"];
-//        $email = $_POST["email"];
-//        if (isset($email)) {
-//            $userDAO = new UserDAO();
-//            if ($userDAO->getUser($email)) {
-//                $finance_tracker_email = "financetrackerproject@gmail.com";
-//                $finance_tracker_password = "financetracker";
-//                $token = $this->generateRandomToken();
-//                if (!$token) {
-//                    return false;
-//                }
-//
-//                require_once "../PHPMailer/PHPMailer.php";
-//                require_once "../PHPMailer/SMTP.php";
-//                require_once "../PHPMailer/Exception.php";
-//                $mail = new PHPMailer();
-//
-//                //SMTP Settings
-//                $mail->isSMTP();
-//                $mail->Host = "smtp.gmail.com";
-//                $mail->SMTPAuth = true;
-//                $mail->Username = $finance_tracker_email;
-//                $mail->Password = $finance_tracker_password;
-//                $mail->Port = 465; //587
-//                $mail->SMTPSecure = "ssl"; //tls
-//
-//                //Email Settings
-//                $mail->isHTML(true);
-//                $mail->setFrom($finance_tracker_email, "Finance Tracker");
-//                $mail->addAddress($email);
-//                $mail->Body = 'Hello, click <a href="localhost/finance_tracker/app/index.php?target=user&action=changePass&token=' . $token . '">here</a> to change your password';
-//
-//                if ($mail->send()) {
-//                    $response = "Email is sent!";
-//                    $userDAO->addToken($token, $user_id);
-//                } else {
-//                    $response = "Something is wrong: <br>" . $mail->ErrorInfo;
-//                }
-//                exit(json_encode(array("response" => $response)));
-//            }
-//        }
-//    }
+    public function sendEmail() {
+        if (isset($_POST['changePassword'])) {
+            $email = $_POST["email"];
+            $userDAO = new UserDAO();
 
-//    private function generateRandomToken() {
-//        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-//        $token = array(); //remember to declare $token as an array
-//        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
-//        for ($i = 0; $i < 5; $i++) {
-//            $n = rand(0, $alphaLength);
-//            $token[] = $alphabet[$n];
-//        }
-//        $randomToken = implode($token);
-//        $userDAO = new UserDAO();
-//        if (!$userDAO->tokenExists($randomToken)) {
-//            return $randomToken; //turn the array into a string
-//        }
-//        return $this->generateRandomToken();
-//    }
+            if (!Validator::validateEmail($email)) {
+                throw new BadRequestException("Not a valid email!");
+            }
+            $user = $userDAO->getUser($email);
+            if (!$user) {
+                throw new NotFoundException("Not found a user with that email!");
+            }
+
+            $checkTokenExists = $userDAO->tokenExists($user->getId());
+            if ($checkTokenExists) {
+                $token = $checkTokenExists->token;
+            } else {
+                $token = $this->generateRandomToken();
+            }
+
+            $finance_tracker_email = "financetrackerproject@gmail.com";
+            $finance_tracker_password = "financetracker";
+
+
+
+            require_once "PHPMailer/PHPMailer.php";
+            require_once "PHPMailer/SMTP.php";
+            require_once "PHPMailer/Exception.php";
+            $mail = new PHPMailer();
+            //SMTP Settings
+            $mail->isSMTP();
+            $mail->Host = "smtp.gmail.com";
+            $mail->SMTPAuth = true;
+            $mail->Username = $finance_tracker_email;
+            $mail->Password = $finance_tracker_password;
+            $mail->Port = 465; //587
+            $mail->SMTPSecure = "ssl"; //tls
+            $mail->CharSet = "utf-8";
+
+
+            //Email Settings
+            $mail->setFrom($finance_tracker_email, "Finance Tracker");
+            $mail->Subject = 'Forgotten password - Finance Tracker';
+            $mail->addAddress($user->getEmail());
+            $mail->Body = '
+            <html>
+                <head>
+                <title>Title</title>
+                </head>
+                <body>' .
+                    'Hello '.$user->getFirstName() . ' ' . $user->getLastName() . ',
+                 <br> click <a href="http://localhost/finance_tracker/public_html/changeforgottenpass.html?token=' . $token . '">here</a>
+                 to change your password.'
+                . '</body>
+            </html>
+            ';
+            $mail->isHTML(true);
+            if ($mail->send()) {
+                if (!$checkTokenExists) {
+                    $userDAO->addToken($token, $user->getId());
+                }
+                return new ResponseBody("Email has been sent!", null);
+            } else {
+                throw new BadRequestException($mail->ErrorInfo);
+            }
+        }
+        throw new BadRequestException("Bad request.");
+    }
+
+    private function generateRandomToken() {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $token = [];
+        $alphaLength = strlen($alphabet) - 1;
+        for ($i = 0; $i < TOKEN_LENGTH; $i++) {
+            $n = rand(0, $alphaLength);
+            $token[] = $alphabet[$n];
+        }
+        $randomToken = implode($token);
+        return $randomToken;
+    }
 }

@@ -79,7 +79,7 @@ $(document).ready(function () {
         $.post(action, data, function (data) {
             $("#addBudget").modal('hide');
             showModal('Success', data.msg);
-            form.trigger("reset"); 
+            form.trigger("reset");
             let table = $("#budgets");
             let tr = $("<tr />");
             tr.attr("id", data.data.id);
