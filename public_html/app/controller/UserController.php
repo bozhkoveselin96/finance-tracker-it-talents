@@ -193,21 +193,21 @@ class UserController {
                 $token = $this->generateRandomToken();
             }
 
-            $finance_tracker_email = "financetrackerproject@gmail.com";
-            $finance_tracker_password = "financetracker";
+
 
 
 
             require_once "PHPMailer/PHPMailer.php";
             require_once "PHPMailer/SMTP.php";
             require_once "PHPMailer/Exception.php";
+            require_once "gmail_config.php";
             $mail = new PHPMailer();
             //SMTP Settings
             $mail->isSMTP();
             $mail->Host = "smtp.gmail.com";
             $mail->SMTPAuth = true;
-            $mail->Username = $finance_tracker_email;
-            $mail->Password = $finance_tracker_password;
+            $mail->Username = GMAIL_EMAIL;
+            $mail->Password = GMAIL_PASSWORD;
             $mail->Port = 465; //587
             $mail->SMTPSecure = "ssl"; //tls
             $mail->CharSet = "utf-8";
