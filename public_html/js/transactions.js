@@ -3,7 +3,7 @@ function addTransaction() {
     $.get("app/index.php?target=account&action=getAll",
         function (response) {
         $.each(response.data, function (key, value) {
-            selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
+            selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
         })
     }, 'json')
         .fail(function (xhr, status, error) {

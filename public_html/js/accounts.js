@@ -175,10 +175,11 @@ $(document).ready(function () {
             let accName = $("<td></td>");
             accName.addClass('name');
             accName.text(data.data.name);
-            accName.append('&nbsp;' + data.data.currency);
 
             let accAmount = $("<td></td>");
             accAmount.text(data.data.current_amount);
+            accAmount.append('&nbsp;' + data.data.currency);
+
 
             tr.append(accName);
             tr.append(accAmount);

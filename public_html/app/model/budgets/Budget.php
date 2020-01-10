@@ -12,12 +12,13 @@ class Budget implements \JsonSerializable {
     private $owner_id;
     private $from_date;
     private $to_date;
-    private $date_created;
+    private $currency;
     private $progress;
 
-    public function __construct(Category $category, $amount, $owner_id, $from_date, $to_date) {
+    public function __construct(Category $category, $amount, $currency, $owner_id, $from_date, $to_date) {
         $this->category = $category;
         $this->amount = $amount;
+        $this->currency = $currency;
         $this->owner_id = $owner_id;
         $this->from_date = $from_date;
         $this->to_date = $to_date;
@@ -47,12 +48,9 @@ class Budget implements \JsonSerializable {
         return $this->to_date;
     }
 
-    public function setCategoryId($category_id) {
-        $this->category_id = $category_id;
-    }
-
-    public function getProgress() {
-        return $this->progress;
+    public function getCurrency()
+    {
+        return $this->currency;
     }
 
     public function setProgress($progress) {
@@ -63,16 +61,12 @@ class Budget implements \JsonSerializable {
         $this->id = $id;
     }
 
-    public function setCategoryName($category_name): void
-    {
-        $this->category_name = $category_name;
-    }
-
     public function jsonSerialize(){
         return [
             'id'=>$this->id,
             'category'=>$this->category,
             'amount'=>$this->amount,
+            'currency'=>$this->currency,
             'budget_status'=>$this->progress,
             'from_date'=>$this->from_date,
             'to_date'=>$this->to_date

@@ -20,11 +20,10 @@ class AccountController {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
             } elseif (!Validator::validateCurrency($account->getCurrency())){
                 throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
-            } else {
-                $id = $accountDAO->createAccount($account);
-                $account->setId($id);
-                return new ResponseBody("Account created successfully!", $account);
             }
+            $id = $accountDAO->createAccount($account);
+            $account->setId($id);
+            return new ResponseBody("Account created successfully!", $account);
         }
         throw new BadRequestException("Bad request.");
     }
@@ -53,12 +52,12 @@ class AccountController {
             }
             $account->setName($_POST['name']);
 
-            if ($account->getOwnerId() == $_SESSION['logged_user']) {
-                $accountDAO->editAccount($account);
-                return new ResponseBody('Account edited successfully!', $account);
-            } else {
+            if ($account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours!");
             }
+
+            $accountDAO->editAccount($account);
+            return new ResponseBody('Account edited successfully!', $account);
         }
         throw new BadRequestException("Bad request.");
     }
@@ -69,12 +68,11 @@ class AccountController {
             $accountDAO = new AccountDAO();
             $account = $accountDAO->getAccountById($account_id);
 
-            if ($account && $account->getOwnerId() == $_SESSION['logged_user']) {
-                $accountDAO->deleteAccount($account->getId());
-                return new ResponseBody("Account delete successfully!", $account);
-            } else {
+            if (!$account || $account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours!");
             }
+            $accountDAO->deleteAccount($account->getId());
+            return new ResponseBody("Account delete successfully!", $account);
         }
         throw new BadRequestException("Bad request.");
     }

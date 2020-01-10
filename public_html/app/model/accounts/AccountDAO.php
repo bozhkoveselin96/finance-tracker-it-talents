@@ -17,7 +17,7 @@ class AccountDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         $sql = "INSERT INTO accounts(name, current_amount, currency, owner_id, date_created)
-                VALUES (?, ?, ?, CURRENT_DATE);";
+                VALUES (?, ?, ?, ?, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
         return $conn->lastInsertId();

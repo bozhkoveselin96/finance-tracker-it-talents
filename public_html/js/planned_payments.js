@@ -2,7 +2,7 @@ function addPlannedPayment() {
     let selectAccount = $("#account");
     $.get("app/index.php?target=account&action=getAll", function (data) {
         $.each(data.data, function (key, value) {
-            selectAccount.append($("<option />").val(this.id).text(this.name + ' - ' + this.current_amount));
+            selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
         })
     }, 'json')
     .fail(function (xhr, status, error) {

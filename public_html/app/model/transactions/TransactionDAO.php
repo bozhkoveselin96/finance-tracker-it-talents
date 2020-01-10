@@ -4,10 +4,10 @@
 namespace model\transactions;
 
 
+use controller\CurrencyController;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\Connection;
-use mysql_xdevapi\Exception;
 
 class TransactionDAO {
     public function create(Transaction $transaction) {
@@ -17,15 +17,24 @@ class TransactionDAO {
             $conn->beginTransaction();
                 $parameters = [];
                 $parameters[] = $transaction->getAmount();
+                $parameters[] = $transaction->getCurrency();
                 $parameters[] = $transaction->getAccount()->getId();
                 $parameters[] = $transaction->getCategory()->getId();
                 $parameters[] = $transaction->getNote();
                 $parameters[] = $transaction->getTimeEvent();
 
-                $sql = "INSERT INTO transactions(amount, account_id, category_id, note, time_created, time_event) 
-                        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?);";
+                $sql = "INSERT INTO transactions(amount, currency, account_id, category_id, note, time_created, time_event)
+                        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?);";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute($parameters);
+
+                $accountCurrency = $transaction->getAccount()->getCurrency();
+                $transactionCurrency = $transaction->getCurrency();
+                $updateAccountAmount = $transaction->getAmount();
+                if ($accountCurrency != $transactionCurrency) {
+                    $currencyController = new CurrencyController();
+                    $updateAccountAmount = $currencyController->currencyConverter($transaction->getAmount(), $transactionCurrency, $accountCurrency);
+                }
 
                 $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2) WHERE id = ?";
                 if ($transaction->getCategory()->getType() == 0) {
@@ -33,13 +42,13 @@ class TransactionDAO {
                 }
 
                 $stmt2 = $conn->prepare($sql2);
-                $stmt2->execute([$transaction->getAmount(), $transaction->getAccount()->getId()]);
+                $stmt2->execute([$updateAccountAmount, $transaction->getAccount()->getId()]);
 
             $conn->commit();
             return $conn->lastInsertId();
         } catch (\PDOException $exception) {
             $conn->rollBack();
-            throw new Exception($exception->getMessage());
+            throw new \PDOException($exception->getMessage());
         }
     }
 
