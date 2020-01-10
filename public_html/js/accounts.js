@@ -74,6 +74,7 @@ function getAllAccounts() {
                 accName.text(value.name);
 
                 let accAmount = $("<td></td>");
+                accAmount.addClass('amount');
                 accAmount.text(value.current_amount);
                 accAmount.append('&nbsp;' + value.currency);
 
@@ -211,4 +212,29 @@ $(document).ready(function () {
                 }
             });
     });
+
+    $("form#addtransfer").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let action = form.attr("action");
+        let data = form.serialize() + '&' + $("#maketransfersubmit").attr("name");
+        $.post(action, data, function (data) {
+            $("#makeTransfer").modal('hide');
+            showModal('Success', data.msg);
+            form.trigger("reset");
+
+        }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                }else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    });
+
 });

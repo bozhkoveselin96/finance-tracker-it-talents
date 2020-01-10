@@ -3,6 +3,7 @@
 namespace model\transfers;
 
 use model\Connection;
+use model\CurrencyDAO;
 use model\transactions\Transaction;
 
 class TransferDAO {
@@ -13,20 +14,39 @@ class TransferDAO {
             $conn->beginTransaction();
             $most_recently_added_ids = [];
 
-            $sql1 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2)
+            $sql1 = "UPDATE accounts SET current_amount = ROUND(current_amount - ?, 2)
                      WHERE id = ?;";
             $stmt = $conn->prepare($sql1);
-            $stmt->execute([]);
+
+            $amount = $transfer->getAmount();
+            if ($transfer->getCurrency() != $transfer->getFromAccount()->getCurrency()) {
+                $currencyDAO = new CurrencyDAO();
+                $amount = $currencyDAO->currencyConverter($transfer->getAmount(), $transfer->getCurrency(), $transfer->getFromAccount()->getCurrency());
+            }
+
+            $stmt->execute([$amount, $transfer->getFromAccount()->getId()]);
 
             $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2)
                      WHERE id = ?;";
             $stmt = $conn->prepare($sql2);
-            $stmt->execute([]);
 
-            $sql3 = "INSERT INTO transfers(amount, from, to)
-                     VALUES (?, ?, ?);";
+            $amount = $transfer->getAmount();
+            if ($transfer->getCurrency() != $transfer->getToAccount()->getCurrency()) {
+                $currencyDAO = new CurrencyDAO();
+                $amount = $currencyDAO->currencyConverter($transfer->getAmount(), $transfer->getCurrency(), $transfer->getToAccount()->getCurrency());
+            }
+            $stmt->execute([$amount, $transfer->getToAccount()->getId()]);
+
+            $sql3 = "INSERT INTO transfers(amount, from_account, to_account, currency, time_event) VALUES (?, ?, ?, ?, ?);";
             $stmt = $conn->prepare($sql3);
-            $stmt->execute([$transfer->getAmount(), $transfer->getFromAccount(), $transfer->getToAccount()]);
+
+            $stmt->execute([
+                $transfer->getAmount(),
+                $transfer->getFromAccount()->getId(),
+                $transfer->getToAccount()->getId(),
+                $transfer->getCurrency(),
+                $transfer->getTimeEvent()
+            ]);
             $most_recently_added_ids["transfer_id"] = $conn->lastInsertId();
 
             $sql4 = "INSERT INTO transactions(amount, currency, account_id, category_id, note, time_created, time_event)
@@ -53,9 +73,9 @@ class TransferDAO {
                 $outcome->getNote(),
                 $outcome->getTimeEvent()
             ]);
-
+            $most_recently_added_ids["transaction_outcome_id"] = $conn->lastInsertId();
             $conn->commit();
-            return $most_recently_added_ids["transaction_outcome_id"] = $conn->lastInsertId();
+            return $most_recently_added_ids;
         } catch (\PDOException $exception) {
             $conn->rollBack();
             throw new \PDOException($exception->getMessage());

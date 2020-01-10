@@ -27,7 +27,7 @@ class CategoryDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         $sql = "SELECT id, name, type, icon, owner_id FROM transaction_categories 
-                WHERE owner_id is NULL OR owner_id = ?;";
+                WHERE (owner_id is NULL OR owner_id = ? ) AND type IS NOT NULL ;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$owner_id]);
 

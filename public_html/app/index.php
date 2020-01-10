@@ -5,6 +5,12 @@ use exceptions\BaseException;
 session_start();
 set_exception_handler("handleExceptions");
 
+//set_error_handler("errorHandler");
+//
+//function errorHandler(TypeError $error) {
+//    var_dump($error);
+//}
+
 spl_autoload_register(function ($class) {
     $class = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
     if (file_exists($class)) {
@@ -34,6 +40,7 @@ define("MAX_AMOUNT", 10000000);
 define("NO_AVATAR_URL", 'avatars' . DIRECTORY_SEPARATOR . 'no-avatar.png');
 define("CATEGORY_INCOME", 1);
 define("CATEGORY_OUTCOME", 0);
+define('TRANSFER_CATEGORY_ID', 19);
 define("TOKEN_LENGTH", 30);
 define("TOKEN_EXPIRATION_MINUTES", 30);
 define("MSG_SUPPORTED_CURRENCIES", "Supported currencies are BGN, EUR and USD.");

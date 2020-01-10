@@ -2,11 +2,15 @@
 
 namespace model\transfers;
 
+use model\accounts\Account;
+
 class Transfer implements \JsonSerializable {
     private $id;
     private $amount;
     private $currency;
+    /** @var Account $fromAccount */
     private $fromAccount;
+    /** @var Account $toAccount */
     private $toAccount;
     private $time_event;
 
