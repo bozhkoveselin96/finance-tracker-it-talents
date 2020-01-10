@@ -8,6 +8,7 @@ use controller\CurrencyController;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\Connection;
+use model\CurrencyDAO;
 
 class TransactionDAO {
     public function create(Transaction $transaction) {
@@ -32,8 +33,8 @@ class TransactionDAO {
                 $transactionCurrency = $transaction->getCurrency();
                 $updateAccountAmount = $transaction->getAmount();
                 if ($accountCurrency != $transactionCurrency) {
-                    $currencyController = new CurrencyController();
-                    $updateAccountAmount = $currencyController->currencyConverter($transaction->getAmount(), $transactionCurrency, $accountCurrency);
+                    $currencyDAO = new CurrencyDAO();
+                    $updateAccountAmount = $currencyDAO->currencyConverter($transaction->getAmount(), $transactionCurrency, $accountCurrency);
                 }
 
                 $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2) WHERE id = ?";

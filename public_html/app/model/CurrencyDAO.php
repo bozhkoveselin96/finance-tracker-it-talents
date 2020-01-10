@@ -5,7 +5,7 @@ namespace model;
 
 
 class CurrencyDAO {
-    public function getCurrencyRateAndConvert($amount, $from_currency, $to_currency) {
+    public function currencyConverter($amount, $from_currency, $to_currency) {
         $req_url = "model/$from_currency.json";
         $response_json = file_get_contents($req_url);
         $getLastUpdate = json_decode($response_json);

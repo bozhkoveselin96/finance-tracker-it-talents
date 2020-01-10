@@ -21,7 +21,7 @@ class BudgetDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         $sql = "INSERT INTO budgets(category_id, amount, currency, owner_id, from_date, to_date, date_created)
-                VALUES (?, ?, ?, ?, ?, CURRENT_DATE);";
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
         return $conn->lastInsertId();

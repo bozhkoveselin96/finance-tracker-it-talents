@@ -10,7 +10,7 @@ spl_autoload_register(function ($class) {
     if (file_exists($class)) {
         require_once $class;
     } else {
-        throw new NotFoundException("Not found!");
+        throw new NotFoundException('Not Found!');
     }
 });
 

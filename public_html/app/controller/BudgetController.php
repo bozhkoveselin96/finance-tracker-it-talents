@@ -9,12 +9,14 @@ use exceptions\ForbiddenException;
 use model\budgets\Budget;
 use model\budgets\BudgetDAO;
 use model\categories\CategoryDAO;
+use model\CurrencyDAO;
+use model\transactions\Transaction;
 
 class BudgetController {
     public function add() {
         $response = [];
         if (isset($_POST["add_budget"]) && isset($_POST["category_id"]) && isset($_POST["amount"]) &&
-            isset($_POST["daterange"]) && !empty($_POST['daterange'])) {
+            isset($_POST["daterange"]) && !empty($_POST['daterange']) && isset($_POST["currency"])) {
 
             $daterange = explode(" - ", $_POST['daterange']);
             if (count($daterange) != 2) {
@@ -27,15 +29,30 @@ class BudgetController {
             }
             $categoryDAO = new CategoryDAO();
             $category = $categoryDAO->getCategoryById($_POST["category_id"], $_SESSION['logged_user']);
-            $budget = new Budget($category, $_POST["amount"], $_SESSION["logged_user"], $from_date, $to_date);
+            $budget = new Budget($category, $_POST["amount"], $_POST["currency"], $_SESSION["logged_user"], $from_date, $to_date);
 
             if (!Validator::validateAmount($budget->getAmount())) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
+            } elseif (!Validator::validateCurrency($budget->getCurrency())) {
+                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
             }
 
             $budgetDAO = new BudgetDAO();
             $id = $budgetDAO->createBudget($budget);
             $budget->setId($id);
+            $sum = 0;
+            $currencyDAO = new CurrencyDAO();
+            $transactionsByBudget = $budgetDAO->getTransactionsByBudget($budget);
+            /** @var Transaction $transaction */
+            foreach ($transactionsByBudget as $transaction) {
+                if ($budget->getCurrency() == $transaction->getCurrency()) {
+                    $sum += $transaction->getAmount();
+                } else {
+                    $sum += $currencyDAO->currencyConverter($transaction->getAmount(), $transaction->getCurrency(), $budget->getCurrency());
+                }
+            }
+            $budget->setProgress($sum);
+
             return new ResponseBody('Budget added successfully!', $budget);
         }
         throw new BadRequestException("Bad request.");
@@ -45,6 +62,23 @@ class BudgetController {
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $budgetDAO = new BudgetDAO();
             $budgets = $budgetDAO->getAll($_SESSION['logged_user']);
+
+            $currencyDAO = new CurrencyDAO();
+            /** @var Budget $budget */
+            foreach ($budgets as $budget) {
+                $sum = 0;
+                $transactionsByBudget = $budgetDAO->getTransactionsByBudget($budget);
+                /** @var Transaction $transaction */
+                foreach ($transactionsByBudget as $transaction) {
+                    if ($budget->getCurrency() == $transaction->getCurrency()) {
+                        $sum += $transaction->getAmount();
+                    } else {
+                        $sum += $currencyDAO->currencyConverter($transaction->getAmount(), $transaction->getCurrency(), $budget->getCurrency());
+                    }
+                }
+                $budget->setProgress(round($sum, 2));
+            }
+
             return new ResponseBody(null, $budgets);
         }
         throw new BadRequestException("Bad request.");
@@ -54,12 +88,12 @@ class BudgetController {
         if (isset($_POST["delete"])) {
             $budgetDAO = new BudgetDAO();
             $budget = $budgetDAO->getBudgetById($_POST["budget_id"]);
-            if ($budget && $budget->getOwnerId() == $_SESSION['logged_user']) {
-                $budgetDAO->deleteBudget($budget->getId());
-                return new ResponseBody("Delete successfully!", $budget);
-            } else {
-                throw new ForbiddenException("This budget is not yours");
+            if (!$budget || $budget->getOwnerId() != $_SESSION['logged_user']) {
+                throw new ForbiddenException("This budget is not yours!");
             }
+
+            $budgetDAO->deleteBudget($budget->getId());
+            return new ResponseBody("Deleted successfully!", $budget);
         }
         throw new BadRequestException("Bad request.");
     }
