@@ -11,6 +11,7 @@ class PlannedPayment implements \JsonSerializable {
     private $id;
     private $day_for_payment;
     private $amount;
+    private $currency;
     /** @var Account $account */
     private $account;
     /** @var Category $category */
@@ -18,9 +19,10 @@ class PlannedPayment implements \JsonSerializable {
     private $status;
     private $date_created;
 
-    public function __construct($day_for_payment, $amount, $account, $category) {
+    public function __construct($day_for_payment, $amount, $currency, $account, $category) {
         $this->day_for_payment = $day_for_payment;
         $this->amount = $amount;
+        $this->currency = $currency;
         $this->account = $account;
         $this->category = $category;
     }
@@ -35,6 +37,10 @@ class PlannedPayment implements \JsonSerializable {
 
     public function getAmount() {
         return $this->amount;
+    }
+
+    public function getCurrency() {
+        return $this->currency;
     }
 
     public function getAccount() {
@@ -70,11 +76,12 @@ class PlannedPayment implements \JsonSerializable {
 
     public function jsonSerialize() {
         return [
-            'day_for_payment'=>$this->day_for_payment,
-            'amount'=>$this->amount,
-            'status'=>$this->status,
-            'account'=>$this->account,
-            'category'=>$this->category
+            'day_for_payment' => $this->day_for_payment,
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'status' => $this->status,
+            'account' => $this->account,
+            'category' => $this->category
         ];
     }
 }

@@ -20,12 +20,14 @@ class PlannedPaymentController {
             $categoryDAO = new CategoryDAO();
             $account = $accountDAO->getAccountById($_POST['account_id']);
             $category = $categoryDAO->getCategoryById($_POST['category_id'], $_SESSION['logged_user']);
-            $plannedPayment = new PlannedPayment($_POST['day_for_payment'], $_POST['amount'], $account, $category);
+            $plannedPayment = new PlannedPayment($_POST['day_for_payment'], $_POST['amount'], $_POST["currency"], $account, $category);
 
             if (!Validator::validateAmount($plannedPayment->getAmount())) {
                 throw new BadRequestException("Amount must be between 0 and" . MAX_AMOUNT . "inclusive");
             } elseif (!Validator::validateDayOfMonth($plannedPayment->getDayForPayment())) {
                 throw new BadRequestException("Day must be have valid day from current month");
+            } elseif (!Validator::validateCurrency($plannedPayment->getCurrency())) {
+                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
             }
 
             if ($account && $category && $account->getOwnerId() == $_SESSION['logged_user']) {
@@ -46,7 +48,6 @@ class PlannedPaymentController {
         throw new BadRequestException("Bad request.");
     }
 
-    //new methods
     public function edit() {
         if (isset($_POST["day_for_payment"])) {
             $planned_payment_DAO = new PlannedPaymentDAO();

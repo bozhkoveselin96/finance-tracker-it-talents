@@ -16,11 +16,12 @@ class PlannedPaymentDAO {
         $parameters = [];
         $parameters[] = $plannedPayment->getDayForPayment();
         $parameters[] = $plannedPayment->getAmount();
+        $parameters[] = $plannedPayment->getCurrency();
         $parameters[] = $plannedPayment->getAccount()->getId();
         $parameters[] = $plannedPayment->getCategory()->getId();
 
-        $sql = "INSERT INTO planned_payments(day_for_payment, amount, account_id, category_id, status, date_created) 
-                VALUES (?, ?, ?, ?, 1, CURRENT_DATE)";
+        $sql = "INSERT INTO planned_payments(day_for_payment, amount, currency, account_id, category_id, status, date_created) 
+                VALUES (?, ?, ?, ?, ?, 1, CURRENT_DATE)";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
         return $conn->lastInsertId();
@@ -31,7 +32,9 @@ class PlannedPaymentDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
 
-        $sql = "SELECT pp.day_for_payment, pp.amount, a.name AS account_name, pp.account_id, c.name AS category_name, pp.category_id, pp.status FROM planned_payments AS pp 
+        $sql = "SELECT pp.day_for_payment, pp.amount, pp.currency, a.name AS account_name,
+                pp.account_id, c.name AS category_name, pp.category_id, pp.status 
+                FROM planned_payments AS pp 
                 JOIN accounts AS a ON pp.account_id = a.id
                 JOIN transaction_categories AS c ON pp.category_id = c.id
                 WHERE a.owner_id = ?
@@ -42,8 +45,11 @@ class PlannedPaymentDAO {
         $categoryDAO = new CategoryDAO();
         $accountDAO = new AccountDAO();
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
-            $plannedPayment = new PlannedPayment($value->day_for_payment, $value->amount,
-                $accountDAO->getAccountById($value->account_id), $categoryDAO->getCategoryById($value->category_id, $_SESSION['logged_user']));
+            $plannedPayment = new PlannedPayment($value->day_for_payment,
+                                                 $value->amount,
+                                                 $value->currency,
+                                                 $accountDAO->getAccountById($value->account_id),
+                                                 $categoryDAO->getCategoryById($value->category_id,$_SESSION['logged_user']));
             $plannedPayment->setStatus($value->status);
             $plannedPayments[] = $plannedPayment;
         }
@@ -55,10 +61,13 @@ class PlannedPaymentDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
 
-        $sql = "SELECT pp.day_for_payment, pp.amount, a.name AS account_name, a.owner_id, c.name AS category_name, pp.status FROM planned_payments AS pp 
-                    JOIN accounts AS a ON pp.account_id = a.id
-                    JOIN transaction_categories AS c ON pp.category_id = c.id
-                    WHERE pp.id = ?";
+        $sql = "SELECT pp.day_for_payment, pp.amount, pp.currency,
+                a.name AS account_name, a.owner_id, 
+                c.name AS category_name, pp.status 
+                FROM planned_payments AS pp 
+                JOIN accounts AS a ON pp.account_id = a.id
+                JOIN transaction_categories AS c ON pp.category_id = c.id
+                WHERE pp.id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$planned_payment_id]);
 
@@ -66,8 +75,11 @@ class PlannedPaymentDAO {
             $row = $stmt->fetch(\PDO::FETCH_OBJ);
             $categoryDAO = new CategoryDAO();
             $accountDAO = new AccountDAO();
-            $plannedPayment = new PlannedPayment($row->day_for_payment, $row->amount,
-                $accountDAO->getAccountById($row->account_id), $categoryDAO->getCategoryById($row->category_id, $_SESSION['logged_user']));
+            $plannedPayment = new PlannedPayment($row->day_for_payment,
+                                                 $row->amount,
+                                                 $row->currency,
+                                                 $accountDAO->getAccountById($row->account_id),
+                                                 $categoryDAO->getCategoryById($row->category_id, $_SESSION['logged_user']));
             return $plannedPayment;
         }
         return false;
