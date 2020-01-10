@@ -11,11 +11,12 @@ class Account implements \JsonSerializable {
     private $name;
     private $current_amount;
     private $owner_id;
-    private $date_created;
+    private $currency;
 
-    public function __construct($name, $current_amount, $owner_id) {
+    public function __construct($name, $current_amount, $currency, $owner_id) {
         $this->name = $name;
         $this->current_amount = $current_amount;
+        $this->currency = $currency;
         $this->owner_id = $owner_id;
     }
 
@@ -25,6 +26,10 @@ class Account implements \JsonSerializable {
 
     public function getCurrentAmount() {
         return $this->current_amount;
+    }
+
+    public function getCurrency() {
+        return $this->currency;
     }
 
     public function getOwnerId() {
@@ -39,11 +44,7 @@ class Account implements \JsonSerializable {
         $this->id = $id;
     }
 
-    /**
-     * @param mixed $name
-     */
-    public function setName($name): void
-    {
+    public function setName($name): void {
         $this->name = $name;
     }
 
@@ -51,7 +52,8 @@ class Account implements \JsonSerializable {
         return [
             'id' =>$this->id,
             'name' => $this->name,
-            'current_amount' => $this->current_amount
+            'current_amount' => $this->current_amount,
+            'currency' => $this->currency
         ];
     }
 }

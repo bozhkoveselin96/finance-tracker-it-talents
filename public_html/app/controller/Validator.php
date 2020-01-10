@@ -68,4 +68,13 @@ class Validator {
         return false;
     }
 
+    public static function validateCurrency($currency) {
+        switch ($currency) {
+            case "USD":
+            case "EUR":
+            case "BGN":
+                return true;
+        }
+        return false;
+    }
 }

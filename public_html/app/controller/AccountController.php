@@ -6,21 +6,20 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
-use exceptions\NotFoundException;
 use model\accounts\Account;
 use model\accounts\AccountDAO;
 
-class AccountController
-{
-    public function add()
-    {
+class AccountController {
+    public function add() {
         if (isset($_POST['add_account'])) {
-            $account = new Account($_POST['name'], $_POST['current_amount'], $_SESSION['logged_user']);
+            $account = new Account($_POST['name'], $_POST['current_amount'], strtoupper($_POST["currency"]), $_SESSION['logged_user']);
             $accountDAO = new AccountDAO();
             if (!Validator::validateName($account->getName())) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols!");
             } elseif (!Validator::validateAmount($account->getCurrentAmount())) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
+            } elseif (!Validator::validateCurrency($account->getCurrency())){
+                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
             } else {
                 $id = $accountDAO->createAccount($account);
                 $account->setId($id);
