@@ -13,12 +13,13 @@ class Transaction implements \JsonSerializable {
     private $account;
     private $category;
     private $note;
-    private $time_created;
+    private $currency;
     private $time_event;
 
-    public function __construct($amount, Account $account, Category $category, $note, $time_event) {
+    public function __construct($amount, Account $account, $currency, Category $category, $note, $time_event) {
         $this->amount = $amount;
         $this->account = $account;
+        $this->currency = $currency;
         $this->category = $category;
         $this->note = $note;
         $this->time_event = $time_event;
@@ -27,6 +28,11 @@ class Transaction implements \JsonSerializable {
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getCurrency()
+    {
+        return $this->currency;
     }
 
     public function getAmount() {
@@ -60,6 +66,7 @@ class Transaction implements \JsonSerializable {
         return [
             'id'=>$this->id,
             'amount' => $this->amount,
+            'currency'=>$this->currency,
             'note' => $this->note,
             'account' => $this->account,
             'category' => $this->category,

@@ -26,7 +26,7 @@ class TransactionController {
                 throw new BadRequestException("No such category.");
             }
 
-            $transaction = new Transaction($_POST['amount'], $account, $category, $_POST['note'], $_POST['time_event']);
+            $transaction = new Transaction($_POST['amount'], $account, strtoupper($_POST['currency']), $category, $_POST['note'], $_POST['time_event']);
 
             if (!Validator::validateAmount($transaction->getAmount())) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
@@ -36,6 +36,8 @@ class TransactionController {
                 throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive!");
             } elseif ($account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours.");
+            } elseif (!Validator::validateCurrency($transaction->getCurrency())) {
+                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
             }
 
             $transactionDAO = new TransactionDAO();

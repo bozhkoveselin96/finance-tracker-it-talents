@@ -10,8 +10,7 @@ spl_autoload_register(function ($class) {
     if (file_exists($class)) {
         require_once $class;
     } else {
-        header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
-        die();
+        throw new NotFoundException("Not found!");
     }
 });
 
@@ -37,6 +36,7 @@ define("CATEGORY_INCOME", 1);
 define("CATEGORY_OUTCOME", 0);
 define("TOKEN_LENGTH", 30);
 define("TOKEN_EXPIRATION_MINUTES", 30);
+define("MSG_SUPPORTED_CURRENCIES", "Supported currencies are BGN, EUR and USD.");
 
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';

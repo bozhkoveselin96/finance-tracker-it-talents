@@ -49,8 +49,7 @@ class TransactionDAO {
 
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "SELECT t.id, t.amount, t.account_id, a.name AS account_name, t.category_id,
-                tc.name AS category_name, tc.type AS transaction_type, t.note, t.time_event
+        $sql = "SELECT t.id, t.amount, t.account_id, t.currency, t.category_id, tc.type AS transaction_type, t.note, t.time_event
                 FROM transactions AS t
                 JOIN accounts AS a ON t.account_id = a.id
                 JOIN transaction_categories AS tc ON t.category_id = tc.id
@@ -74,6 +73,7 @@ class TransactionDAO {
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
             $transaction = new Transaction($value->amount,
                                            $accountDAO->getAccountById($value->account_id),
+                                           $value->currency,
                                            $categoryDAO->getCategoryById($value->category_id, $_SESSION['logged_user']),
                                            $value->note, $value->time_event);
             $transaction->setId($value->id);
@@ -85,7 +85,7 @@ class TransactionDAO {
     public function getTransactionById(int $transaction_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "SELECT id, amount, account_id, category_id, note, time_event FROM accounts WHERE id = ?;";
+        $sql = "SELECT id, amount, account_id, currency, category_id, note, time_event FROM accounts WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$transaction_id]);
         if ($stmt->rowCount() == 1) {
@@ -93,7 +93,7 @@ class TransactionDAO {
             $categoryDAO = new CategoryDAO();
 
             $response = $stmt->fetch(\PDO::FETCH_OBJ);
-            $transaction = new Transaction($response->amount, $accountDAO->getAccountById($response->account_id),
+            $transaction = new Transaction($response->amount, $accountDAO->getAccountById($response->account_id), $response->currency,
                 $categoryDAO->getCategoryById($response->category_id, $_SESSION['logged_user']), $response->note, $response->time_event);
             $transaction->setId($response->id);
             return $transaction;

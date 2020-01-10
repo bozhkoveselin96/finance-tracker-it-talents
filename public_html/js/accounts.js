@@ -75,6 +75,8 @@ function getAllAccounts() {
 
                 let accAmount = $("<td></td>");
                 accAmount.text(value.current_amount);
+                accAmount.append('&nbsp;' + value.currency);
+
 
                 tr.append(accName);
                 tr.append(accAmount);
@@ -128,6 +130,8 @@ function getAccountsMain() {
                 let cardFooter = $("<span class=\"card-footer text-white clearfix small z-1\"></span>");
                 let cardFooterText = $("<span class=\"float-left\"></span>");
                 cardFooterText.text(value.current_amount);
+                cardFooterText.append('&nbsp;' + value.currency);
+
                 cardFooter.append(cardFooterText);
 
                 secondDiv.append(cardBody);
@@ -171,6 +175,7 @@ $(document).ready(function () {
             let accName = $("<td></td>");
             accName.addClass('name');
             accName.text(data.data.name);
+            accName.append('&nbsp;' + data.data.currency);
 
             let accAmount = $("<td></td>");
             accAmount.text(data.data.current_amount);

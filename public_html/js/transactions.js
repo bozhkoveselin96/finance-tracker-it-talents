@@ -43,6 +43,7 @@ function getTransactionsMain(daterange = null) {
 
                 let amount = $("<td></td>");
                 amount.text(value.amount);
+                amount.append('&nbsp;' + value.currency);
                 let transactionType = $("<td></td>");
                 if (value.category.type == 0) {
                     transactionType.text('Outcome');
@@ -102,6 +103,7 @@ $(document).ready(function () {
 
             let amount = $("<td></td>");
             amount.text(data.data.amount);
+            amount.append('&nbsp;' + data.data.currency);
             let transactionType = $("<td></td>");
             if (data.data.category.type == 0) {
                 transactionType.text('Outcome');
