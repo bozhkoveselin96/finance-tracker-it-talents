@@ -32,10 +32,11 @@ function addTransaction() {
     });
 }
 
-function getTransactionsMain() {
-    $.get("app/index.php?target=transaction&action=showUserTransactions",
+function getTransactionsMain(daterange = null) {
+    $.get("app/index.php?target=transaction&action=showUserTransactions", {date_range : daterange},
         function (response) {
             let table = $("#transactions");
+            table.empty();
 
             $.each(response.data, function (key, value) {
                 let tr = $("<tr />");
@@ -83,6 +84,7 @@ function getTransactionsMain() {
             }
         });
 }
+
 
 $(document).ready(function () {
     $("form#addtransaction").on("submit", function (e) {
@@ -140,4 +142,73 @@ $(document).ready(function () {
                 }
             });
     });
+
+    $(document).ready(function () {
+        let datatable = null;
+        $('#time_event').datetimepicker();
+        $('#daterange').daterangepicker().val('').on('change', function () {
+            getTransactionsMain(this.value);
+            if (datatable !== null) {
+                datatable.destroy();
+            }
+
+            setTimeout(function () {
+                datatable = $('#dataTable').DataTable( {
+                    "order": [[ 5, "desc" ]],
+                    initComplete: function () {
+                        this.api().columns().every( function () {
+                            var column = this;
+                            var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
+                                .appendTo( $(column.footer()).empty() )
+                                .on( 'change', function () {
+                                    var val = $.fn.dataTable.util.escapeRegex(
+                                        $(this).val()
+                                    );
+
+                                    column
+                                        .search( val ? '^'+val+'$' : '', true, false )
+                                        .draw();
+                                } );
+
+                            column.data().unique().sort().each( function ( d, j ) {
+                                select.append( '<option value="'+d+'">'+d+'</option>' )
+                            } );
+                        } );
+                    }
+                } );
+            }, 100);
+
+        });
+        $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
+        getTransactionsMain();
+
+        setTimeout(function () {
+            datatable = $('#dataTable').DataTable( {
+                "order": [[ 5, "desc" ]],
+                initComplete: function () {
+                    this.api().columns().every( function () {
+                        var column = this;
+                        var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
+                            .appendTo( $(column.footer()).empty() )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search( val ? '^'+val+'$' : '', true, false )
+                                    .draw();
+                            } );
+
+                        column.data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                        } );
+                    } );
+                }
+            } );
+        }, 100);
+
+        addTransaction();
+    });
+
 });

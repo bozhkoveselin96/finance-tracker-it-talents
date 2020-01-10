@@ -43,9 +43,9 @@ class TransactionDAO {
         }
     }
 
-    public function getByUserAndCategory(int $user_id, int $category = null, $from_date, $to_date) {
-        $data = [];
-        $data[] = $user_id;
+    public function getByUserAndCategory(int $user_id, int $category = null, $from_date = null, $to_date = null) {
+        $parameters = [];
+        $parameters[] = $user_id;
 
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
@@ -56,17 +56,17 @@ class TransactionDAO {
                 JOIN transaction_categories AS tc ON t.category_id = tc.id
                 WHERE a.owner_id = ? ";
         if ($category != null) {
-            $data[] = $category;
+            $parameters[] = $category;
             $sql .= "AND tc.id = ? ";
         }
         if ($from_date != null && $to_date != null) {
-            $data[] = $from_date;
-            $data[] = $to_date;
-            $sql .= "AND (time_event BETWEEN ? AND ? + INTERVAL 1 DAY )";
+            $parameters[] = $from_date;
+            $parameters[] = $to_date;
+            $sql .= "AND (time_event BETWEEN ? AND ? + INTERVAL 1 DAY ) ";
         }
         $sql .= "ORDER BY time_created DESC;";
         $stmt = $conn->prepare($sql);
-        $stmt->execute($data);
+        $stmt->execute($parameters);
 
         $transactions = [];
         $accountDAO = new AccountDAO();

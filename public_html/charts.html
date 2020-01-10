@@ -247,8 +247,7 @@
 
 <script>
     $(document).ready(function () {
-        $('input[name="daterange"]').daterangepicker();
-        $('input[name="daterange"]').val('');
+        $('input[name="daterange"]').daterangepicker().val('');
         $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
         getIncomesAndOutcomes();
         getIncomesByCategory();
