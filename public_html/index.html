@@ -145,6 +145,7 @@
                   <th>Category</th>
                   <th>Note</th>
                   <th>Time of the event</th>
+                  <th>Delete</th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -155,6 +156,7 @@
                   <th>Category</th>
                   <th>Note</th>
                   <th>Time of the event</th>
+                  <th>Delete</th>
                 </tr>
                 </tfoot>
                 <tbody id="transactions">
@@ -232,7 +234,7 @@
       getIncomesAndOutcomesLastXDays();
       setTimeout(function () {
           $('#dataTable').DataTable( {
-            "order": [[ 4, "desc" ]],
+            "order": [[ 5, "desc" ]],
             initComplete: function () {
               this.api().columns().every( function () {
                 var column = this;

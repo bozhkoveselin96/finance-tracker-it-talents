@@ -5,6 +5,7 @@ namespace model\transactions;
 
 
 use controller\CurrencyController;
+use controller\TransferController;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\Connection;
@@ -87,6 +88,11 @@ class TransactionDAO {
                                            $categoryDAO->getCategoryById($value->category_id, $_SESSION['logged_user']),
                                            $value->note, $value->time_event);
             $transaction->setId($value->id);
+            if ($transaction->getCategory()->getType() == null) {
+                $transferController = new TransferController();
+                $type = $transferController->checkTransactionType($transaction);
+                $transaction->getCategory()->setType($type);
+            }
             $transactions[] = $transaction;
         }
         return $transactions;
@@ -95,13 +101,12 @@ class TransactionDAO {
     public function getTransactionById(int $transaction_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "SELECT id, amount, account_id, currency, category_id, note, time_event FROM accounts WHERE id = ?;";
+        $sql = "SELECT id, amount, account_id, currency, category_id, note, time_event FROM transactions WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$transaction_id]);
         if ($stmt->rowCount() == 1) {
             $accountDAO = new AccountDAO();
             $categoryDAO = new CategoryDAO();
-
             $response = $stmt->fetch(\PDO::FETCH_OBJ);
             $transaction = new Transaction($response->amount, $accountDAO->getAccountById($response->account_id), $response->currency,
                 $categoryDAO->getCategoryById($response->category_id, $_SESSION['logged_user']), $response->note, $response->time_event);
@@ -117,18 +122,30 @@ class TransactionDAO {
         try {
             $conn->beginTransaction();
 
-            $sql1 = "DELETE FROM transaction WHERE id = ?;";
+            $sql1 = "DELETE FROM transactions WHERE id = ?;";
             $stmt = $conn->prepare($sql1);
             $stmt->execute([$transaction->getId()]);
 
-            $sql2 = "UPDATE accounts SET current_amount = current_amount + ? WHERE id = ?;";
+            $sign = '+';
+            if ($transaction->getCategory()->getType() == CATEGORY_INCOME) {
+                $sign = '-';
+            }
+
+            $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount $sign ?, 2) WHERE id = ?;";
             $stmt = $conn->prepare($sql2);
-            $stmt->execute([$transaction->getAmount(), $transaction->getAccount()->getId()]);
+
+            $amount = $transaction->getAmount();
+            $currencyDAO = new CurrencyDAO();
+            if ($transaction->getCurrency() != $transaction->getAccount()->getCurrency()) {
+                $amount = $currencyDAO->currencyConverter($amount, $transaction->getCurrency(), $transaction->getAccount()->getCurrency());
+            }
+
+            $stmt->execute([$amount, $transaction->getAccount()->getId()]);
 
             $conn->commit();
         } catch (\PDOException $exception) {
             $conn->rollBack();
-            throw new Exception($exception->getMessage());
+            throw new \PDOException($exception->getMessage());
         }
     }
 }

@@ -70,7 +70,9 @@ class CategoryController {
 
             $categoryDAO = new CategoryDAO();
             $category = $categoryDAO->getCategoryById($category_id, $owner_id);
-            $category->setIcon($icon_url);
+            if (!empty($icon_url)) {
+                $category->setIcon($icon_url);
+            }
             $category->setName($name);
 
             if ($category->getOwnerId() == $_SESSION["logged_user"]) {
@@ -90,10 +92,10 @@ class CategoryController {
             $category = $categoryDAO->getCategoryById($category_id, $_SESSION["logged_user"]);
 
             if ($category && $category->getOwnerId() == $_SESSION['logged_user']) {
-                $categoryDAO->deleteCategory($category->getId(), $_SESSION["logged_user"]);
+                $categoryDAO->deleteCategory($category->getId());
                 return new ResponseBody("Category deleted successfully.", $category);
             } else {
-                throw new ForbiddenException("This account is not yours.");
+                throw new ForbiddenException("This category is not yours. Predefined categories are not deletable.");
             }
         }
         throw new BadRequestException("Bad request.");

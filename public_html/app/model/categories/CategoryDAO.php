@@ -71,11 +71,11 @@ class CategoryDAO {
         return false;
     }
 
-    public function deleteCategory(int $category_id, $owner_id) {
+    public function deleteCategory(int $category_id) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "DELETE FROM category WHERE id = ? AND owner_id = ?;";
+        $sql = "DELETE FROM transaction_categories WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$category_id, $owner_id]);
+        $stmt->execute([$category_id]);
     }
 }

@@ -142,6 +142,7 @@
                             <th>Category</th>
                             <th>Note</th>
                             <th>Time of the event</th>
+                            <th>Delete</th>
                         </tr>
                         </thead>
                         <tfoot>
@@ -152,6 +153,7 @@
                             <th>Category</th>
                             <th>Note</th>
                             <th>Time of the event</th>
+                            <th>Delete</th>
                         </tr>
                         </tfoot>
                         <tbody id="transactions">
@@ -284,6 +286,73 @@
 <script src="js/sb-admin.min.js"></script>
 
 <script>
+    $(document).ready(function () {
+        let datatable = null;
+        $('#time_event').datetimepicker();
+        $('#daterange').daterangepicker().val('').on('change', function () {
+            getTransactionsMain(this.value);
+            if (datatable !== null) {
+                datatable.destroy();
+            }
+
+            setTimeout(function () {
+                datatable = $('#dataTable').DataTable( {
+                    "order": [[ 5, "desc" ]],
+                    initComplete: function () {
+                        this.api().columns().every( function () {
+                            var column = this;
+                            var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
+                                .appendTo( $(column.header()).empty() )
+                                .on( 'change', function () {
+                                    var val = $.fn.dataTable.util.escapeRegex(
+                                        $(this).val()
+                                    );
+
+                                    column
+                                        .search( val ? '^'+val+'$' : '', true, false )
+                                        .draw();
+                                } );
+
+                            column.data().unique().sort().each( function ( d, j ) {
+                                select.append( '<option value="'+d+'">'+d+'</option>' )
+                            } );
+                        } );
+                    }
+                } );
+            }, 100);
+
+        });
+        $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
+        getTransactionsMain();
+
+        setTimeout(function () {
+            datatable = $('#dataTable').DataTable( {
+                "order": [[ 5, "desc" ]],
+                initComplete: function () {
+                    this.api().columns().every( function () {
+                        var column = this;
+                        var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
+                            .appendTo( $(column.header()).empty() )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search( val ? '^'+val+'$' : '', true, false )
+                                    .draw();
+                            } );
+
+                        column.data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                        } );
+                    } );
+                }
+            } );
+        }, 100);
+
+        addTransaction();
+    });
 
 </script>
 

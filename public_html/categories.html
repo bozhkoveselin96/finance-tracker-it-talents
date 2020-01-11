@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="css/icon-picker.min.css">
     <script type="text/javascript" src="js/icon-picker.min.js"></script>
     <style>
-        #iconPickerGroup i {
+        .iconPickerGroup i {
             margin: 0 0 0 0;
             padding: 0 0 0 0;
         }
@@ -124,6 +124,8 @@
                                 <th>Name</th>
                                 <th>Icon</th>
                                 <th class="selecting">Type</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
                             </tr>
                             </thead>
                             <tfoot>
@@ -131,6 +133,8 @@
                                 <th>Name</th>
                                 <th>Icon</th>
                                 <th class="selecting">Type</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
                             </tr>
                             </tfoot>
                             <tbody id="categories">
@@ -200,7 +204,7 @@
                             <option value="1">Income</option>
                         </select>
                     </div>
-                    <div id="iconPickerGroup" class="form-group">
+                    <div class="form-group iconPickerGroup">
                         <div class="icon-picker" id="icon_picker" data-pickerid="fa" data-iconsets='{"fa":"Pick Icon"}'>
                             <input type="hidden" name="icon" />
                         </div>
@@ -251,7 +255,7 @@
                         this.api().columns(".selecting").every( function () {
                             var column = this;
                             var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
-                                .appendTo( $(column.footer()).empty() )
+                                .appendTo( $(column.header()).empty() )
                                 .on( 'change', function () {
                                     var val = $.fn.dataTable.util.escapeRegex(
                                         $(this).val()

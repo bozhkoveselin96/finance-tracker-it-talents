@@ -50,12 +50,21 @@ class Category implements \JsonSerializable {
         $this->name = $name;
     }
 
+    /**
+     * @param mixed $type
+     */
+    public function setType($type): void
+    {
+        $this->type = $type;
+    }
+
     public function jsonSerialize() {
         return [
             'id'=>$this->id,
             'name'=>$this->name,
             'icon'=>$this->icon,
-            'type'=>$this->type
+            'type'=>$this->type,
+            'owner'=>$this->owner_id
         ];
     }
 

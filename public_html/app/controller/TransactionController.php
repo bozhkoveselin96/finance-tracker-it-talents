@@ -73,12 +73,18 @@ class TransactionController {
             $transaction_id = $_POST["transaction_id"];
             $transactionDAO = new TransactionDAO();
             $transaction = $transactionDAO->getTransactionById($transaction_id);
+            $transferController = new TransferController();
 
-            if ($transaction->getAccount()->getOwnerId() == $_SESSION['logged_user']) {
-                $transactionDAO->deleteTransaction($transaction);
-            } else {
-                throw new ForbiddenException("This transaction is not yours!");
+            if ($transferController->checkTransactionType($transaction) !== false) {
+                throw new BadRequestException("Transfers can not be deleted!");
             }
+
+            if ($transaction && $transaction->getAccount()->getOwnerId() == $_SESSION['logged_user']) {
+                $transactionDAO->deleteTransaction($transaction);
+                return new ResponseBody('Deleted successfully!', $transaction);
+            }
+            throw new ForbiddenException("This transaction is not yours!");
+
         }
         throw new BadRequestException("Bad request.");
     }

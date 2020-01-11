@@ -43,6 +43,7 @@ function showUserBudgets() {
                     amount.append("&nbsp; " + value.currency);
                     let spent = $("<td />");
                     spent.text(value.budget_status);
+                    spent.append("&nbsp; " + value.currency);
                     let fromDate = $("<td />");
                     fromDate.text(value.from_date);
                     let toDate = $("<td />");
@@ -62,7 +63,7 @@ function showUserBudgets() {
                     this.api().columns().every( function () {
                         var column = this;
                         var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
-                            .appendTo( $(column.footer()).empty() )
+                            .appendTo( $(column.header()).empty() )
                             .on( 'change', function () {
                                 var val = $.fn.dataTable.util.escapeRegex(
                                     $(this).val()

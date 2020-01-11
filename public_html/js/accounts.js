@@ -222,7 +222,10 @@ $(document).ready(function () {
             $("#makeTransfer").modal('hide');
             showModal('Success', data.msg);
             form.trigger("reset");
-
+            let fromAccountId = data.data.fromTransaction.account.id;
+            let toAccountId = data.data.toTransaction.account.id;
+            $("tr#"+fromAccountId+" .amount").html(data.data.fromTransaction.account.current_amount + "&nbsp;" + data.data.fromTransaction.account.currency);
+            $("tr#"+toAccountId+" .amount").html(data.data.toTransaction.account.current_amount + "&nbsp;" + data.data.toTransaction.account.currency);
         }, 'json')
             .fail(function (xhr, status, error) {
                 if (xhr.status === 401) {

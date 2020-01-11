@@ -1,3 +1,28 @@
+let _deleteButtonTransaction = function (event) {
+    let trId = $(this).closest("tr").attr("id");
+    let transactionNote = $("#" + trId + " .note").text();
+    if (confirm("Are you sure you want to delete " + transactionNote + "?")) {
+        $.post("app/index.php?target=transaction&action=delete",
+            {
+                delete : true,
+                transaction_id : trId,
+            }, function (data) {
+                $("#"+trId).fadeOut(1500);
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    }
+};
+
 function addTransaction() {
     let selectAccount = $("#account");
     $.get("app/index.php?target=account&action=getAll",
@@ -40,15 +65,19 @@ function getTransactionsMain(daterange = null) {
 
             $.each(response.data, function (key, value) {
                 let tr = $("<tr />");
+                tr.attr("id", value.id);
 
                 let amount = $("<td></td>");
                 amount.text(value.amount);
                 amount.append('&nbsp;' + value.currency);
+                amount.addClass("font-weight-bold");
                 let transactionType = $("<td></td>");
-                if (value.category.type == 0) {
-                    transactionType.text('Outcome');
-                } else {
+                if (value.category.type == 1) {
                     transactionType.text('Income');
+                    amount.addClass("text-success");
+                } else {
+                    transactionType.text('Outcome');
+                    amount.addClass("text-danger");
                 }
                 let accountName = $("<td></td>");
                 accountName.text(value.account.name);
@@ -59,8 +88,17 @@ function getTransactionsMain(daterange = null) {
                 categoryName.append(icon);
                 let note = $("<td></td>");
                 note.text(value.note);
+                note.addClass('note');
                 let timeEvent = $("<td></td>");
                 timeEvent.text(value.time_event);
+
+                let deleteItem = $("<td></td>");
+                if (value.category.name !== 'Transfer') {
+                    let deleteItemButton = $("<button>Delete</button>");
+                    deleteItemButton.addClass('btn btn-danger');
+                    deleteItem.append(deleteItemButton);
+                    deleteItemButton.bind("click", _deleteButtonTransaction);
+                }
 
                 tr.append(transactionType);
                 tr.append(amount);
@@ -68,6 +106,7 @@ function getTransactionsMain(daterange = null) {
                 tr.append(categoryName);
                 tr.append(note);
                 tr.append(timeEvent);
+                tr.append(deleteItem);
 
                 table.append(tr);
             });
@@ -144,73 +183,4 @@ $(document).ready(function () {
                 }
             });
     });
-
-    $(document).ready(function () {
-        let datatable = null;
-        $('#time_event').datetimepicker();
-        $('#daterange').daterangepicker().val('').on('change', function () {
-            getTransactionsMain(this.value);
-            if (datatable !== null) {
-                datatable.destroy();
-            }
-
-            setTimeout(function () {
-                datatable = $('#dataTable').DataTable( {
-                    "order": [[ 5, "desc" ]],
-                    initComplete: function () {
-                        this.api().columns().every( function () {
-                            var column = this;
-                            var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
-                                .appendTo( $(column.footer()).empty() )
-                                .on( 'change', function () {
-                                    var val = $.fn.dataTable.util.escapeRegex(
-                                        $(this).val()
-                                    );
-
-                                    column
-                                        .search( val ? '^'+val+'$' : '', true, false )
-                                        .draw();
-                                } );
-
-                            column.data().unique().sort().each( function ( d, j ) {
-                                select.append( '<option value="'+d+'">'+d+'</option>' )
-                            } );
-                        } );
-                    }
-                } );
-            }, 100);
-
-        });
-        $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-        getTransactionsMain();
-
-        setTimeout(function () {
-            datatable = $('#dataTable').DataTable( {
-                "order": [[ 5, "desc" ]],
-                initComplete: function () {
-                    this.api().columns().every( function () {
-                        var column = this;
-                        var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
-                            .appendTo( $(column.footer()).empty() )
-                            .on( 'change', function () {
-                                var val = $.fn.dataTable.util.escapeRegex(
-                                    $(this).val()
-                                );
-
-                                column
-                                    .search( val ? '^'+val+'$' : '', true, false )
-                                    .draw();
-                            } );
-
-                        column.data().unique().sort().each( function ( d, j ) {
-                            select.append( '<option value="'+d+'">'+d+'</option>' )
-                        } );
-                    } );
-                }
-            } );
-        }, 100);
-
-        addTransaction();
-    });
-
 });

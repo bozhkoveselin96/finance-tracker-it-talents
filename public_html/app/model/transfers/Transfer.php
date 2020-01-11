@@ -2,24 +2,18 @@
 
 namespace model\transfers;
 
-use model\accounts\Account;
+use model\transactions\Transaction;
 
 class Transfer implements \JsonSerializable {
     private $id;
-    private $amount;
-    private $currency;
-    /** @var Account $fromAccount */
-    private $fromAccount;
-    /** @var Account $toAccount */
-    private $toAccount;
-    private $time_event;
+    /** @var Transaction $fromTransaction */
+    private $fromTransaction;
+    /** @var Transaction $toAccount */
+    private $toTransaction;
 
-    public function __construct($amount, $currency, $fromAccount, $toAccount, $time_event) {
-        $this->amount = $amount;
-        $this->currency = $currency;
-        $this->fromAccount = $fromAccount;
-        $this->toAccount = $toAccount;
-        $this->time_event = $time_event;
+    public function __construct($fromTransaction, $toTransaction) {
+        $this->fromTransaction = $fromTransaction;
+        $this->toTransaction = $toTransaction;
     }
 
     public function getId() {
@@ -30,34 +24,19 @@ class Transfer implements \JsonSerializable {
         $this->id = $id;
     }
 
-    public function getAmount() {
-        return $this->amount;
+    public function getFromTransaction() {
+        return $this->fromTransaction;
     }
 
-    public function getCurrency() {
-        return $this->currency;
-    }
-
-    public function getFromAccount() {
-        return $this->fromAccount;
-    }
-
-    public function getToAccount() {
-        return $this->toAccount;
-    }
-
-    public function getTimeEvent() {
-        return $this->time_event;
+    public function getToTransaction() {
+        return $this->toTransaction;
     }
 
     public function jsonSerialize() {
         return [
             'id'=>$this->id,
-            'amount' => $this->amount,
-            'currency'=>$this->currency,
-            'fromAccount' => $this->fromAccount,
-            'toAccount' => $this->toAccount,
-            'time_event' => $this->time_event
+            'fromTransaction' => $this->fromTransaction,
+            'toTransaction' => $this->toTransaction,
         ];
     }
 }

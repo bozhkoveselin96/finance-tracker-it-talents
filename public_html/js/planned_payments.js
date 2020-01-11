@@ -53,6 +53,7 @@ function showUserPlannedPayments() {
                 dayForPayment.text(value.day_for_payment);
                 let amount = $("<td />");
                 amount.text(value.amount);
+                amount.append('&nbsp;' + value.currency);
                 let account = $("<td />");
                 account.text(value.account.name);
 
