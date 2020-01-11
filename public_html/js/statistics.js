@@ -1,14 +1,12 @@
-function getIncomesAndOutcomes(diagramType = 'pie', daterange) {
+function getIncomesAndOutcomes(diagramType = 'pie', account_id, currency = 'BGN', daterange) {
     $.get("app/index.php?target=statistic&action=getIncomesOutcomes", {
             daterange: daterange,
+            currency: currency,
+            account_id: account_id
         },
         function (response) {
-            let labelsTable = [];
-            let dataTable = [];
-            $.each(response.data, function (key, value) {
-                labelsTable.push(value.category_type);
-                dataTable.push(value.sum);
-            });
+            let labelsTable = ['Outcomes', 'Incomes'];
+            let dataTable = [response.data.outcomeSum, response.data.incomeSum];
 
             $("#allIncomesAndOutcomes").remove();
             $("#firstChart").append('<canvas id="allIncomesAndOutcomes"></canvas>');
@@ -36,7 +34,7 @@ function getIncomesAndOutcomes(diagramType = 'pie', daterange) {
                                 let total = meta.total;
                                 let currentValue = dataset.data[tooltipItem.index];
                                 let percentage = parseFloat((currentValue/total*100).toFixed(2));
-                                return currentValue + ' (' + percentage + '%)';
+                                return currentValue + ' ' + response.data.currency + ' (' + percentage + '%)';
                             },
                             title: function(tooltipItem, data) {
                                 return data.labels[tooltipItem[0].index];

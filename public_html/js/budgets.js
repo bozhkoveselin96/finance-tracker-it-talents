@@ -1,3 +1,27 @@
+let _deleteButtonBudget = function (event) {
+    let trId = $(this).closest("tr").attr("id");
+    if (confirm("Are you sure you want to delete selected budget?")) {
+        $.post("app/index.php?target=budget&action=delete",
+            {
+                delete : true,
+                budget_id : trId,
+            }, function (data) {
+                $("#"+trId).fadeOut(1500);
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    }
+};
+
 function addBudget() {
     let selectCategory = $("#category");
 
@@ -49,18 +73,25 @@ function showUserBudgets() {
                     let toDate = $("<td />");
                     toDate.text(value.to_date);
 
+                    let deleteItem = $("<td></td>");
+                    let deleteItemButton = $("<button>Delete</button>");
+                    deleteItemButton.addClass('btn btn-danger');
+                    deleteItem.append(deleteItemButton);
+                    deleteItemButton.bind("click", _deleteButtonBudget);
+
                     tr.append(category);
                     tr.append(amount);
                     tr.append(spent);
                     tr.append(fromDate);
                     tr.append(toDate);
+                    tr.append(deleteItem);
 
                     table.append(tr);
                 });
             $('#dataTable').DataTable( {
                 "order": [[ 4, "desc" ]],
                 initComplete: function () {
-                    this.api().columns().every( function () {
+                    this.api().columns(".selecting").every( function () {
                         var column = this;
                         var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
                             .appendTo( $(column.header()).empty() )
@@ -75,7 +106,7 @@ function showUserBudgets() {
                             } );
 
                         column.data().unique().sort().each( function ( d, j ) {
-                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                            select.append( '<option>'+d+'</option>' )
                         } );
                     } );
                 }

@@ -6,13 +6,14 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use Interfaces\Deletable;
 use model\budgets\Budget;
 use model\budgets\BudgetDAO;
 use model\categories\CategoryDAO;
 use model\CurrencyDAO;
 use model\transactions\Transaction;
 
-class BudgetController {
+class BudgetController implements Deletable {
     public function add() {
         $response = [];
         if (isset($_POST["add_budget"]) && isset($_POST["category_id"]) && isset($_POST["amount"]) &&

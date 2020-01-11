@@ -6,10 +6,12 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use Interfaces\Deletable;
+use Interfaces\Editable;
 use model\accounts\Account;
 use model\accounts\AccountDAO;
 
-class AccountController {
+class AccountController implements Editable, Deletable {
     public function add() {
         if (isset($_POST['add_account'])) {
             $account = new Account($_POST['name'], $_POST['current_amount'], strtoupper($_POST["currency"]), $_SESSION['logged_user']);

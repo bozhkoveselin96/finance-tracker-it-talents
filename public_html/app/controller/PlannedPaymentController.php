@@ -6,12 +6,14 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use Interfaces\Deletable;
+use Interfaces\Editable;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\planned_payments\PlannedPayment;
 use model\planned_payments\PlannedPaymentDAO;
 
-class PlannedPaymentController {
+class PlannedPaymentController implements Editable, Deletable {
     public function add() {
         if (isset($_POST['add_planned_payment']) && isset($_POST['day_for_payment']) &&
             isset($_POST['amount']) && isset($_POST['account_id']) && isset($_POST['category_id'])) {
@@ -31,8 +33,7 @@ class PlannedPaymentController {
             }
 
             if ($account && $category && $account->getOwnerId() == $_SESSION['logged_user']) {
-                $id = $plannedPaymentDAO->create($plannedPayment);
-                $plannedPayment->setId($id);
+                $plannedPaymentDAO->create($plannedPayment);
                 return new ResponseBody("Planned payment added successfully!", $plannedPayment);
             }
         }
@@ -49,7 +50,7 @@ class PlannedPaymentController {
     }
 
     public function edit() {
-        if (isset($_POST["day_for_payment"])) {
+        if (isset($_POST["edit"])) {
             $planned_payment_DAO = new PlannedPaymentDAO();
             $planned_payment = $planned_payment_DAO->getPlannedPaymentById($_POST["planned_payment_id"]);
 
@@ -81,7 +82,7 @@ class PlannedPaymentController {
             $planned_payment = $planned_payment_DAO->getPlannedPaymentById($_POST["planned_payment_id"]);
 
             if ($planned_payment && $planned_payment->getAccount()->getOwnerId() == $_SESSION['logged_user']) {
-                $planned_payment_DAO->deletePlannedPayment($planned_payment->getId());
+                $planned_payment_DAO->deletePlannedPayment($planned_payment);
                 return new ResponseBody("Planned payment deleted successfully!", $planned_payment);
             } else {
                 throw new ForbiddenException("This transaction is not yours.");

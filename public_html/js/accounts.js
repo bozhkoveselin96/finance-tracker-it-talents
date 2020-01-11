@@ -15,7 +15,6 @@ let _editButton = function (event) {
                 account_id : trId,
                 name : renamer.val(),
             }, function (data) {
-                let accounts = $("#accounts");
                 tdRename.text(data.data.name);
                 button.unbind();
                 button.text('Edit');

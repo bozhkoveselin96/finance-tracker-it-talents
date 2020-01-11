@@ -4,29 +4,51 @@
 namespace model;
 
 
+use model\accounts\Account;
+use model\accounts\AccountDAO;
+use model\categories\CategoryDAO;
+use model\transactions\Transaction;
+
 class StatisticDAO {
 
-    public function getTransactionsSum($user_id, $from_date = null, $to_date = null) {
+    public function getTransactionsSum($user_id, Account $account = null, $from_date = null, $to_date = null) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
 
         $params = [];
         $params[] = $user_id;
-
-        $sql = "SELECT IF(tc.type=1, 'income', 'outcome') AS category_type, ROUND(COALESCE(SUM(t.amount), 0), 2) AS sum 
-                FROM transactions AS t
-                JOIN accounts AS a ON(a.id = t.account_id)
-                JOIN transaction_categories AS tc ON(t.category_id = tc.id)
-                WHERE a.owner_id = ? AND tc.type IS NOT NULL ";
+        $sql = "SELECT t.id, t.amount, t.currency, t.account_id, t.category_id, t.note, t.time_event FROM transactions t
+                JOIN transaction_categories tc ON tc.id = t.category_id
+                JOIN accounts a ON a.id = t.account_id
+                WHERE tc.type IS NOT NULL AND a.owner_id = ? ";
         if ($from_date && $to_date) {
             $sql .= 'AND t.time_event BETWEEN ? AND ? + INTERVAL 1 DAY ';
             $params[] = $from_date;
             $params[] = $to_date;
         }
-        $sql .= 'GROUP BY tc.type ORDER BY tc.type';
+        if ($account) {
+            $sql .= 'AND a.id = ? ';
+            $params[] = $account->getId();
+        }
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll(\PDO::FETCH_OBJ);
+        $transactions = [];
+        $accountDAO = new AccountDAO();
+        $categoryDAO = new CategoryDAO();
+        foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $row) {
+            $transaction = new Transaction(
+                $row->amount,
+                $accountDAO->getAccountById($row->account_id),
+                $row->currency,
+                $categoryDAO->getCategoryById($row->category_id, $_SESSION['logged_user']),
+                $row->note,
+                $row->time_event
+            );
+            $transaction->setId($row->id);
+            $transactions[] = $transaction;
+        }
+
+        return $transactions;
     }
 
     public function getTransactionsByCategory($user_id, $from_date = null, $to_date = null) {
