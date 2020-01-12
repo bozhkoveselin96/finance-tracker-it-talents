@@ -95,7 +95,11 @@
                 <li class="breadcrumb-item active">Settings</li>
             </ol>
             <div class="card mb-3">
-                <div class="card-header">Edit Account</div>
+                <div class="card-header">Edit Account
+                    <div class="fa-pull-right">
+                        <a href="#" data-toggle="modal" data-target="#deleteModal" class="btn btn-danger">Delete User</a>
+                    </div>
+                </div>
                 <div class="card-body">
                     <form id="formEdit" action="#" method="POST">
                         <div class="form-group">
@@ -187,6 +191,26 @@
             <div class="modal-body"></div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Are you sure want to delete your profile?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">This <b>can not</b> be undone.
+                All of your accounts, transactions, categories, budgets, planned payments
+                will be deleted to.
+                Confirm again to do this.</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" id="delete-user" href="#">Confirm</a>
             </div>
         </div>
     </div>

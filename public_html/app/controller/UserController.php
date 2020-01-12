@@ -125,7 +125,7 @@ class UserController implements Editable, Deletable {
         if (isset($_POST["delete"])) {
             $user_id = $_SESSION["logged_user"];
             $userDAO = new UserDAO();
-            $user = $userDAO->getUser($user_id);
+            $user = $userDAO->getUser(intval($user_id));
 
             if ($user) {
                 $userDAO->deleteProfile($user->getId());
