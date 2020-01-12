@@ -107,49 +107,7 @@
             </ol>
             <div class="row">
                 <div class="col-lg-6">
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <i class="fas fa-chart-bar"></i>
-                            Incomes and outcomes
-                        </div>
-                        <div class="card-body">
-                            <form class="form-inline" action="app/index.php?target=statistic&action=getIncomesOutcomes" id="all-incomes-outcomes">
-                                <div class="form-row">
-                                    <div class="col">
-                                        <input class="form-control-sm" type="text" autocomplete="off" value="" name="daterange">
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-control-sm" name="diagram" id="diagramIncomesAndOutcomes">
-                                            <option value="pie">Pie</option>
-                                            <option value="doughnut">Doughnut</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="col">
-                                        <select class="form-control-sm account" name="account_id">
-                                            <option value="-1">Select account...</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-control-sm" name="currency">
-                                            <option value="BGN">BGN</option>
-                                            <option value="EUR">EUR</option>
-                                            <option value="USD">USD</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </form>
-                            <div id="firstChart">
-                                <canvas id="allIncomesAndOutcomes"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card mb-3">
+                    <div class="card mb-6">
                         <div class="card-header">
                             <i class="fas fa-chart-bar"></i>
                             Incomes by category
@@ -189,7 +147,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="card mb-3">
+                    <div class="card mb-6">
                         <div class="card-header">
                             <i class="fas fa-chart-bar"></i>
                             Outcomes by category
@@ -228,8 +186,48 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
 
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card mb-6">
+                        <div class="card-header">
+                            <i class="fas fa-chart-bar"></i>
+                            Incomes and outcomes
+                        </div>
+                        <div class="card-body">
+                            <form class="form-inline" action="app/index.php?target=statistic&action=getIncomesOutcomes" id="all-incomes-outcomes">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <input class="form-control-sm" type="text" autocomplete="off" value="" name="daterange">
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control-sm" name="diagram" id="diagramIncomesAndOutcomes">
+                                            <option value="pie">Pie</option>
+                                            <option value="doughnut">Doughnut</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <select class="form-control-sm account" name="account_id">
+                                            <option value="-1">Select account...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control-sm" name="currency">
+                                            <option value="BGN">BGN</option>
+                                            <option value="EUR">EUR</option>
+                                            <option value="USD">USD</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                            <div id="firstChart">
+                                <canvas id="allIncomesAndOutcomes"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

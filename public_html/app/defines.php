@@ -14,5 +14,12 @@ define("TOKEN_LENGTH", 30);
 define("TOKEN_EXPIRATION_MINUTES", 30);
 define("MSG_SUPPORTED_CURRENCIES", "Supported currencies are BGN, EUR and USD.");
 define("MAX_DAYS_NOT_ACTIVE", 7);
-$white_list_not_logged = ['login', 'register', 'sendEmail', 'setNewPassword', 'sendNotificationsToUnactiveUsers'];
+$white_list_not_logged = [
+    'login',
+    'register',
+    'sendEmail',
+    'setNewPassword',
+    'sendNotificationsToUnactiveUsers',
+    'executePlannedPayments'
+];
 ?>

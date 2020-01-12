@@ -94,7 +94,7 @@ class PlannedPaymentController implements Editable, Deletable {
         throw new BadRequestException("Bad request.");
     }
 
-    public function pay() {
+    public function executePlannedPayments() {
         $current_day = date("d");
         $last_day =  date("t", strtotime($current_day));
         $isLastDay = false;
