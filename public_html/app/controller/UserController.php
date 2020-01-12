@@ -259,10 +259,11 @@ class UserController implements Editable, Deletable {
         $notActiveUsers = $userDAO->getLastTransaction();
         $today = date("Y-m-d");
         foreach ($notActiveUsers as $notActiveUser) {
-            if (strtotime($notActiveUser->last_day) < strtotime($today) + MAX_DAYS_NOT_ACTIVE &&
-                (strtotime($notActiveUser->last_time_sent_email) < strtotime($today) + MAX_DAYS_NOT_ACTIVE ||
+            if (strtotime($notActiveUser->last_day) < strtotime($today) - MAX_DAYS_NOT_ACTIVE &&
+                (strtotime($notActiveUser->last_time_sent_email) < strtotime($today) - MAX_DAYS_NOT_ACTIVE ||
                 $notActiveUser->last_time_sent_email == null)) {
                 $this->sendNotificationEmail($notActiveUser->email);
+                $userDAO->updateLastTimeSentEmail($notActiveUser->email);
             }
         }
     }

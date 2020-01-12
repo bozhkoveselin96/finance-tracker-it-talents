@@ -144,11 +144,14 @@ $(document).ready(function () {
             let amount = $("<td></td>");
             amount.text(data.data.amount);
             amount.append('&nbsp;' + data.data.currency);
+            amount.addClass("font-weight-bold");
             let transactionType = $("<td></td>");
-            if (data.data.category.type == 0) {
-                transactionType.text('Outcome');
-            } else {
+            if (data.data.category.type == 1) {
                 transactionType.text('Income');
+                amount.addClass("text-success");
+            } else {
+                transactionType.text('Outcome');
+                amount.addClass("text-danger");
             }
             let accountName = $("<td></td>");
             accountName.text(data.data.account.name);

@@ -129,7 +129,7 @@ class UserDAO {
         }
     }
 
-    public function getLastTransactions() {
+    public function getLastTransaction() {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
         $sql = "SELECT u.email, DATE(MAX(t.time_created)) AS last_day, u.last_time_sent_email 
@@ -140,6 +140,13 @@ class UserDAO {
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_OBJ);
+    }
+
+    public function updateLastTimeSentEmail($email) {
+        $conn = Connection::getInstance()->getConn();
+        $sql = "UPDATE users SET last_time_sent_email = CURRENT_DATE WHERE email = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$email]);
     }
 
     public function getAll() {

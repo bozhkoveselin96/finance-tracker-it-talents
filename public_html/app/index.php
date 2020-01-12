@@ -3,10 +3,11 @@ use exceptions\NotFoundException;
 use exceptions\UnauthorizedException;
 use exceptions\BaseException;
 session_start();
+require_once 'defines.php';
 set_exception_handler("handleExceptions");
 
 //set_error_handler("errorHandler");
-//
+
 //function errorHandler(TypeError $error) {
 //    var_dump($error);
 //}
@@ -30,26 +31,10 @@ function handleExceptions(Exception $exception) {
     echo json_encode($object);
 }
 
-define("MIN_LENGTH_PASSWORD", 8);
-define("MIN_LENGTH_NAME", 3);
-define("MAX_LENGTH_NAME", 100);
-//8 symbols, one letter and one number
-define("PASSWORD_PATTERN", "^(?=.*[A-Za-z])(?=.*\d)[a-zA-Z0-9,.;\^!@#$%&*()+=:_'\s-]{8,}$^");
-define("PASSWORD_WRONG_PATTERN_MESSAGE", 'Password must have 8 symbols containing at least one letter and one number.');
-define("MAX_AMOUNT", 10000000);
-define("NO_AVATAR_URL", 'avatars' . DIRECTORY_SEPARATOR . 'no-avatar.png');
-define("CATEGORY_INCOME", 1);
-define("CATEGORY_OUTCOME", 0);
-define('TRANSFER_CATEGORY_ID', 19);
-define("TOKEN_LENGTH", 30);
-define("TOKEN_EXPIRATION_MINUTES", 30);
-define("MSG_SUPPORTED_CURRENCIES", "Supported currencies are BGN, EUR and USD.");
-define("MAX_DAYS_NOT_ACTIVE", 7);
-
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';
 
-if (!isset($_SESSION['logged_user']) && $methodName != 'login' && $methodName != 'register' && $methodName != 'sendEmail' && $methodName != 'setNewPassword') {
+if (!isset($_SESSION['logged_user']) && array_search($methodName, $white_list_not_logged) === false) {
     throw new UnauthorizedException("Please log in.");
 }
 
