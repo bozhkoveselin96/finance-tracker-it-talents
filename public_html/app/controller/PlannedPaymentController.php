@@ -94,24 +94,30 @@ class PlannedPaymentController implements Editable, Deletable {
         throw new BadRequestException("Bad request.");
     }
 
-    public function pay()
-    {
+    public function pay() {
         $current_day = date("d");
+        $last_day =  date("t", strtotime($current_day));
+        $isLastDay = false;
+        if ($current_day == $last_day) {
+            $isLastDay = true;
+        }
+
         $time_event = date("Y-m-d H:i:s");
         $planned_paymentsDAO = new PlannedPaymentDAO();
-        $planned_payments = $planned_paymentsDAO->getAll();
+        $planned_payments = $planned_paymentsDAO->getPlannedPaymentsForToday($isLastDay);
+
+        $transactionDAO = new TransactionDAO();
         /** @var PlannedPayment $planned_payment */
         foreach ($planned_payments as $planned_payment) {
-            if ($current_day == $planned_payment->getDayForPayment()) {
-                /** @var Transaction $transaction */
-                $transaction = new Transaction(
-                    $planned_payment->getAmount(),
-                    $planned_payment->getAccount(),
-                    $planned_payment->getCurrency(),
-                    $planned_payment->getCategory(),
-                    "Planned payment",
-                    $time_event);
-                $transactionDAO = new TransactionDAO();
+            /** @var Transaction $transaction */
+            $transaction = new Transaction(
+                $planned_payment->getAmount(),
+                $planned_payment->getAccount(),
+                $planned_payment->getCurrency(),
+                $planned_payment->getCategory(),
+                "Planned payment",
+                $time_event);
+            if (!$transactionDAO->getSimilarTransaction($planned_payment)) {
                 $transactionDAO->create($transaction);
             }
         }

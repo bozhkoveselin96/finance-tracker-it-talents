@@ -44,6 +44,7 @@ define('TRANSFER_CATEGORY_ID', 19);
 define("TOKEN_LENGTH", 30);
 define("TOKEN_EXPIRATION_MINUTES", 30);
 define("MSG_SUPPORTED_CURRENCIES", "Supported currencies are BGN, EUR and USD.");
+define("MAX_DAYS_NOT_ACTIVE", 7);
 
 $controllerName = isset($_GET['target']) ? $_GET['target'] : '';
 $methodName = isset($_GET['action']) ? $_GET['action'] : '';

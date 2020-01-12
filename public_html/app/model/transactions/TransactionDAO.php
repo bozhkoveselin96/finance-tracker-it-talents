@@ -10,6 +10,7 @@ use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\Connection;
 use model\CurrencyDAO;
+use model\planned_payments\PlannedPayment;
 
 class TransactionDAO {
     public function create(Transaction $transaction) {
@@ -148,4 +149,22 @@ class TransactionDAO {
             throw new \PDOException($exception->getMessage());
         }
     }
+
+    public function getSimilarTransaction(PlannedPayment $plannedPayment) {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT id, amount, account_id, currency, category_id, note, time_event FROM transactions 
+                WHERE account_id = ? AND category_id = ? AND DAYOFMONTH(time_event) = ?;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            $plannedPayment->getAccount()->getId(),
+            $plannedPayment->getCategory()->getId(),
+            $plannedPayment->getDayForPayment()
+        ]);
+        if ($stmt->rowCount() == 1) {
+            return true;
+        }
+        return false;
+    }
+
 }

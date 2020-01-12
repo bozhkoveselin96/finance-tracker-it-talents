@@ -2,6 +2,11 @@
 
 namespace controller;
 
+require_once "PHPMailer/PHPMailer.php";
+require_once "PHPMailer/SMTP.php";
+require_once "PHPMailer/Exception.php";
+require_once "gmail_config.php";
+
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
 use exceptions\NotFoundException;
@@ -24,7 +29,7 @@ class UserController implements Editable, Deletable {
             }
 
             $userDAO = new UserDAO();
-            $user = $userDAO->getUser(14);
+            $user = $userDAO->getUser($email);
 
             if (!$user || !password_verify($password, $user->getPassword())) {
                 throw new UnauthorizedException('Email and/or password missmatch.');
@@ -196,10 +201,6 @@ class UserController implements Editable, Deletable {
                 $token = $this->generateRandomToken();
             }
 
-            require_once "PHPMailer/PHPMailer.php";
-            require_once "PHPMailer/SMTP.php";
-            require_once "PHPMailer/Exception.php";
-            require_once "gmail_config.php";
             $mail = new PHPMailer();
             //SMTP Settings
             $mail->isSMTP();
@@ -253,13 +254,47 @@ class UserController implements Editable, Deletable {
         return $randomToken;
     }
 
-    //try realize cron job
-//    public function notification() {
-//        $userDAO = new UserDAO();
-//        $notActiveUsers = $userDAO->getLastTransaction();
-//        foreach ($notActiveUsers as $notActiveUser) {
-//            echo $notActiveUser["email"] . "<br>";
-//        }
-//        return new ResponseBody("Users who haven`t added a transaction in a week.", $notActiveUsers);
-//    }
+    public function sendNotificationsToUnactiveUsers() {
+        $userDAO = new UserDAO();
+        $notActiveUsers = $userDAO->getLastTransaction();
+        $today = date("Y-m-d");
+        foreach ($notActiveUsers as $notActiveUser) {
+            if (strtotime($notActiveUser->last_day) < strtotime($today) + MAX_DAYS_NOT_ACTIVE &&
+                (strtotime($notActiveUser->last_time_sent_email) < strtotime($today) + MAX_DAYS_NOT_ACTIVE ||
+                $notActiveUser->last_time_sent_email == null)) {
+                $this->sendNotificationEmail($notActiveUser->email);
+            }
+        }
+    }
+
+    private function sendNotificationEmail($email) {
+        $mail = new PHPMailer();
+        //SMTP Settings
+        $mail->isSMTP();
+        $mail->Host = "smtp.gmail.com";
+        $mail->SMTPAuth = true;
+        $mail->Username = GMAIL_EMAIL;
+        $mail->Password = GMAIL_PASSWORD;
+        $mail->Port = 465; //587
+        $mail->SMTPSecure = "ssl"; //tls
+        $mail->CharSet = "utf-8";
+
+
+        //Email Settings
+        $mail->setFrom(GMAIL_EMAIL, "Finance Tracker");
+        $mail->Subject = 'Not active user - Finance Tracker';
+        $mail->addAddress($email);
+        $mail->Body = '
+            <html>
+                <head>
+                <title>Title</title>
+                </head>
+                <body>' .
+            'Hello, you were not active from along time. Visit us at <a href="http://localhost/finance_tracker/public_html">Finance tracker</a>'
+            . '</body>
+            </html>
+            ';
+        $mail->isHTML(true);
+        $mail->send();
+    }
 }
