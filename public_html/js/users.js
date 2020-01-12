@@ -88,6 +88,28 @@ $(document).ready(function () {
         });
     });
 
+    $("#delete-user").on(
+        'click',
+        function (event) {
+            event.preventDefault();
+            $.post('app/index.php?target=user&action=delete',
+                {
+                    delete:true
+                },
+                function (data) {
+                localStorage.removeItem("id");
+                localStorage.removeItem("first_name");
+                localStorage.removeItem("last_name");
+                localStorage.removeItem("avatar_url");
+                localStorage.removeItem("email");
+                window.location.replace('login.html');
+            },'json')
+            .fail(function (xhr, status, error) {
+                showModal(error, xhr.responseJSON.message);
+            });
+        }
+    );
+
     $("form#login").on("submit", function (e) {
         e.preventDefault();
         let form = $(this);
