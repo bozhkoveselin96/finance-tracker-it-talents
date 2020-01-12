@@ -128,4 +128,30 @@ class UserDAO {
             throw new Exception($exception->getMessage());
         }
     }
+
+    public function getLastTransaction() {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT DISTINCT u.email
+                FROM transactions AS t
+                JOIN accounts AS a ON(a.id = t.account_id)
+                JOIN users AS u ON(u.id = a.owner_id)
+                WHERE DATE (NOW()) -  DATE(time_event) < 7;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function getAll() {
+        $instance = Connection::getInstance();
+        $conn = $instance->getConn();
+        $sql = "SELECT id FROM users;";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+
+        if ($stmt->rowCount() == 1) {
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        }
+        return false;
+    }
 }

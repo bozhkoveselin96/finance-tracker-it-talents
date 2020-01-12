@@ -12,6 +12,9 @@ use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\planned_payments\PlannedPayment;
 use model\planned_payments\PlannedPaymentDAO;
+use model\transactions\Transaction;
+use model\transactions\TransactionDAO;
+use model\users\UserDAO;
 
 class PlannedPaymentController implements Editable, Deletable {
     public function add() {
@@ -89,5 +92,28 @@ class PlannedPaymentController implements Editable, Deletable {
             }
         }
         throw new BadRequestException("Bad request.");
+    }
+
+    public function pay()
+    {
+        $current_day = date("d");
+        $time_event = date("Y-m-d H:i:s");
+        $planned_paymentsDAO = new PlannedPaymentDAO();
+        $planned_payments = $planned_paymentsDAO->getAll();
+        /** @var PlannedPayment $planned_payment */
+        foreach ($planned_payments as $planned_payment) {
+            if ($current_day == $planned_payment->getDayForPayment()) {
+                /** @var Transaction $transaction */
+                $transaction = new Transaction(
+                    $planned_payment->getAmount(),
+                    $planned_payment->getAccount(),
+                    $planned_payment->getCurrency(),
+                    $planned_payment->getCategory(),
+                    "Planned payment",
+                    $time_event);
+                $transactionDAO = new TransactionDAO();
+                $transactionDAO->create($transaction);
+            }
+        }
     }
 }

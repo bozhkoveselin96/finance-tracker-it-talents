@@ -7,6 +7,8 @@ namespace model\planned_payments;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\Connection;
+use model\transactions\Transaction;
+use model\users\User;
 
 class PlannedPaymentDAO {
     public function create(PlannedPayment $plannedPayment) {
@@ -27,16 +29,19 @@ class PlannedPaymentDAO {
         $plannedPayment->setId($conn->lastInsertId());
     }
 
-    public function getAll($user_id)
+    public function getAll($user_id = null)
     {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
 
         $sql = "SELECT pp.id, pp.day_for_payment, pp.amount, pp.currency, pp.account_id, pp.category_id, pp.status 
                 FROM planned_payments AS pp 
-                JOIN accounts AS a ON pp.account_id = a.id
-                WHERE a.owner_id = ?
-                ORDER BY pp.date_created DESC";
+                JOIN accounts AS a ON pp.account_id = a.id ";
+        if ($user_id != null) {
+            $sql .= "WHERE a.owner_id = ? ";
+        }
+        $sql .= "ORDER BY pp.date_created DESC;";
+
         $stmt = $conn->prepare($sql);
         $stmt->execute([$user_id]);
         $plannedPayments = [];
@@ -53,7 +58,6 @@ class PlannedPaymentDAO {
             $plannedPayments[] = $plannedPayment;
         }
         return $plannedPayments;
-
     }
 
     public function getPlannedPaymentById($planned_payment_id) {
