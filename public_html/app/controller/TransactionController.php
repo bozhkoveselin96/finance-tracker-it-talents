@@ -42,8 +42,7 @@ class TransactionController implements Deletable {
             }
 
             $transactionDAO = new TransactionDAO();
-            $id = $transactionDAO->create($transaction);
-            $transaction->setId($id);
+            $transactionDAO->create($transaction);
             return new ResponseBody('Transaction added successfully!', $transaction);
         }
         throw new BadRequestException("Bad request.");

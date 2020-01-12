@@ -29,6 +29,7 @@ class TransactionDAO {
                         VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?);";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute($parameters);
+                $transaction->setId($conn->lastInsertId());
 
                 $accountCurrency = $transaction->getAccount()->getCurrency();
                 $transactionCurrency = $transaction->getCurrency();
@@ -47,7 +48,6 @@ class TransactionDAO {
                 $stmt2->execute([$updateAccountAmount, $transaction->getAccount()->getId()]);
 
             $conn->commit();
-            return $conn->lastInsertId();
         } catch (\PDOException $exception) {
             $conn->rollBack();
             throw new \PDOException($exception->getMessage());

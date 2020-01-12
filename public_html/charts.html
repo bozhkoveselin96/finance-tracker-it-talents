@@ -127,7 +127,7 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="col">
-                                        <select class="form-control-sm account" name="account_id" id="account">
+                                        <select class="form-control-sm account" name="account_id">
                                             <option value="-1">Select account...</option>
                                         </select>
                                     </div>
@@ -167,6 +167,20 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <select class="form-control-sm account" name="account_id">
+                                            <option value="-1">Select account...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control-sm" name="currency">
+                                            <option value="BGN">BGN</option>
+                                            <option value="EUR">EUR</option>
+                                            <option value="USD">USD</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </form>
                             <div id="secondChart">
                                 <canvas id="IncomesByCategory"></canvas>
@@ -190,6 +204,20 @@
                                         <select class="form-control-sm" name="diagram" id="diagramOutcomes">
                                             <option value="pie">Pie</option>
                                             <option value="doughnut">Doughnut</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <select class="form-control-sm account" name="account_id">
+                                            <option value="-1">Select account...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control-sm" name="currency">
+                                            <option value="BGN">BGN</option>
+                                            <option value="EUR">EUR</option>
+                                            <option value="USD">USD</option>
                                         </select>
                                     </div>
                                 </div>
@@ -261,7 +289,7 @@
 
 <script>
     $(document).ready(function () {
-        let selectAccount = $("#account");
+        let selectAccount = $("select[name=account_id]");
         $.get("app/index.php?target=account&action=getAll",
             function (response) {
                 $.each(response.data, function (key, value) {
@@ -290,14 +318,19 @@
         $("form#incomes-by-category").on("change", function (event) {
             let daterange = $("#incomes-by-category :input[name ='daterange']").val();
             let diagram = $("#incomes-by-category select#diagramIncomes").val();
-            getIncomesByCategory(diagram, daterange);
+            let currency = $("#incomes-by-category select[name=currency]").val();
+            let account_id = $("#incomes-by-category select[name=account_id]").val();
+
+            getIncomesByCategory(diagram, account_id, currency, daterange);
         });
 
         $("form#outcomes-by-category").on("change", function (event) {
             let daterange = $("#outcomes-by-category :input[name ='daterange']").val();
             let diagram = $("#outcomes-by-category select#diagramOutcomes").val();
+            let currency = $("#outcomes-by-category select[name=currency]").val();
+            let account_id = $("#outcomes-by-category select[name=account_id]").val();
 
-            getOutcomesByCategory(diagram, daterange);
+            getOutcomesByCategory(diagram, account_id, currency, daterange);
         });
     });
 </script>

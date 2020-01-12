@@ -139,6 +139,7 @@ $(document).ready(function () {
             $("#category").empty();
             let table = $("#transactions");
             let tr = $("<tr />");
+            tr.attr('id', data.data.id);
 
             let amount = $("<td></td>");
             amount.text(data.data.amount);
@@ -161,12 +162,21 @@ $(document).ready(function () {
             let timeEvent = $("<td></td>");
             timeEvent.text(data.data.time_event);
 
+            let deleteItem = $("<td></td>");
+            if (data.data.category.name !== 'Transfer') {
+                let deleteItemButton = $("<button>Delete</button>");
+                deleteItemButton.addClass('btn btn-danger');
+                deleteItem.append(deleteItemButton);
+                deleteItemButton.bind("click", _deleteButtonTransaction);
+            }
+
             tr.append(transactionType);
             tr.append(amount);
             tr.append(accountName);
             tr.append(categoryName);
             tr.append(note);
             tr.append(timeEvent);
+            tr.append(deleteItem);
 
             table.prepend(tr);
 

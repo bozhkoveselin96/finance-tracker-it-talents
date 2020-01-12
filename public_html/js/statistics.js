@@ -58,16 +58,18 @@ function getIncomesAndOutcomes(diagramType = 'pie', account_id, currency = 'BGN'
         });
 }
 
-function getIncomesByCategory(diagramType = 'pie', daterange) {
+function getIncomesByCategory(diagramType = 'pie', account_id, currency = 'BGN', daterange) {
     $.get("app/index.php?target=statistic&action=getSumByCategory", {
             daterange: daterange,
+            currency: currency,
+            account_id: account_id,
             category_type: 1
         },
         function (response) {
             let labelsTable = [];
             let dataTable = [];
             $.each(response.data, function (key, value) {
-                labelsTable.push(value.category_name);
+                labelsTable.push(key);
                 dataTable.push(value.amount);
             });
 
@@ -102,7 +104,7 @@ function getIncomesByCategory(diagramType = 'pie', daterange) {
                                 let total = meta.total;
                                 let currentValue = dataset.data[tooltipItem.index];
                                 let percentage = parseFloat((currentValue/total*100).toFixed(2));
-                                return currentValue + ' (' + percentage + '%)';
+                                return currentValue + ' ' + response.msg + ' (' + percentage + '%)';
                             },
                             title: function(tooltipItem, data) {
                                 return data.labels[tooltipItem[0].index];
@@ -126,16 +128,18 @@ function getIncomesByCategory(diagramType = 'pie', daterange) {
         });
 }
 
-function getOutcomesByCategory(diagramType = 'pie', daterange) {
+function getOutcomesByCategory(diagramType = 'pie', account_id, currency = 'BGN', daterange) {
     $.get("app/index.php?target=statistic&action=getSumByCategory", {
             daterange: daterange,
+            currency: currency,
+            account_id: account_id,
             category_type: 0
         },
         function (response) {
             let labelsTable = [];
             let dataTable = [];
             $.each(response.data, function (key, value) {
-                labelsTable.push(value.category_name);
+                labelsTable.push(key);
                 dataTable.push(value.amount);
             });
 
@@ -168,7 +172,7 @@ function getOutcomesByCategory(diagramType = 'pie', daterange) {
                                 let total = meta.total;
                                 let currentValue = dataset.data[tooltipItem.index];
                                 let percentage = parseFloat((currentValue/total*100).toFixed(2));
-                                return currentValue + ' (' + percentage + '%)';
+                                return currentValue + ' ' + response.msg + ' (' + percentage + '%)';
                             },
                             title: function(tooltipItem, data) {
                                 return data.labels[tooltipItem[0].index];
@@ -192,9 +196,10 @@ function getOutcomesByCategory(diagramType = 'pie', daterange) {
         });
 }
 
-function getIncomesAndOutcomesLastXDays(days = 7) {
+function getIncomesAndOutcomesLastXDays(days = 7, currency = 'BGN') {
     $.get("app/index.php?target=statistic&action=getDataForTheLastXDays", {
-      days : days
+        days : days,
+        currency: currency
     },
         function (response) {
             let labelsTable = [];
@@ -229,6 +234,15 @@ function getIncomesAndOutcomesLastXDays(days = 7) {
                 options: {
                     title: {
                         display: false
+                    },
+                    tooltips: {
+                        enabled: true,
+                        mode: 'single',
+                        callbacks: {
+                            label: function(tooltipItems, data) {
+                                return tooltipItems.yLabel + ' ' + response.msg;
+                            }
+                        }
                     },
                 }
             });

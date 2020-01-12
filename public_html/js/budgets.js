@@ -22,6 +22,10 @@ let _deleteButtonBudget = function (event) {
     }
 };
 
+function percentage(partialValue, totalValue) {
+    return (100 * partialValue) / totalValue;
+}
+
 function addBudget() {
     let selectCategory = $("#category");
 
@@ -62,12 +66,27 @@ function showUserBudgets() {
                     icon.addClass(value.category.icon);
                     category.prepend(icon);
 
+                    let budgetAmount = value.amount;
                     let amount = $("<td />");
-                    amount.text(value.amount);
+                    amount.text(budgetAmount);
                     amount.append("&nbsp; " + value.currency);
+                    let budgetSpent = value.budget_status;
                     let spent = $("<td />");
-                    spent.text(value.budget_status);
+                    spent.text(budgetSpent);
                     spent.append("&nbsp; " + value.currency);
+
+                    let percent = Math.round(percentage(budgetSpent, budgetAmount));
+                    let bgcolor = '5cb85c';
+                    if (budgetSpent > budgetAmount) {
+                        bgcolor = 'D9534F';
+                    }
+                    let html = '             <div style="margin-top: 20px;" class="progress">\n' +
+                        '                <div style="background-color: #'+bgcolor+'; width:'+percent+'%" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">\n' +
+                        '                    '+percent+'%' +
+                        '                </div>\n' +
+                        '            </div>';
+
+                    let progress = $(html);
                     let fromDate = $("<td />");
                     fromDate.text(value.from_date);
                     let toDate = $("<td />");
@@ -82,6 +101,7 @@ function showUserBudgets() {
                     tr.append(category);
                     tr.append(amount);
                     tr.append(spent);
+                    tr.append(progress);
                     tr.append(fromDate);
                     tr.append(toDate);
                     tr.append(deleteItem);

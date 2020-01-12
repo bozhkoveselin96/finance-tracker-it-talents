@@ -5,6 +5,7 @@ namespace controller;
 
 
 use exceptions\BadRequestException;
+use exceptions\NotFoundException;
 use model\accounts\AccountDAO;
 use model\CurrencyDAO;
 use model\StatisticDAO;
@@ -68,6 +69,27 @@ class StatisticController {
     public function getSumByCategory() {
         $statisticDAO = new StatisticDAO();
 
+        $account = null;
+        if (isset($_GET['account_id']) && !empty($_GET['account_id'])) {
+            $accountDAO = new AccountDAO();
+            $account = $accountDAO->getAccountById($_GET['account_id']);
+            if (!$account) {
+                $account = null;
+            }
+        }
+
+        $categoryType = $_GET['category_type'];
+        if (!Validator::validateCategoryType($categoryType)) {
+            throw new BadRequestException("Not a valid category type.");
+        }
+
+        $currency = $_GET['currency'];
+        if (!Validator::validateCurrency($currency)) {
+            throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
+        }
+
+        $from_date = null;
+        $to_date = null;
         if (!empty($_GET['daterange'])) {
             $daterange = explode(" - ", $_GET['daterange']);
             if (count($daterange) != 2) {
@@ -78,43 +100,62 @@ class StatisticController {
             if (!Validator::validateDate($from_date) || !Validator::validateDate($to_date)) {
                 throw new BadRequestException("Not valid dates.");
             }
-            $sumsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user'], $from_date, $to_date);
-        } else {
-            $sumsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user']);
+
         }
+        $currencyDAO = new CurrencyDAO();
+        $transactionsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user'], $categoryType, $account, $from_date, $to_date);
         $response = [];
-        if (isset($_GET['category_type'])) {
-            $categoryType = $_GET['category_type'];
-            foreach ($sumsByCategory as $item) {
-                if ($item->type == $categoryType) {
-                    $response[] = $item;
-                }
+        /** @var Transaction $transaction */
+        foreach ($transactionsByCategory as $transaction) {
+            $amount = $transaction->getAmount();
+            if ($transaction->getCurrency() != $currency) {
+                $amount = $currencyDAO->currencyConverter($amount, $transaction->getCurrency(), $currency);
             }
-        } else {
-            $response = $sumsByCategory;
+
+            if (!isset($response[$transaction->getCategory()->getName()])) {
+                $response[$transaction->getCategory()->getName()] = ['amount'=>round($amount, 2), 'currency'=>$currency];
+            } else {
+                $response[$transaction->getCategory()->getName()]['amount'] =
+                    round($response[$transaction->getCategory()->getName()]['amount'] + $amount,2);
+            }
         }
 
-        return new ResponseBody(null, $response);
+        return new ResponseBody($currency, $response);
     }
 
     public function getDataForTheLastXDays() {
         $statisticDAO = new StatisticDAO();
         $howManyDays = intval($_GET['days']);
-        $data = $statisticDAO->getForTheLastXDays($_SESSION['logged_user'], $howManyDays);
+        $currency = $_GET['currency'];
+        if (!Validator::validateCurrency($currency)) {
+            throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
+        }
+        $transactions = $statisticDAO->getForTheLastXDays($_SESSION['logged_user'], $howManyDays);
 
         $days = [];
         for ($i = 0; $i < $howManyDays; $i++) {
             $date = date('j.m', strtotime('-'.$i.' days', time()));
             $days[$date] = ['outcome'=>0, 'income'=>0];
         }
-        foreach ($data as $value) {
-            if ($value->category == 1) {
-                $days[$value->date]['income'] = $value->sum;
+
+        $currencyDAO = new CurrencyDAO();
+        /** @var Transaction $transaction */
+        foreach ($transactions as $transaction) {
+            $amount = $transaction->getAmount();
+            if ($transaction->getCurrency() != $currency) {
+                $amount = $currencyDAO->currencyConverter($amount, $transaction->getCurrency(), $currency);
+            }
+
+            if ($transaction->getCategory()->getType() == 1) {
+                $days[$transaction->getTimeEvent()]['income'] += $amount;
+                $days[$transaction->getTimeEvent()]['income'] = round($days[$transaction->getTimeEvent()]['income'], 2);
             } else {
-                $days[$value->date]['outcome'] = $value->sum;
+                $days[$transaction->getTimeEvent()]['outcome'] += $amount;
+                $days[$transaction->getTimeEvent()]['outcome'] = round($days[$transaction->getTimeEvent()]['outcome'], 2);
             }
         }
 
-        return new ResponseBody(null, array_reverse($days));
+
+        return new ResponseBody($currency, array_reverse($days));
     }
 }
