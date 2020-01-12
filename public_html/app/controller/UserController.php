@@ -22,7 +22,7 @@ class UserController {
             }
 
             $userDAO = new UserDAO();
-            $user = $userDAO->getUser($email);
+            $user = $userDAO->getUser(14);
 
             if (!$user || !password_verify($password, $user->getPassword())) {
                 throw new UnauthorizedException('Email and/or password missmatch.');
@@ -34,6 +34,7 @@ class UserController {
                 $user->setAvatarUrl(NO_AVATAR_URL);
             }
             $userDAO->updateLastLogin($user->getId());
+
             return new ResponseBody("Login successful!", $user);
         }
         throw new BadRequestException("Bad request.");
@@ -249,4 +250,14 @@ class UserController {
         $randomToken = implode($token);
         return $randomToken;
     }
+
+    //try realize cron job
+//    public function notification() {
+//        $userDAO = new UserDAO();
+//        $notActiveUsers = $userDAO->getLastTransaction();
+//        foreach ($notActiveUsers as $notActiveUser) {
+//            echo $notActiveUser["email"] . "<br>";
+//        }
+//        return new ResponseBody("Users who haven`t added a transaction in a week.", $notActiveUsers);
+//    }
 }

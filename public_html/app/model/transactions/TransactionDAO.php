@@ -47,7 +47,6 @@ class TransactionDAO {
                 $stmt2->execute([$updateAccountAmount, $transaction->getAccount()->getId()]);
 
             $conn->commit();
-            return $conn->lastInsertId();
         } catch (\PDOException $exception) {
             $conn->rollBack();
             throw new \PDOException($exception->getMessage());
