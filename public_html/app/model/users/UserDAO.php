@@ -129,17 +129,17 @@ class UserDAO {
         }
     }
 
-    public function getLastTransaction() {
+    public function getLastTransactions() {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "SELECT DISTINCT u.email
+        $sql = "SELECT u.email, DATE(MAX(t.time_created)) AS last_day, u.last_time_sent_email 
                 FROM transactions AS t
                 JOIN accounts AS a ON(a.id = t.account_id)
                 JOIN users AS u ON(u.id = a.owner_id)
-                WHERE DATE (NOW()) -  DATE(time_event) < 7;";
+                GROUP BY u.email;";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(\PDO::FETCH_OBJ);
     }
 
     public function getAll() {

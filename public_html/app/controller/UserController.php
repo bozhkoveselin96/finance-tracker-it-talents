@@ -24,7 +24,7 @@ class UserController implements Editable, Deletable {
             }
 
             $userDAO = new UserDAO();
-            $user = $userDAO->getUser(14);
+            $user = $userDAO->getUser($email);
 
             if (!$user || !password_verify($password, $user->getPassword())) {
                 throw new UnauthorizedException('Email and/or password missmatch.');
