@@ -112,20 +112,24 @@
                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                             <thead>
                             <tr>
-                                <th>Day for payment</th>
-                                <th>Amount</th>
-                                <th>Account</th>
-                                <th>Category</th>
-                                <th>Status</th>
+                                <th class="selecting">Day for payment</th>
+                                <th class="selecting">Amount</th>
+                                <th class="selecting">Account</th>
+                                <th class="selecting">Category</th>
+                                <th class="selecting">Status</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
                             </tr>
                             </thead>
                             <tfoot>
                             <tr>
-                                <th>Day for payment</th>
-                                <th>Amount</th>
-                                <th>Account</th>
-                                <th>Category</th>
-                                <th>Status</th>
+                                <th class="selecting">Day for payment</th>
+                                <th class="selecting">Amount</th>
+                                <th class="selecting">Account</th>
+                                <th class="selecting">Category</th>
+                                <th class="selecting">Status</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
                             </tr>
                             </tfoot>
                             <tbody id="planned_payments">
@@ -250,7 +254,7 @@
                 $('#dataTable').DataTable( {
                     "order": [[ 4, "asc" ]],
                     initComplete: function () {
-                        this.api().columns().every( function () {
+                        this.api().columns('.selecting').every( function () {
                             var column = this;
                             var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
                                 .appendTo( $(column.header()).empty() )
@@ -265,7 +269,7 @@
                                 } );
 
                             column.data().unique().sort().each( function ( d, j ) {
-                                select.append( '<option value="'+d+'">'+d+'</option>' )
+                                select.append( '<option>'+d+'</option>' )
                             } );
                         } );
                     }

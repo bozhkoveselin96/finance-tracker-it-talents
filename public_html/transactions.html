@@ -136,10 +136,10 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>Type</th>
+                            <th class="selecting">Type</th>
                             <th>Amount</th>
-                            <th>Account</th>
-                            <th>Category</th>
+                            <th class="selecting">Account</th>
+                            <th class="selecting">Category</th>
                             <th>Note</th>
                             <th>Time of the event</th>
                             <th>Delete</th>
@@ -299,7 +299,7 @@
                 datatable = $('#dataTable').DataTable( {
                     "order": [[ 5, "desc" ]],
                     initComplete: function () {
-                        this.api().columns().every( function () {
+                        this.api().columns('.selecting').every( function () {
                             var column = this;
                             var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
                                 .appendTo( $(column.header()).empty() )
@@ -314,7 +314,7 @@
                                 } );
 
                             column.data().unique().sort().each( function ( d, j ) {
-                                select.append( '<option value="'+d+'">'+d+'</option>' )
+                                select.append( '<option>'+d+'</option>' )
                             } );
                         } );
                     }
@@ -329,7 +329,7 @@
             datatable = $('#dataTable').DataTable( {
                 "order": [[ 5, "desc" ]],
                 initComplete: function () {
-                    this.api().columns().every( function () {
+                    this.api().columns('.selecting').every( function () {
                         var column = this;
                         var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
                             .appendTo( $(column.header()).empty() )
@@ -344,7 +344,7 @@
                             } );
 
                         column.data().unique().sort().each( function ( d, j ) {
-                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                            select.append( '<option>'+d+'</option>' )
                         } );
                     } );
                 }

@@ -6,11 +6,13 @@ use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
 use exceptions\NotFoundException;
 use exceptions\UnauthorizedException;
+use Interfaces\Deletable;
+use Interfaces\Editable;
 use model\users\User;
 use model\users\UserDAO;
 use PHPMailer\PHPMailer\PHPMailer;
 
-class UserController {
+class UserController implements Editable, Deletable {
     public function login() {
         if (isset($_POST["login"])) {
             $email = $_POST["email"];

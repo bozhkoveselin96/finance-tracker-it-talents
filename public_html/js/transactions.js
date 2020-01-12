@@ -67,7 +67,7 @@ function getTransactionsMain(daterange = null) {
                 let tr = $("<tr />");
                 tr.attr("id", value.id);
 
-                let amount = $("<td></td>");
+                let amount = $("<td data-order='" + value.amount +"'></td>");
                 amount.text(value.amount);
                 amount.append('&nbsp;' + value.currency);
                 amount.addClass("font-weight-bold");
@@ -83,7 +83,7 @@ function getTransactionsMain(daterange = null) {
                 accountName.text(value.account.name);
                 let categoryName = $("<td></td>");
                 categoryName.text(value.category.name);
-                let icon = $("<i class='pull-right' />");
+                let icon = $("<i class='pull-right'></i>");
                 icon.addClass(value.category.icon);
                 categoryName.append(icon);
                 let note = $("<td></td>");

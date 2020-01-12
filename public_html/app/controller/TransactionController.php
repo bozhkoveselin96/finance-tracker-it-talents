@@ -6,12 +6,13 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use Interfaces\Deletable;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\transactions\Transaction;
 use model\transactions\TransactionDAO;
 
-class TransactionController {
+class TransactionController implements Deletable {
     public function add() {
         if (isset($_POST['add_transaction']) && isset($_POST['account_id']) &&
             isset($_POST['category_id']) && !empty($_POST['time_event'])) {

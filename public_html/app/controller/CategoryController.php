@@ -6,10 +6,12 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use Interfaces\Deletable;
+use Interfaces\Editable;
 use model\categories\Category;
 use model\categories\CategoryDAO;
 
-class CategoryController {
+class CategoryController implements Editable, Deletable {
     public function add() {
         if (isset($_POST["add_category"])) {
             $name = $_POST["name"];

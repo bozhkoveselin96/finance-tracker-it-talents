@@ -1,3 +1,86 @@
+let _editButton = function (event) {
+    let trId = $(this).closest("tr").attr("id");
+    let tdDayForPayment = $("#" + trId + " .day_for_payment");
+    let form = $("<input class='dayPayment' type='text' value='" + tdDayForPayment.text() + "' name='name'>");
+    tdDayForPayment.html(form);
+    let tdAmount = $("#" + trId + " .amount");
+    let amount = [];
+    amount = tdAmount.text().split(" ");
+    let formAmount = $('<input class="ppAmount" type="number" value="'+ amount[0] +'">');
+    tdAmount.html(formAmount);
+
+    let status = $("#" + trId + " .status");
+    let inputStatus = $('' +
+        '<select class="form-control-sm">' +
+        '<option value="0">Not active</option>' +
+        '<option selected value="1">Active</option>' +
+        '</select>');
+    status.html(inputStatus);
+
+    let button = $(this);
+    button.text("Save");
+    button.unbind(event);
+    button.bind("click", function (event2) {
+        let trId = button.closest("tr").attr("id");
+        $.post("app/index.php?target=plannedPayment&action=edit",
+            {
+                edit : true,
+                planned_payment_id : trId,
+                day_for_payment : form.val(),
+                amount : formAmount.val(),
+                status : inputStatus.val(),
+            }, function (data) {
+                tdDayForPayment.text(data.data.day_for_payment);
+                tdAmount.text(data.data.amount);
+                tdAmount.append(' ' + data.data.currency);
+                if (data.data.status == 1) {
+                    status.text('Active');
+                } else {
+                    status.text('Not active');
+                }
+
+                button.unbind();
+                button.text('Edit');
+                button.bind('click', _editButton);
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    })
+};
+
+let _deleteButton = function (event) {
+    let trId = $(this).closest("tr").attr("id");
+    if (confirm("Are you sure you want to delete selected planned payment?")) {
+        $.post("app/index.php?target=plannedPayment&action=delete",
+            {
+                delete : true,
+                planned_payment_id : trId,
+            }, function (data) {
+                $("#"+trId).fadeOut(1500);
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                if (xhr.status === 401) {
+                    localStorage.removeItem("id");
+                    localStorage.removeItem("first_name");
+                    localStorage.removeItem("last_name");
+                    localStorage.removeItem("avatar_url");
+                    window.location.replace('login.html');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
+            });
+    }
+};
+
 function addPlannedPayment() {
     let selectAccount = $("#account");
     $.get("app/index.php?target=account&action=getAll", function (data) {
@@ -48,20 +131,23 @@ function showUserPlannedPayments() {
 
             $.each(data.data, function (key, value) {
                 let tr = $("<tr />");
+                tr.attr('id', value.id);
 
                 let dayForPayment = $("<td />");
                 dayForPayment.text(value.day_for_payment);
-                let amount = $("<td />");
+                dayForPayment.addClass('day_for_payment');
+                let amount = $("<td data-order='" + value.amount +"'></td>");
                 amount.text(value.amount);
-                amount.append('&nbsp;' + value.currency);
+                amount.append(' ' + value.currency);
+                amount.addClass('amount');
                 let account = $("<td />");
                 account.text(value.account.name);
 
                 let category = $("<td />");
-                let icon = $("<i />");
+                let icon = $("<i class='pull-right' />");
                 icon.addClass(value.category.icon);
                 category.text(value.category.name);
-                category.prepend(icon);
+                category.append(icon);
 
                 let status = $("<td />");
                 if (value.status == 0) {
@@ -69,12 +155,27 @@ function showUserPlannedPayments() {
                 } else {
                     status.text('Active');
                 }
+                status.addClass('status');
+
+                let editItem = $("<td></td>");
+                let deleteItem = $("<td></td>");
+
+                let editItemButton = $("<button>Edit</button>");
+                editItemButton.addClass('btn btn-primary');
+                editItem.append(editItemButton);
+                let deleteItemButton = $("<button>Delete</button>");
+                deleteItemButton.addClass('btn btn-danger');
+                deleteItem.append(deleteItemButton);
+                deleteItemButton.bind("click", _deleteButton);
+                editItemButton.bind("click", _editButton);
 
                 tr.append(dayForPayment);
                 tr.append(amount);
                 tr.append(account);
                 tr.append(category);
                 tr.append(status);
+                tr.append(editItem);
+                tr.append(deleteItem);
                 table.append(tr);
             });
 
@@ -105,19 +206,22 @@ $(document).ready(function () {
 
             let table = $("#planned_payments");
             let tr = $("<tr />");
+            tr.attr('id', data.data.id);
 
             let dayForPayment = $("<td />");
             dayForPayment.text(data.data.day_for_payment);
+            dayForPayment.addClass('day_for_payment');
             let amount = $("<td />");
             amount.text(data.data.amount);
+            amount.addClass('amount');
             let account = $("<td />");
             account.text(data.data.account.name);
 
             let category = $("<td />");
-            let icon = $("<i />");
+            let icon = $("<i class='pull-right' />");
             icon.addClass(data.data.category.icon);
             category.text(data.data.category.name);
-            category.prepend(icon);
+            category.append(icon);
 
             let status = $("<td />");
             if (data.data.status == 0) {
@@ -125,13 +229,30 @@ $(document).ready(function () {
             } else {
                 status.text('Active');
             }
+            status.addClass('status');
+
+
+            let editItem = $("<td></td>");
+            let deleteItem = $("<td></td>");
+
+            let editItemButton = $("<button>Edit</button>");
+            editItemButton.addClass('btn btn-primary');
+            editItem.append(editItemButton);
+            let deleteItemButton = $("<button>Delete</button>");
+            deleteItemButton.addClass('btn btn-danger');
+            deleteItem.append(deleteItemButton);
+            deleteItemButton.bind("click", _deleteButton);
+            editItemButton.bind("click", _editButton);
 
             tr.append(dayForPayment);
             tr.append(amount);
             tr.append(account);
             tr.append(category);
             tr.append(status);
-            table.append(tr);
+            tr.append(editItem);
+            tr.append(deleteItem);
+
+            table.prepend(tr);
 
         }, 'json')
             .fail(function (xhr, status, error) {

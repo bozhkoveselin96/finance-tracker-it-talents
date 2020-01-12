@@ -26,7 +26,7 @@ class PlannedPaymentDAO {
                 VALUES (?, ?, ?, ?, ?, 1, CURRENT_DATE)";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
-        return $conn->lastInsertId();
+        $plannedPayment->setId($conn->lastInsertId());
     }
 
     public function getAll($user_id = null)
@@ -34,15 +34,14 @@ class PlannedPaymentDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
 
-        $sql = "SELECT pp.day_for_payment, pp.amount, pp.currency, a.name AS account_name,
-                pp.account_id, c.name AS category_name, pp.category_id, pp.status 
+        $sql = "SELECT pp.id, pp.day_for_payment, pp.amount, pp.currency, pp.account_id, pp.category_id, pp.status 
                 FROM planned_payments AS pp 
-                JOIN accounts AS a ON pp.account_id = a.id
-                JOIN transaction_categories AS c ON pp.category_id = c.id ";
+                JOIN accounts AS a ON pp.account_id = a.id ";
         if ($user_id != null) {
             $sql .= "WHERE a.owner_id = ? ";
         }
         $sql .= "ORDER BY pp.date_created DESC;";
+
         $stmt = $conn->prepare($sql);
         $stmt->execute([$user_id]);
         $plannedPayments = [];
@@ -55,6 +54,7 @@ class PlannedPaymentDAO {
                                                  $accountDAO->getAccountById($value->account_id),
                                                  $categoryDAO->getCategoryById($value->category_id,$_SESSION['logged_user']));
             $plannedPayment->setStatus($value->status);
+            $plannedPayment->setId($value->id);
             $plannedPayments[] = $plannedPayment;
         }
         return $plannedPayments;
@@ -64,12 +64,8 @@ class PlannedPaymentDAO {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
 
-        $sql = "SELECT pp.day_for_payment, pp.amount, pp.currency,
-                a.name AS account_name, a.owner_id, 
-                c.name AS category_name, pp.status 
+        $sql = "SELECT pp.id, pp.day_for_payment, pp.amount, pp.currency, pp.account_id, pp.category_id, pp.status 
                 FROM planned_payments AS pp 
-                JOIN accounts AS a ON pp.account_id = a.id
-                JOIN transaction_categories AS c ON pp.category_id = c.id
                 WHERE pp.id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$planned_payment_id]);
@@ -83,27 +79,29 @@ class PlannedPaymentDAO {
                                                  $row->currency,
                                                  $accountDAO->getAccountById($row->account_id),
                                                  $categoryDAO->getCategoryById($row->category_id, $_SESSION['logged_user']));
+            $plannedPayment->setId($row->id);
+            $plannedPayment->setStatus($row->status);
             return $plannedPayment;
         }
         return false;
     }
 
-    public function deletePlannedPayment($planned_payment_id) {
+    public function deletePlannedPayment(PlannedPayment $plannedPayment) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "DELETE FROM planned_payment WHERE id = ?;";
+        $sql = "DELETE FROM planned_payments WHERE id = ?;";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$planned_payment_id]);
+        $stmt->execute([$plannedPayment->getId()]);
     }
 
     public function editPlannedPayment(PlannedPayment $planned_payment) {
         $instance = Connection::getInstance();
         $conn = $instance->getConn();
-        $sql = "UPDATE planned_payment SET day_for_payment = ?, amount = ?, status = ?
+        $sql = "UPDATE planned_payments SET day_for_payment = ?, amount = ?, status = ?
                 WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$planned_payment->getDayForPayment(),
-                        $planned_payment->getCategory(),
+                        $planned_payment->getAmount(),
                         $planned_payment->getStatus(),
                         $planned_payment->getId()]);
     }

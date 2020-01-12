@@ -76,6 +76,7 @@ class PlannedPayment implements \JsonSerializable {
 
     public function jsonSerialize() {
         return [
+            'id'=>$this->id,
             'day_for_payment' => $this->day_for_payment,
             'amount' => $this->amount,
             'currency' => $this->currency,
