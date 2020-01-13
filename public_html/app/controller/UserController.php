@@ -74,7 +74,7 @@ class UserController implements Editable, Deletable {
             $user->setPassword($cryptedPass);
             $user_id = $userDAO->register($user);
             $user->setId($user_id);
-            return new ResponseBody("Register successful", $user);
+            return new ResponseBody("Register successful!", $user);
         }
         throw new BadRequestException("Bad request");
     }

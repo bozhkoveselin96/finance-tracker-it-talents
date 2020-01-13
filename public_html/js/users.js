@@ -65,10 +65,20 @@ $(document).ready(function () {
             data: data,
             processData: false,
             contentType: false,
+            dataType: 'json',
             cache: false,
             timeout: 600000,
             success: function (data) {
-                window.location.replace("login.html");
+                showModal('Success', data.msg);
+                let buttonLogin = $("#toLogin");
+                buttonLogin.text('To login');
+                buttonLogin.on("click", function () {
+                    window.location.replace('login.html');
+                });
+
+                setTimeout(function () {
+                    window.location.replace("login.html");
+                }, 2000);
             },
             error: function (xhr, status, error) {
                 showModal(error, xhr.responseJSON.message);
@@ -88,7 +98,7 @@ $(document).ready(function () {
                 localStorage.removeItem("avatar_url");
                 localStorage.removeItem("email");
                 window.location.replace('login.html');
-        })
+        }, 'json')
         .fail(function (xhr, status, error) {
             showModal(error, xhr.responseJSON.message);
         });
