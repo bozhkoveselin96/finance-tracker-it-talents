@@ -100,10 +100,10 @@ class StatisticDAO {
                 FROM transactions AS t
                 JOIN transaction_categories AS tc ON tc.id = t.category_id
                 JOIN accounts AS a ON a.id = t.account_id
-                WHERE a.owner_id = ? AND t.time_event > NOW() - INTERVAL ? day AND t.time_event < NOW() AND tc.type IS NOT NULL 
+                WHERE a.owner_id = ? AND DATE(t.time_event) > DATE(NOW()) - INTERVAL ? day AND DATE(t.time_event) < DATE(NOW() + INTERVAL 1 DAY) AND tc.type IS NOT NULL 
                 ORDER BY date";
         $stmt = $conn->prepare($sql1);
-        $stmt->execute([$owner_id, $days-1]);
+        $stmt->execute([$owner_id, $days]);
 
         $transactions = [];
         $accountDAO = new AccountDAO();

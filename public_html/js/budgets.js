@@ -167,22 +167,47 @@ $(document).ready(function () {
             icon.addClass(data.data.category.icon);
             category.prepend(icon);
 
+            let budgetAmount = data.data.amount;
             let amount = $("<td />");
-            amount.text(data.data.amount);
-            let spent = $("<td />");
-            spent.text(data.data.budget_status);
+            amount.text(budgetAmount);
             let fromDate = $("<td />");
             fromDate.text(data.data.from_date);
             let toDate = $("<td />");
             toDate.text(data.data.to_date);
 
+            let budgetSpent = data.data.budget_status;
+            let spent = $("<td />");
+            spent.text(budgetSpent);
+            spent.append("&nbsp; " + data.data.currency);
+
+            let percent = Math.round(percentage(budgetSpent, budgetAmount));
+            let bgcolor = '5cb85c';
+            if (budgetSpent > budgetAmount) {
+                bgcolor = 'D9534F';
+            }
+            let html = '             <td><div style="margin-top: 7px;" class="progress">\n' +
+                '                <div style="background-color: #'+bgcolor+'; width:'+percent+'%" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">\n' +
+                '                    '+percent+'%' +
+                '                </div>\n' +
+                '            </div></td>';
+
+            let progress = $(html);
+
+            let deleteItem = $("<td></td>");
+            let deleteItemButton = $("<button>Delete</button>");
+            deleteItemButton.addClass('btn btn-danger');
+            deleteItem.append(deleteItemButton);
+            deleteItemButton.bind("click", _deleteButtonBudget);
+
             tr.append(category);
             tr.append(amount);
             tr.append(spent);
+            tr.append(progress);
             tr.append(fromDate);
             tr.append(toDate);
+            tr.append(deleteItem);
 
-            table.append(tr);
+            table.prepend(tr);
 
         }, 'json')
             .fail(function (xhr, status, error) {

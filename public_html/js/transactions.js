@@ -221,6 +221,7 @@ $(document).ready(function () {
                 transactionType.text('Income');
                 amount.addClass("text-success");
             } else {
+                amount.prepend('-');
                 transactionType.text('Outcome');
                 amount.addClass("text-danger");
             }
