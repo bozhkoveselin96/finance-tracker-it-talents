@@ -58,17 +58,26 @@ function addTransaction() {
 }
 
 function getTransactionsMain(daterange = null) {
+    // $.fn.dataTable.ext.errMode = 'none';
     $.get("app/index.php?target=transaction&action=showUserTransactions", {date_range : daterange},
         function (response) {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+
+                $('#dataTable').DataTable().clear();
+                $('#dataTable').DataTable().destroy();
+
+            }
             let table = $("#transactions");
             table.empty();
 
             $.each(response.data, function (key, value) {
                 let tr = $("<tr />");
                 tr.attr("id", value.id);
+                tr.addClass('row-checked');
 
                 let amount = $("<td data-order='" + value.amount +"'></td>");
                 amount.text(value.amount);
+                amount.addClass('sum');
                 amount.append('&nbsp;' + value.currency);
                 amount.addClass("font-weight-bold");
                 let transactionType = $("<td></td>");
@@ -78,6 +87,7 @@ function getTransactionsMain(daterange = null) {
                 } else {
                     transactionType.text('Outcome');
                     amount.addClass("text-danger");
+                    amount.prepend('-');
                 }
                 let accountName = $("<td></td>");
                 accountName.text(value.account.name);
@@ -111,6 +121,50 @@ function getTransactionsMain(daterange = null) {
                 table.append(tr);
             });
 
+            datatable = $('#dataTable').DataTable({
+                dom: 'Bfrtip',
+                "buttons": [
+                    {
+                        extend: 'pdf',
+                        text: '<i class="sm-close">Export to PDF</i>',
+                        exportOptions: {
+                            rows: '.row-checked',
+                            columns: [ 0, 1, 2, 3, 4, 5]
+                        },
+                        orientation: 'landscape',
+                        pageSize: 'A5',
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="sm-close">Export to Excel</i>',
+                        exportOptions: {
+                            rows: '.row-checked',
+                            columns: [ 0, 1, 2, 3, 4, 5]
+                        }
+                    }
+                ],
+                "order": [[ 5, "desc" ]],
+                initComplete: function () {
+                    this.api().columns('.selecting').every( function () {
+                        var column = this;
+                        var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
+                            .appendTo( $(column.footer()).empty() )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search( val ? '^'+val+'$' : '', true, false )
+                                    .draw();
+                            } );
+
+                        column.data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option>'+d+'</option>' )
+                        } );
+                    } );
+                }
+            } );
         }, 'json')
         .fail(function (xhr, status, error) {
             if (xhr.status === 401) {
@@ -127,6 +181,23 @@ function getTransactionsMain(daterange = null) {
 
 
 $(document).ready(function () {
+    let dateTimePicker = $('#time_event');
+    if(dateTimePicker.length) {
+        dateTimePicker.datetimepicker();
+    }
+
+    let daterange = $('#daterange');
+    if(daterange.length) {
+        daterange.daterangepicker().val('').on('change', function () {
+            getTransactionsMain(this.value);
+        });
+    }
+
+
+    $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
+    getTransactionsMain();
+
+    addTransaction();
     $("form#addtransaction").on("submit", function (e) {
         e.preventDefault();
         let form = $(this);

@@ -260,3 +260,52 @@ function getIncomesAndOutcomesLastXDays(days = 7, currency = 'BGN') {
             }
         });
 }
+
+$(document).ready(function () {
+    let selectAccount = $("select[name=account_id]");
+    $.get("app/index.php?target=account&action=getAll",
+        function (response) {
+            $.each(response.data, function (key, value) {
+                selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
+            })
+        }, 'json')
+        .fail(function (xhr, status, error) {
+            showModal(error, xhr.responseJSON.message);
+        });
+
+    let dateRangeNamePicker = $('input[name="daterange"]');
+    if(dateRangeNamePicker.length) {
+        dateRangeNamePicker.daterangepicker().val('');
+    }
+    $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
+    getIncomesAndOutcomes();
+    getIncomesByCategory();
+    getOutcomesByCategory();
+
+    $("form#all-incomes-outcomes").on("change", function (event) {
+        let daterange = $("#all-incomes-outcomes :input[name ='daterange']").val();
+        let diagram = $("#all-incomes-outcomes select#diagramIncomesAndOutcomes").val();
+        let currency = $("#all-incomes-outcomes select[name=currency]").val();
+        let account_id = $("#all-incomes-outcomes select[name=account_id]").val();
+
+        getIncomesAndOutcomes(diagram, account_id, currency, daterange);
+    });
+
+    $("form#incomes-by-category").on("change", function (event) {
+        let daterange = $("#incomes-by-category :input[name ='daterange']").val();
+        let diagram = $("#incomes-by-category select#diagramIncomes").val();
+        let currency = $("#incomes-by-category select[name=currency]").val();
+        let account_id = $("#incomes-by-category select[name=account_id]").val();
+
+        getIncomesByCategory(diagram, account_id, currency, daterange);
+    });
+
+    $("form#outcomes-by-category").on("change", function (event) {
+        let daterange = $("#outcomes-by-category :input[name ='daterange']").val();
+        let diagram = $("#outcomes-by-category select#diagramOutcomes").val();
+        let currency = $("#outcomes-by-category select[name=currency]").val();
+        let account_id = $("#outcomes-by-category select[name=account_id]").val();
+
+        getOutcomesByCategory(diagram, account_id, currency, daterange);
+    });
+});

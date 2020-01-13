@@ -312,49 +312,6 @@
 <script src="vendor/datatables/jquery.dataTables.js"></script>
 <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 <script src="js/sb-admin.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-        $('#time_event').datetimepicker();
-
-        let selectAccount = $("#from_account");
-        $.get("app/index.php?target=account&action=getAll",
-            function (response) {
-                $.each(response.data, function (key, value) {
-                    selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
-                })
-            }, 'json')
-            .fail(function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
-            });
-
-        let toAccount = $("#to_account");
-        selectAccount.on("change", function () {
-            toAccount.empty();
-            toAccount.append('<option value="-1">Select to which account</option>');
-            if (selectAccount.val() == -1) {
-                return false;
-            }
-            $.get("app/index.php?target=account&action=getAll",
-                function (response) {
-                    $.each(response.data, function (key, value) {
-                        if (value.id != selectAccount.val()) {
-                            toAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
-                        }
-                    })
-                }, 'json')
-                .fail(function (xhr, status, error) {
-                    showModal(error, xhr.responseJSON.message);
-                });
-        });
-
-        $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-        getAllAccounts();
-        setTimeout(function () {
-                $('#dataTable').DataTable();
-            }, 100);
-    });
-</script>
 </body>
 
 </html>

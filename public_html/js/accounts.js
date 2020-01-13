@@ -95,6 +95,7 @@ function getAllAccounts() {
                 tr.append(deleteItem);
                 table.append(tr);
             });
+
         },
         'json')
         .fail(function (xhr, status, error) {
@@ -138,7 +139,7 @@ function getAccountsMain() {
                 secondDiv.append(cardFooter);
                 mainDiv.append(secondDiv);
 
-                $("#accounts").append(mainDiv);
+                $("#accountsMain").append(mainDiv);
             });
 
 
@@ -239,4 +240,42 @@ $(document).ready(function () {
             });
     });
 
+    let time_event = $('#time_event');
+    if(time_event.length) {
+        time_event.datetimepicker();
+    }
+
+    let selectAccount = $("#from_account");
+    $.get("app/index.php?target=account&action=getAll",
+        function (response) {
+            $.each(response.data, function (key, value) {
+                selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
+            })
+        }, 'json')
+        .fail(function (xhr, status, error) {
+            showModal(error, xhr.responseJSON.message);
+        });
+
+    let toAccount = $("#to_account");
+    selectAccount.on("change", function () {
+        toAccount.empty();
+        toAccount.append('<option value="-1">Select to which account</option>');
+        if (selectAccount.val() == -1) {
+            return false;
+        }
+        $.get("app/index.php?target=account&action=getAll",
+            function (response) {
+                $.each(response.data, function (key, value) {
+                    if (value.id != selectAccount.val()) {
+                        toAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
+                    }
+                })
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                showModal(error, xhr.responseJSON.message);
+            });
+    });
+
+    // $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
+    getAllAccounts();
 });

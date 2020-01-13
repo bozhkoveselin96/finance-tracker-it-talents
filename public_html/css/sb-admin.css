@@ -10917,3 +10917,8 @@ body.sidebar-toggled footer.sticky-footer {
   width: 40px;
   height: 40px;
 }
+
+.iconPickerGroup i {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+}

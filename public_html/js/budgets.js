@@ -80,11 +80,11 @@ function showUserBudgets() {
                     if (budgetSpent > budgetAmount) {
                         bgcolor = 'D9534F';
                     }
-                    let html = '             <div style="margin-top: 20px;" class="progress">\n' +
+                    let html = '             <td><div style="margin-top: 7px;" class="progress">\n' +
                         '                <div style="background-color: #'+bgcolor+'; width:'+percent+'%" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">\n' +
                         '                    '+percent+'%' +
                         '                </div>\n' +
-                        '            </div>';
+                        '            </div></td>';
 
                     let progress = $(html);
                     let fromDate = $("<td />");
@@ -197,4 +197,8 @@ $(document).ready(function () {
                 }
             });
     });
+
+    $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
+    showUserBudgets();
+    addBudget();
 });

@@ -245,40 +245,6 @@
 <script src="vendor/datatables/jquery.dataTables.js"></script>
 <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 <script src="js/sb-admin.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-        showUserPlannedPayments();
-
-        setTimeout(function () {
-                $('#dataTable').DataTable( {
-                    "order": [[ 4, "asc" ]],
-                    initComplete: function () {
-                        this.api().columns('.selecting').every( function () {
-                            var column = this;
-                            var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
-                                .appendTo( $(column.header()).empty() )
-                                .on( 'change', function () {
-                                    var val = $.fn.dataTable.util.escapeRegex(
-                                        $(this).val()
-                                    );
-
-                                    column
-                                        .search( val ? '^'+val+'$' : '', true, false )
-                                        .draw();
-                                } );
-
-                            column.data().unique().sort().each( function ( d, j ) {
-                                select.append( '<option>'+d+'</option>' )
-                            } );
-                        } );
-                    }
-                } );
-            }, 100);
-        addPlannedPayment();
-    });
-</script>
-
 </body>
 
 </html>

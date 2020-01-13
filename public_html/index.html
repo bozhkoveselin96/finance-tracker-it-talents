@@ -20,6 +20,7 @@
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="js/Chart.js"></script>
 
+  <script src="js/main_page.js"></script>
   <script src="js/accounts.js"></script>
   <script src="js/transactions.js"></script>
   <script src="js/statistics.js"></script>
@@ -107,7 +108,7 @@
           <li class="breadcrumb-item active">Overview</li>
         </ol>
 
-        <div class="row" id="accounts">
+        <div class="row" id="accountsMain">
         </div>
 
         <div class="card mb-3">
@@ -232,43 +233,6 @@
   <script src="vendor/datatables/jquery.dataTables.js"></script>
   <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
   <script src="js/sb-admin.min.js"></script>
-
-  <script>
-    $(document).ready(function () {
-      $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-      $("#formMain").on('change', function () {
-        getIncomesAndOutcomesLastXDays($("#days").val(), $("#currencies").val());
-      });
-      getAccountsMain();
-      getTransactionsMain();
-      getIncomesAndOutcomesLastXDays();
-      setTimeout(function () {
-          $('#dataTable').DataTable( {
-            "order": [[ 5, "desc" ]],
-            initComplete: function () {
-              this.api().columns().every( function () {
-                var column = this;
-                var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
-                        .appendTo( $(column.footer()).empty() )
-                        .on( 'change', function () {
-                          var val = $.fn.dataTable.util.escapeRegex(
-                                  $(this).val()
-                          );
-
-                          column
-                                  .search( val ? '^'+val+'$' : '', true, false )
-                                  .draw();
-                        } );
-
-                column.data().unique().sort().each( function ( d, j ) {
-                  select.append( '<option value="'+d+'">'+d+'</option>' )
-                } );
-              } );
-            }
-          } );
-        }, 100);
-    });
-  </script>
 </body>
 
 </html>

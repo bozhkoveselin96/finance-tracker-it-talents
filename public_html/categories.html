@@ -22,12 +22,6 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="css/icon-picker.min.css">
     <script type="text/javascript" src="js/icon-picker.min.js"></script>
-    <style>
-        .iconPickerGroup i {
-            margin: 0 0 0 0;
-            padding: 0 0 0 0;
-        }
-    </style>
 
     <script src="js/categories.js"></script>
     <script src="js/users.js"></script>
@@ -239,42 +233,6 @@
 <script src="vendor/datatables/jquery.dataTables.js"></script>
 <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
 <script src="js/sb-admin.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-        $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-        $('.icon-picker').qlIconPicker({
-            'save': 'class'
-        });
-
-        getAllCategories();
-        setTimeout(function () {
-                $('#dataTable').DataTable( {
-                    "order": [[ 0, "asc" ]],
-                    initComplete: function () {
-                        this.api().columns(".selecting").every( function () {
-                            var column = this;
-                            var select = $('<select class="form-control form-control-sm"><option value=""></option></select>')
-                                .appendTo( $(column.header()).empty() )
-                                .on( 'change', function () {
-                                    var val = $.fn.dataTable.util.escapeRegex(
-                                        $(this).val()
-                                    );
-
-                                    column
-                                        .search( val ? '^'+val+'$' : '', true, false )
-                                        .draw();
-                                } );
-
-                            column.data().unique().sort().each( function ( d, j ) {
-                                select.append( '<option value="'+d+'">'+d+'</option>' )
-                            } );
-                        } );
-                    }
-                });
-            }, 100);
-    });
-</script>
 <div id="iconSelector" class="fa-set icon-set">
     <ul>
         <li data-code="f042" data-class="fa fa-adjust" class="fa fa-adjust"></li>
@@ -782,5 +740,4 @@
     </ul>
 </div>
 </body>
-
 </html>
