@@ -113,7 +113,7 @@ class PlannedPaymentDAO {
         if (!$after_this_day) {
             $sql .= 'AND pp.day_for_payment = DAYOFMONTH(NOW());';
         } else {
-            $sql .= 'AND pp.day_for_payment > DAYOFMONTH(NOW());';
+            $sql .= 'AND pp.day_for_payment >= DAYOFMONTH(NOW());';
         }
 
         $stmt = $conn->prepare($sql);
@@ -124,11 +124,12 @@ class PlannedPaymentDAO {
         $accountDAO = new AccountDAO();
 
         foreach ($stmt->fetchAll(\PDO::FETCH_OBJ) as $value) {
+            $account = $accountDAO->getAccountById($value->account_id);
             $plannedPayment = new PlannedPayment($value->day_for_payment,
                 $value->amount,
                 $value->currency,
-                $accountDAO->getAccountById($value->account_id),
-                $categoryDAO->getCategoryById($value->category_id,$_SESSION['logged_user']));
+                $account,
+                $categoryDAO->getCategoryById($value->category_id, $account->getOwnerId()));
             $plannedPayment->setStatus($value->status);
             $plannedPayment->setId($value->id);
             $plannedPayments[] = $plannedPayment;

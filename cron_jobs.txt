@@ -1,0 +1,5 @@
+//Execute planned payments for today
+http://localhost/finance_tracker/public_html/app/index.php?target=plannedPayment&action=executePlannedPayments
+
+//Execute send email to unactive users
+http://localhost/finance_tracker/public_html/app/index.php?target=user&action=sendNotificationsToUnactiveUsers
