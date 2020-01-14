@@ -58,43 +58,44 @@ class CategoryController implements Editable, Deletable {
 
     public function edit() {
         if (isset($_POST["edit"])) {
-            $category_id = $_POST["category_id"];
-            $owner_id = $_SESSION["logged_user"];
-            $name = $_POST["name"];
-            $icon_url = $_POST["icon"];
-            if (!Validator::validateName($name)) {
+            if (!isset($_POST['category_id']) || empty($_POST['category_id'])) {
+                throw new BadRequestException("Category is required!");
+            } elseif(!isset($_POST['name']) || Validator::validateName($_POST['name'])) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             }
 
             $categoryDAO = new CategoryDAO();
-            $category = $categoryDAO->getCategoryById($category_id, $owner_id);
-            if (!empty($icon_url)) {
-                $category->setIcon($icon_url);
-            }
-            $category->setName($name);
+            $category = $categoryDAO->getCategoryById($_POST["category_id"], $_SESSION["logged_user"]);
 
-            if ($category->getOwnerId() == $_SESSION["logged_user"]) {
-                $categoryDAO->editCategory($category);
-                return new ResponseBody("Category edited successfully", $category);
-            } else {
+            if (!$category || $category->getOwnerId() != $_SESSION["logged_user"]) {
                 throw new ForbiddenException("This category is not yours");
             }
+
+            if (isset($_POST['icon']) && !empty($icon_url)) {
+                $category->setIcon($_POST["icon"]);
+            }
+
+            $category->setName($_POST["name"]);
+            $categoryDAO->editCategory($category);
+            return new ResponseBody("Category edited successfully", $category);
         }
         throw new MethodNotAllowedException("Method not allowed!");
     }
 
     public function delete() {
         if (isset($_POST["delete"])) {
-            $category_id = $_POST["category_id"];
-            $categoryDAO = new CategoryDAO();
-            $category = $categoryDAO->getCategoryById($category_id, $_SESSION["logged_user"]);
+            if (!isset($_POST["category_id"]) || empty($_POST["category_id"])) {
+                throw new BadRequestException("Category is required!");
+            }
 
-            if ($category && $category->getOwnerId() == $_SESSION['logged_user']) {
-                $categoryDAO->deleteCategory($category->getId());
-                return new ResponseBody("Category deleted successfully.", $category);
-            } else {
+            $categoryDAO = new CategoryDAO();
+            $category = $categoryDAO->getCategoryById($_POST["category_id"], $_SESSION["logged_user"]);
+
+            if (!$category || $category->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This category is not yours. Predefined categories are not deletable.");
             }
+            $categoryDAO->deleteCategory($category);
+            return new ResponseBody("Category deleted successfully.", $category);
         }
         throw new MethodNotAllowedException("Method not allowed!");
     }

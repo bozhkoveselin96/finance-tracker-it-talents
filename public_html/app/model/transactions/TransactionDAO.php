@@ -149,7 +149,8 @@ class TransactionDAO {
     public function getSimilarTransaction(PlannedPayment $plannedPayment) {
         $conn = Connection::getInstance()->getConn();
         $sql = "SELECT id, amount, account_id, currency, category_id, note, time_event FROM transactions 
-                WHERE account_id = ? AND category_id = ? AND DAYOFMONTH(time_event) = ?;";
+                WHERE account_id = ? AND category_id = ? AND DAYOFMONTH(time_event) = ? AND 
+                DATE(time_event) = DATE(CURRENT_TIMESTAMP);";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             $plannedPayment->getAccount()->getId(),
