@@ -15,29 +15,32 @@ use model\transactions\TransactionDAO;
 
 class TransactionController implements Deletable {
     public function add() {
-        if (isset($_POST['add_transaction']) && isset($_POST['account_id']) &&
-            isset($_POST['category_id']) && !empty($_POST['time_event'])) {
+        if (isset($_POST['add_transaction'])) {
+            if (!isset($_POST["account_id"]) || empty($_POST["account_id"])) {
+                throw new BadRequestException("Account is required!");
+            } elseif (!isset($_POST["category_id"]) || empty($_POST["category_id"])) {
+                throw new BadRequestException("Category is required!");
+            }
+
+            if (!isset($_POST["amount"]) || !Validator::validateAmount($_POST["amount"])) {
+                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
+            } elseif (!isset($_POST["time_event"]) || !Validator::validateDate($_POST["time_event"])) {
+                throw new BadRequestException("Please select valid day!");
+            } elseif (!isset($_POST["note"]) || !Validator::validateName($_POST["note"])) {
+                throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive!");
+            } elseif (!isset($_POST["currency"]) || !Validator::validateCurrency($_POST["currency"])) {
+                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
+            }
+
             $accountDAO = new AccountDAO();
             $categoryDAO = new CategoryDAO();
             $account = $accountDAO->getAccountById($_POST['account_id']);
             $category = $categoryDAO->getCategoryById($_POST['category_id'], $account->getOwnerId());
 
-            if (!$account) {
+            if (!$account || $account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new BadRequestException("No such account.");
             } elseif (!$category) {
                 throw new BadRequestException("No such category.");
-            }
-
-            if (!Validator::validateAmount($_POST["amount"])) {
-                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
-            } elseif (!Validator::validateDate($_POST["time_event"])) {
-                throw new BadRequestException("Please select valid day!");
-            } elseif (!Validator::validateName($_POST["note"])) {
-                throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive!");
-            } elseif ($account->getOwnerId() != $_SESSION['logged_user']) {
-                throw new ForbiddenException("This account is not yours.");
-            } elseif (!Validator::validateCurrency($_POST["currency"])) {
-                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
             }
 
             $transaction = new Transaction($_POST['amount'], $account, strtoupper($_POST['currency']), $category, $_POST['note'], $_POST['time_event']);
@@ -52,7 +55,7 @@ class TransactionController implements Deletable {
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
             $from_date = null;
             $to_date = null;
-            if (!empty($_GET['date_range'])) {
+            if (isset($_GET["date_range"]) && !empty($_GET['date_range'])) {
                 $date_range = explode(" - ", $_GET['date_range']);
                 if (count($date_range) != 2) {
                     throw new BadRequestException("Please select valid date_range.");
@@ -70,6 +73,9 @@ class TransactionController implements Deletable {
 
     public function delete() {
         if ($_POST["delete"]) {
+            if (!isset($_POST["transaction_id"])) {
+                throw new BadRequestException("Bad request!");
+            }
             $transaction_id = $_POST["transaction_id"];
             $transactionDAO = new TransactionDAO();
             $transaction = $transactionDAO->getTransactionById($transaction_id);
