@@ -60,7 +60,7 @@ class CategoryController implements Editable, Deletable {
         if (isset($_POST["edit"])) {
             if (!isset($_POST['category_id']) || empty($_POST['category_id'])) {
                 throw new BadRequestException("Category is required!");
-            } elseif(!isset($_POST['name']) || Validator::validateName($_POST['name'])) {
+            } elseif(!isset($_POST['name']) || !Validator::validateName($_POST['name'])) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
             }
 
@@ -71,7 +71,7 @@ class CategoryController implements Editable, Deletable {
                 throw new ForbiddenException("This category is not yours");
             }
 
-            if (isset($_POST['icon']) && !empty($icon_url)) {
+            if (isset($_POST['icon']) && !empty($_POST['icon'])) {
                 $category->setIcon($_POST["icon"]);
             }
 

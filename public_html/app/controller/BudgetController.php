@@ -102,7 +102,7 @@ class BudgetController implements Deletable {
                 throw new ForbiddenException("This budget is not yours!");
             }
 
-            $budgetDAO->deleteBudget($budget->getId());
+            $budgetDAO->deleteBudget($budget);
             return new ResponseBody("Deleted successfully!", $budget);
         }
         throw new MethodNotAllowedException("Method not allowed!");

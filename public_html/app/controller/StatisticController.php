@@ -16,7 +16,6 @@ class StatisticController {
         if (!isset($_GET["currency"]) || !Validator::validateCurrency($_GET['currency'])) {
             throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
         }
-        $statisticDAO = new StatisticDAO();
         $account = null;
         if (isset($_GET['account_id']) && $_GET['account_id'] > 0) {
             $accountDAO = new AccountDAO();
@@ -25,7 +24,7 @@ class StatisticController {
                 throw new BadRequestException('Not a valid account.');
             }
         }
-
+        $statisticDAO = new StatisticDAO();
         if (isset($_GET["daterange"]) && !empty($_GET['daterange'])) {
             $daterange = explode(" - ", $_GET['daterange']);
             if (count($daterange) != 2) {
@@ -67,38 +66,36 @@ class StatisticController {
 
     public function getSumByCategory() {
         $account = null;
-        if (isset($_GET['account_id']) && !empty($_GET['account_id'])) {
+        if (!empty($_GET['account_id']) && $_GET['account_id'] > 0) {
             $accountDAO = new AccountDAO();
             $account = $accountDAO->getAccountById($_GET['account_id']);
             if (!$account || $account->getOwnerId() != $_SESSION['logged_user']) {
-                $account = null;
+                throw new BadRequestException('Not a valid account.');
             }
         }
 
         if (!isset($_GET['category_type']) || !Validator::validateCategoryType($_GET['category_type'])) {
             throw new BadRequestException("Not a valid category type.");
-        }
-
-        if (!isset($_GET['currency']) || !Validator::validateCurrency($_GET['currency'])) {
+        } elseif (!isset($_GET['currency']) || !Validator::validateCurrency($_GET['currency'])) {
             throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
         }
 
         $from_date = null;
         $to_date = null;
-        if (isset($_GET["daterange"]) && !empty($_GET['daterange'])) {
+        if (!empty($_GET['daterange'])) {
             $daterange = explode(" - ", $_GET['daterange']);
             if (count($daterange) != 2) {
                 throw new BadRequestException("Please select valid daterange.");
             }
             $from_date = date_format(date_create($daterange[0]), "Y-m-d");
             $to_date = date_format(date_create($daterange[1]), "Y-m-d");
-            if (!Validator::validateDate($from_date) || !Validator::validateDate($to_date)) {
+            if (!$from_date || !$to_date) {
                 throw new BadRequestException("Not valid dates.");
             }
         }
         $statisticDAO = new StatisticDAO();
         $currencyDAO = new CurrencyDAO();
-        $transactionsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user'], $categoryType, $account, $from_date, $to_date);
+        $transactionsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user'], $_GET['category_type'], $account, $from_date, $to_date);
         $response = [];
         /** @var Transaction $transaction */
         foreach ($transactionsByCategory as $transaction) {

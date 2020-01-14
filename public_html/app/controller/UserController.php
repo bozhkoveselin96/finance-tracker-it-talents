@@ -24,7 +24,7 @@ class UserController implements Editable, Deletable {
         if (isset($_POST["login"])) {
             if (!isset($_POST["email"]) || !Validator::validateEmail($_POST["email"])) {
                 throw new BadRequestException("Not a valid email");
-            } elseif (!isset($_POST["password"]) ||!Validator::validatePassword($_POST["password"])) {
+            } elseif (!isset($_POST["password"]) || !Validator::validatePassword($_POST["password"])) {
                 throw new BadRequestException("Not a valid password");
             }
 
@@ -87,14 +87,14 @@ class UserController implements Editable, Deletable {
 
             $userDAO = new UserDAO();
             $user = $userDAO->getUser(intval($_SESSION["logged_user"]));
-            $oldAvatar = $user->getAvatarUrl();
+            $previousAvatar = $user->getAvatarUrl();
             $avatar_url = $this->uploadAvatar($user->getEmail());
             if ($avatar_url) {
-                if (file_exists($oldAvatar)) {
-                    unlink($oldAvatar);
+                if (file_exists($previousAvatar)) {
+                    unlink($previousAvatar);
                 }
             } else {
-                $avatar_url = $oldAvatar;
+                $avatar_url = $previousAvatar;
             }
             $user->setAvatarUrl($avatar_url);
             $user->setFirstName($_POST['first_name']);
@@ -155,7 +155,7 @@ class UserController implements Editable, Deletable {
 
     public function setNewPassword() {
         if (isset($_POST["change"])) {
-            if (!isset($_POST["token"])){
+            if (!isset($_POST["token"]) || empty($_POST['token'])){
                 throw new BadRequestException("No token for the password change.");
             } elseif (!isset($_POST["password"]) || !isset($_POST["rpassword"]) || !Validator::validatePassword($_POST["password"])) {
                 throw new BadRequestException(PASSWORD_WRONG_PATTERN_MESSAGE);

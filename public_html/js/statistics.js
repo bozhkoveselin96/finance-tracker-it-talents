@@ -172,7 +172,7 @@ function getOutcomesByCategory(diagramType = 'pie', account_id, currency = 'BGN'
                                 let total = meta.total;
                                 let currentValue = dataset.data[tooltipItem.index];
                                 let percentage = parseFloat((currentValue/total*100).toFixed(2));
-                                return currentValue + ' (' + percentage + '%)';
+                                return currentValue + ' ' + response.msg + ' (' + percentage + '%)';
                             },
                             title: function(tooltipItem, data) {
                                 return data.labels[tooltipItem[0].index];

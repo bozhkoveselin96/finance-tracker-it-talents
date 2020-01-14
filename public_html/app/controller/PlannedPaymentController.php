@@ -74,9 +74,7 @@ class PlannedPaymentController implements Editable, Deletable {
             $planned_payment_DAO = new PlannedPaymentDAO();
             $planned_payment = $planned_payment_DAO->getPlannedPaymentById($_POST["planned_payment_id"]);
 
-            if (!$planned_payment) {
-                throw new ForbiddenException("This planned payment is not yours.");
-            } elseif ($planned_payment->getAccount()->getOwnerId() != $_SESSION['logged_user']) {
+            if (!$planned_payment || $planned_payment->getAccount()->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This planned payment is not yours.");
             }
 

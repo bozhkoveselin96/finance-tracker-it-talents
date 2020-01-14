@@ -43,14 +43,14 @@ class AccountController implements Editable, Deletable {
         if (isset($_POST["edit"])) {
             if (!isset($_POST['name']) || !Validator::validateName($_POST["name"])) {
                 throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". " symbols!");
+            } elseif (!isset($_POST["account_id"]) || empty($_POST["account_id"])) {
+                throw new BadRequestException("No account specified.");
             }
             $accountDAO = new AccountDAO();
 
             //** @Account $account */
             $account = $accountDAO->getAccountById($_POST["account_id"]);
-            if (!$account) {
-                throw new ForbiddenException("This account is not yours!");
-            } elseif ($account->getOwnerId() != $_SESSION['logged_user']) {
+            if (!$account || $account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours!");
             }
 

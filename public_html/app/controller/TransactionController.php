@@ -20,9 +20,7 @@ class TransactionController implements Deletable {
                 throw new BadRequestException("Account is required!");
             } elseif (!isset($_POST["category_id"]) || empty($_POST["category_id"])) {
                 throw new BadRequestException("Category is required!");
-            }
-
-            if (!isset($_POST["amount"]) || !Validator::validateAmount($_POST["amount"])) {
+            } elseif (!isset($_POST["amount"]) || !Validator::validateAmount($_POST["amount"])) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
             } elseif (!isset($_POST["time_event"]) || !Validator::validateDate($_POST["time_event"])) {
                 throw new BadRequestException("Please select valid day!");
@@ -63,7 +61,7 @@ class TransactionController implements Deletable {
                 $from_date = date_format(date_create($date_range[0]), "Y-m-d");
                 $to_date = date_format(date_create($date_range[1]), "Y-m-d");
             }
-            $category_id = isset($_GET["category_id"]) ? $_GET["category_id"] : null;
+            $category_id = isset($_GET["category_id"]) && Validator::validateCategoryType($_GET["category_id"]) ? $_GET["category_id"] : null;
             $transactionDAO = new TransactionDAO();
             $transactions = $transactionDAO->getByUserAndCategory($_SESSION['logged_user'], $category_id, $from_date, $to_date);
             return new ResponseBody(null, $transactions);
@@ -73,23 +71,22 @@ class TransactionController implements Deletable {
 
     public function delete() {
         if ($_POST["delete"]) {
-            if (!isset($_POST["transaction_id"])) {
+            if (!isset($_POST["transaction_id"]) || empty($_POST['transaction_id'])) {
                 throw new BadRequestException("Bad request!");
             }
-            $transaction_id = $_POST["transaction_id"];
             $transactionDAO = new TransactionDAO();
-            $transaction = $transactionDAO->getTransactionById($transaction_id);
+            $transaction = $transactionDAO->getTransactionById($_POST["transaction_id"]);
             $transferController = new TransferController();
 
             if ($transferController->checkTransactionType($transaction) !== false) {
                 throw new BadRequestException("Transfers can not be deleted!");
             }
 
-            if ($transaction && $transaction->getAccount()->getOwnerId() == $_SESSION['logged_user']) {
-                $transactionDAO->deleteTransaction($transaction);
-                return new ResponseBody('Deleted successfully!', $transaction);
+            if (!$transaction || $transaction->getAccount()->getOwnerId() != $_SESSION['logged_user']) {
+                throw new ForbiddenException("This transaction is not yours!");
             }
-            throw new ForbiddenException("This transaction is not yours!");
+            $transactionDAO->deleteTransaction($transaction);
+            return new ResponseBody('Deleted successfully!', $transaction);
         }
         throw new MethodNotAllowedException("Method not allowed!");
     }

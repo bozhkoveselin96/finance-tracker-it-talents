@@ -94,10 +94,10 @@ class BudgetDAO {
         return false;
     }
 
-    public function deleteBudget(int $budget_id) {
+    public function deleteBudget(Budget $budget) {
         $conn = Connection::getInstance()->getConn();
         $sql = "DELETE FROM budgets WHERE id = ?;";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$budget_id]);
+        $stmt->execute([$budget->getId()]);
     }
 }
