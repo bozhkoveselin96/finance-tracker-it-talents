@@ -14,19 +14,18 @@ class AccountDAO {
         $parameters[] = $account->getCurrency();
         $parameters[] = $account->getOwnerId();
 
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "INSERT INTO accounts(name, current_amount, currency, owner_id, date_created)
                 VALUES (?, ?, ?, ?, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
-        return $conn->lastInsertId();
+        $account->setId($conn->lastInsertId());
     }
 
     public function getMyAccounts(int $user_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-        $sql = "SELECT id, name, current_amount, currency, owner_id FROM accounts WHERE owner_id = ?;";
+        $conn = Connection::getInstance()->getConn();
+        $sql = "SELECT id, name, current_amount, currency, owner_id 
+                FROM accounts WHERE owner_id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$user_id]);
         $accounts = [];
@@ -39,9 +38,9 @@ class AccountDAO {
     }
 
     public function getAccountById(int $account_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-        $sql = "SELECT id, name, current_amount, currency, owner_id FROM accounts WHERE id = ?;";
+        $conn = Connection::getInstance()->getConn();
+        $sql = "SELECT id, name, current_amount, currency, owner_id 
+                FROM accounts WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$account_id]);
         if ($stmt->rowCount() == 1) {
@@ -54,16 +53,14 @@ class AccountDAO {
     }
 
     public function deleteAccount(int $account_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "DELETE FROM accounts WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$account_id]);
     }
 
     public function editAccount(Account $account) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "UPDATE accounts SET name = ? WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$account->getName(), $account->getId()]);

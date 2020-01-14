@@ -25,13 +25,11 @@ class Transaction implements \JsonSerializable {
         $this->time_event = $time_event;
     }
 
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
 
-    public function getCurrency()
-    {
+    public function getCurrency() {
         return $this->currency;
     }
 
@@ -39,12 +37,12 @@ class Transaction implements \JsonSerializable {
         return $this->amount;
     }
 
-    public function getAccount(){
+    public function getAccount() {
         return $this->account;
     }
 
 
-    public function getCategory(){
+    public function getCategory() {
         return $this->category;
     }
 

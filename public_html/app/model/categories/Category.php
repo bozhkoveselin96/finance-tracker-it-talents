@@ -46,15 +46,11 @@ class Category implements \JsonSerializable {
         $this->icon = $icon;
     }
 
-    public function setName($name){
+    public function setName($name) {
         $this->name = $name;
     }
 
-    /**
-     * @param mixed $type
-     */
-    public function setType($type): void
-    {
+    public function setType($type): void {
         $this->type = $type;
     }
 

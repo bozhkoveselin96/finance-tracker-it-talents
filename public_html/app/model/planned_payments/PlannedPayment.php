@@ -17,7 +17,6 @@ class PlannedPayment implements \JsonSerializable {
     /** @var Category $category */
     private $category;
     private $status;
-    private $date_created;
 
     public function __construct($day_for_payment, $amount, $currency, $account, $category) {
         $this->day_for_payment = $day_for_payment;
@@ -59,18 +58,15 @@ class PlannedPayment implements \JsonSerializable {
         $this->id = $id;
     }
 
-    public function setDayForPayment($day_for_payment): void
-    {
+    public function setDayForPayment($day_for_payment): void {
         $this->day_for_payment = $day_for_payment;
     }
 
-    public function getStatus()
-    {
+    public function getStatus() {
         return $this->status;
     }
 
-    public function setAmount($amount): void
-    {
+    public function setAmount($amount): void {
         $this->amount = $amount;
     }
 

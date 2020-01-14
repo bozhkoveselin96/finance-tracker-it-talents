@@ -35,8 +35,15 @@ let _editButton = function (event) {
                 tdAmount.append(' ' + data.data.currency);
                 if (data.data.status == 1) {
                     status.text('Active');
+                    status.removeClass('text-danger');
+                    status.addClass('text-success');
+                    status.addClass('font-weight-bold');
+
                 } else {
                     status.text('Not active');
+                    status.removeClass('text-success');
+                    status.addClass('text-danger');
+                    status.addClass('font-weight-bold');
                 }
 
                 button.unbind();
@@ -152,8 +159,12 @@ function showUserPlannedPayments() {
                 let status = $("<td />");
                 if (value.status == 0) {
                     status.text('Not active');
+                    status.addClass('text-danger');
+                    status.addClass('font-weight-bold');
                 } else {
                     status.text('Active');
+                    status.addClass('text-success');
+                    status.addClass('font-weight-bold');
                 }
                 status.addClass('status');
 
@@ -248,8 +259,12 @@ $(document).ready(function () {
             let status = $("<td />");
             if (data.data.status == 0) {
                 status.text('Not active');
+                status.addClass('text-danger');
+                status.addClass('font-weight-bold');
             } else {
                 status.text('Active');
+                status.addClass('text-success');
+                status.addClass('font-weight-bold');
             }
             status.addClass('status');
 
@@ -273,7 +288,6 @@ $(document).ready(function () {
             tr.append(status);
             tr.append(editItem);
             tr.append(deleteItem);
-
             table.prepend(tr);
 
         }, 'json')

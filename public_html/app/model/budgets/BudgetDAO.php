@@ -18,8 +18,7 @@ class BudgetDAO {
         $parameters[] = $budget->getFromDate();
         $parameters[] = $budget->getToDate();
 
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "INSERT INTO budgets(category_id, amount, currency, owner_id, from_date, to_date, date_created)
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
@@ -28,8 +27,7 @@ class BudgetDAO {
     }
 
     public function getAll(int $user_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT b.id, c.name, b.category_id, b.amount, b.currency, b.owner_id, b.from_date, b.to_date
                 FROM budgets AS b
                 JOIN transaction_categories AS c ON b.category_id = c.id
@@ -79,8 +77,7 @@ class BudgetDAO {
     }
 
     public function getBudgetById(int $budget_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT id, category_id, amount, currency, from_date, to_date, owner_id 
                 FROM budgets
                 WHERE id = ?;";
@@ -98,8 +95,7 @@ class BudgetDAO {
     }
 
     public function deleteBudget(int $budget_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "DELETE FROM budgets WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$budget_id]);

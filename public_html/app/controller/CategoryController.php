@@ -8,6 +8,7 @@ use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
 use interfaces\Deletable;
 use interfaces\Editable;
+use exceptions\MethodNotAllowedException;
 use model\categories\Category;
 use model\categories\CategoryDAO;
 
@@ -19,19 +20,17 @@ class CategoryController implements Editable, Deletable {
             $icon = $_POST["icon"];
             $owner_id = $_SESSION["logged_user"];
 
-            $category = new Category($name, $type, $icon, $owner_id);
-            $categoryDAO = new CategoryDAO();
-
-            if (!Validator::validateName($category->getName())) {
+            if (!Validator::validateName($name)) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
-            } elseif (!Validator::validateCategoryType($category->getType())) {
-                throw new BadRequestException("Type must be have income or outcome");
+            } elseif (!Validator::validateCategoryType($type)) {
+                throw new BadRequestException("Type must be have income or outcome!");
             } else {
-                $id = $categoryDAO->createCategory($category);
-                $category->setId($id);
+                $category = new Category($name, $type, $icon, $owner_id);
+                $categoryDAO = new CategoryDAO();
+                $categoryDAO->createCategory($category);
             }
         } else {
-            throw new BadRequestException("Bad request");
+            throw new MethodNotAllowedException("Method not allowed!");
         }
         return new ResponseBody("Category added successfully.", $category);
     }
@@ -42,6 +41,9 @@ class CategoryController implements Editable, Deletable {
             $categoriesDAO = new CategoryDAO();
             $categories = $categoriesDAO->getAll($user_id);
             if (isset($_GET["category_type"])) {
+                if(!Validator::validateCategoryType($_GET["category_type"])) {
+                    throw new BadRequestException("Type must be have income or outcome!");
+                }
                 $type = $_GET["category_type"];
                 /** @var Category $category */
                 $categoriesByType = [];
@@ -56,7 +58,7 @@ class CategoryController implements Editable, Deletable {
             }
             return new ResponseBody(null, $response);
         }
-        throw new BadRequestException("Bad request");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 
 
@@ -84,7 +86,7 @@ class CategoryController implements Editable, Deletable {
                 throw new ForbiddenException("This category is not yours");
             }
         }
-        throw new BadRequestException("Bad request");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 
     public function delete() {
@@ -100,6 +102,6 @@ class CategoryController implements Editable, Deletable {
                 throw new ForbiddenException("This category is not yours. Predefined categories are not deletable.");
             }
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 }
