@@ -67,10 +67,10 @@ class CategoryDAO {
         return false;
     }
 
-    public function deleteCategory(int $category_id) {
+    public function deleteCategory(Category $category) {
         $conn = Connection::getInstance()->getConn();
         $sql = "DELETE FROM transaction_categories WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$category_id]);
+        $stmt->execute([$category->getId()]);
     }
 }
