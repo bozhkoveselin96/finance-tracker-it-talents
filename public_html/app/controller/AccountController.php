@@ -6,8 +6,8 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
-use Interfaces\Deletable;
-use Interfaces\Editable;
+use interfaces\Deletable;
+use interfaces\Editable;
 use model\accounts\Account;
 use model\accounts\AccountDAO;
 

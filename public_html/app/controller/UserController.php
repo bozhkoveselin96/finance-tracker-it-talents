@@ -9,12 +9,14 @@ require_once "gmail_config.php";
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use exceptions\MethotNotAllowedException;
 use exceptions\NotFoundException;
 use exceptions\UnauthorizedException;
-use Interfaces\Deletable;
-use Interfaces\Editable;
+use interfaces\Deletable;
+use interfaces\Editable;
 use model\users\User;
 use model\users\UserDAO;
+use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class UserController implements Editable, Deletable {
@@ -44,46 +46,50 @@ class UserController implements Editable, Deletable {
 
             return new ResponseBody("Login successful!", $user);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethotNotAllowedException("Method Not Allowed.");
     }
 
     public function register() {
         if (isset($_POST["register"])) {
-            $avatar_url = $this->uploadAvatar($_POST["email"]);
-            $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name'], $avatar_url);
-            $userDAO = new UserDAO();
-            $msg = null;
-            if (!Validator::validateEmail($user->getEmail())) {
-                $msg = "Not a valid email";
-            } elseif ($userDAO->getUser($user->getEmail())) {
-                $msg = "This email is already registered.";
-            } elseif (!Validator::validatePassword($user->getPassword())) {
-                $msg = PASSWORD_WRONG_PATTERN_MESSAGE;
-            } elseif (strcmp($user->getPassword(), $_POST["rpassword"]) != 0) {
-                $msg = "Passwords missmatch.";
-            }elseif (!Validator::validateName($user->getFirstName())) {
-                $msg = "First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive";
-            } elseif (!Validator::validateName($user->getLastName())) {
+
+            if (!Validator::validateEmail($_POST['email'])) {
+                throw new BadRequestException("Not a valid email");
+            } elseif (!Validator::validatePassword($_POST['password'])) {
+                throw new BadRequestException(PASSWORD_WRONG_PATTERN_MESSAGE);
+            } elseif (strcmp($_POST['password'], $_POST["rpassword"]) != 0) {
+                throw new BadRequestException("Passwords missmatch.");
+            }elseif (!Validator::validateName($_POST['first_name'])) {
+                throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
+            } elseif (!Validator::validateName($_POST['last_name'])) {
                 $msg = "Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive";
             }
-            if ($msg) {
-                throw new BadRequestException($msg);
+
+            $userDAO = new UserDAO();
+            if ($userDAO->getUser($_POST['email'])) {
+                throw new ForbiddenException("This email is already registered.");
             }
+
+            $avatar_url = $this->uploadAvatar($_POST["email"]);
+            $user = new User($_POST["email"], $_POST['password'], $_POST['first_name'], $_POST['last_name'], $avatar_url);
 
             $cryptedPass = password_hash($user->getPassword(), PASSWORD_BCRYPT);
             $user->setPassword($cryptedPass);
-            $user_id = $userDAO->register($user);
-            $user->setId($user_id);
+            $userDAO->register($user);
             return new ResponseBody("Register successful!", $user);
         }
-        throw new BadRequestException("Bad request");
+        throw new MethotNotAllowedException("Method Not Allowed.");
     }
 
     public function edit() {
         if (isset($_POST["edit"])) {
+            if (!Validator::validateName($_POST['first_name'])) {
+                throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
+            } elseif (!Validator::validateName($_POST['last_name'])) {
+                throw new BadRequestException("Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
+            }
+
             $userDAO = new UserDAO();
-            $user_id = $_SESSION["logged_user"];
-            $user = $userDAO->getUser(intval($user_id));
+            $user = $userDAO->getUser(intval($_SESSION["logged_user"]));
             $oldAvatar = $user->getAvatarUrl();
             $avatar_url = $this->uploadAvatar($user->getEmail());
             if ($avatar_url) {
@@ -96,26 +102,21 @@ class UserController implements Editable, Deletable {
             $user->setAvatarUrl($avatar_url);
             $user->setFirstName($_POST['first_name']);
             $user->setLastName($_POST['last_name']);
-            if (!Validator::validateName($user->getFirstName())) {
-                throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
-            } elseif (!Validator::validateName($user->getLastName())) {
-                throw new BadRequestException("Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
-            }
 
-            $isEditedPass = " The password is not changed.";
+            $isEditedPass = "The password is not changed.";
             if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
                 $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
                 $user->setPassword($cryptedPass);
-                $isEditedPass = " The password is changed.";
+                $isEditedPass = "The password is changed.";
             }
 
             $userDAO->edit($user);
             if ($user->getAvatarUrl() == null) {
                 $user->setAvatarUrl(NO_AVATAR_URL);
             }
-            return new ResponseBody("Your profile edited successfully." . $isEditedPass, $user);
+            return new ResponseBody("Your profile edited successfully. " . $isEditedPass, $user);
         }
-        throw new BadRequestException("Bad request");
+        throw new MethotNotAllowedException("Method Not Allowed.");
     }
 
     public function logout() {
@@ -123,30 +124,25 @@ class UserController implements Editable, Deletable {
             unset($_SESSION["logged_user"]);
             return new ResponseBody("You successfully logged out.", null);
         }
-        throw new UnauthorizedException('You are not logged in to logout!');
+        throw new MethotNotAllowedException('You are not logged in to logout!');
     }
 
     public function  delete() {
         if (isset($_POST["delete"])) {
-            $user_id = $_SESSION["logged_user"];
             $userDAO = new UserDAO();
-            $user = $userDAO->getUser(intval($user_id));
+            $user = $userDAO->getUser(intval($_SESSION["logged_user"]));
 
-            if ($user) {
-                $userDAO->deleteProfile($user->getId());
-                return new ResponseBody("Your profile deleted successfully.", $user);
-            } else {
-                throw new ForbiddenException("This profile is not yours!");
-            }
+            $userDAO->deleteProfile($user->getId());
+            return new ResponseBody("Your profile deleted successfully.", $user);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethotNotAllowedException("Method Not Allowed.");
     }
 
     private function uploadAvatar($email) {
         $tempName = $_FILES["avatar"]["tmp_name"];
-        $ext = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
 
         if (is_uploaded_file($tempName)) {
+            $ext = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
             $fileUrl = "avatars" . DIRECTORY_SEPARATOR . "$email-" . time() . ".$ext";
             if (move_uploaded_file($tempName, $fileUrl)) {
                 return $fileUrl;
@@ -159,17 +155,19 @@ class UserController implements Editable, Deletable {
     }
 
     public function setNewPassword() {
-        if (isset($_POST["change"]) && $_POST["token"]) {
-            if (!Validator::validatePassword($_POST["password"])) {
+        if (isset($_POST["change"])) {
+            if (!isset($_POST["token"])){
+                throw new BadRequestException("No token for the password change.");
+            } elseif (!Validator::validatePassword($_POST["password"])) {
                 throw new BadRequestException(PASSWORD_WRONG_PATTERN_MESSAGE);
-            }elseif (strcmp($_POST["password"], $_POST["rpassword"]) != 0) {
+            } elseif (strcmp($_POST["password"], $_POST["rpassword"]) != 0) {
                 throw new BadRequestException("Passwords do not match!");
             }
 
             $userDAO = new UserDAO();
             $token = $userDAO->tokenExists($_POST["token"], true);
             if (!$token) {
-                throw new NotFoundException("You did not want to change password!");
+                throw new NotFoundException("You did not want to change password or token has expired!");
             }
 
             $user = $userDAO->getUser(intval($token->owner_id));
@@ -178,7 +176,7 @@ class UserController implements Editable, Deletable {
             $userDAO->changeForgottenPassword($user);
             return new ResponseBody("You changed your password successfully.", $user);
         }
-        throw new BadRequestException("Bad request");
+        throw new MethotNotAllowedException("Method Not Allowed.");
     }
 
     public function sendEmail() {
@@ -199,6 +197,7 @@ class UserController implements Editable, Deletable {
                 $token = $checkTokenExists->token;
             } else {
                 $token = $this->generateRandomToken();
+                $userDAO->addToken($token, $user->getId());
             }
 
             $mail = new PHPMailer();
@@ -231,15 +230,11 @@ class UserController implements Editable, Deletable {
             ';
             $mail->isHTML(true);
             if ($mail->send()) {
-                if (!$checkTokenExists) {
-                    $userDAO->addToken($token, $user->getId());
-                }
                 return new ResponseBody("Email has been sent!", null);
-            } else {
-                throw new BadRequestException($mail->ErrorInfo);
             }
+            throw new Exception($mail->ErrorInfo);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethotNotAllowedException("Method Not Allowed.");
     }
 
     private function generateRandomToken() {

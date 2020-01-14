@@ -6,7 +6,7 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
-use Interfaces\Deletable;
+use interfaces\Deletable;
 use model\budgets\Budget;
 use model\budgets\BudgetDAO;
 use model\categories\CategoryDAO;

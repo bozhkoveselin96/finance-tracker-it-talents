@@ -21,7 +21,7 @@ class Validator {
     }
 
     public static function validateName($name) {
-        if (!empty($name) && mb_strlen($name) >= MIN_LENGTH_NAME) {
+        if (!empty($name) && mb_strlen($name) >= MIN_LENGTH_NAME && mb_strlen($name) <= MAX_LENGTH_NAME) {
             return true;
         }
         return false;
