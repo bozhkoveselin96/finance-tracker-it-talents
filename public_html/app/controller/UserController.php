@@ -9,7 +9,7 @@ require_once "gmail_config.php";
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
-use exceptions\MethotNotAllowedException;
+use exceptions\MethodNotAllowedException;
 use exceptions\NotFoundException;
 use exceptions\UnauthorizedException;
 use interfaces\Deletable;
@@ -22,18 +22,16 @@ use PHPMailer\PHPMailer\PHPMailer;
 class UserController implements Editable, Deletable {
     public function login() {
         if (isset($_POST["login"])) {
-            $email = $_POST["email"];
-            $password = $_POST["password"];
-            if (!Validator::validateEmail($email)) {
+            if (!isset($_POST["email"]) || !Validator::validateEmail($_POST["email"])) {
                 throw new BadRequestException("Not a valid email");
-            } elseif (!Validator::validatePassword($password)) {
+            } elseif (!isset($_POST["password"]) ||!Validator::validatePassword($_POST["password"])) {
                 throw new BadRequestException("Not a valid password");
             }
 
             $userDAO = new UserDAO();
-            $user = $userDAO->getUser($email);
+            $user = $userDAO->getUser($_POST["email"]);
 
-            if (!$user || !password_verify($password, $user->getPassword())) {
+            if (!$user || !password_verify($_POST["password"], $user->getPassword())) {
                 throw new UnauthorizedException('Email and/or password missmatch.');
             }
 
@@ -46,21 +44,20 @@ class UserController implements Editable, Deletable {
 
             return new ResponseBody("Login successful!", $user);
         }
-        throw new MethotNotAllowedException("Method Not Allowed.");
+        throw new MethodNotAllowedException("Method Not Allowed.");
     }
 
     public function register() {
         if (isset($_POST["register"])) {
-
-            if (!Validator::validateEmail($_POST['email'])) {
+            if (!isset($_POST["email"]) || !Validator::validateEmail($_POST['email'])) {
                 throw new BadRequestException("Not a valid email");
-            } elseif (!Validator::validatePassword($_POST['password'])) {
+            } elseif (!isset($_POST["password"]) || !isset($_POST["rpassword"]) || !Validator::validatePassword($_POST['password'])) {
                 throw new BadRequestException(PASSWORD_WRONG_PATTERN_MESSAGE);
             } elseif (strcmp($_POST['password'], $_POST["rpassword"]) != 0) {
                 throw new BadRequestException("Passwords missmatch.");
-            }elseif (!Validator::validateName($_POST['first_name'])) {
+            }elseif (!isset($_POST["first_name"]) || !Validator::validateName($_POST['first_name'])) {
                 throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
-            } elseif (!Validator::validateName($_POST['last_name'])) {
+            } elseif (!isset($_POST["last_name"]) || !Validator::validateName($_POST['last_name'])) {
                 throw new BadRequestException("Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             }
 
@@ -77,14 +74,14 @@ class UserController implements Editable, Deletable {
             $userDAO->register($user);
             return new ResponseBody("Register successful!", $user);
         }
-        throw new MethotNotAllowedException("Method Not Allowed.");
+        throw new MethodNotAllowedException("Method Not Allowed.");
     }
 
     public function edit() {
         if (isset($_POST["edit"])) {
-            if (!Validator::validateName($_POST['first_name'])) {
+            if (!isset($_POST["first_name"]) || !Validator::validateName($_POST['first_name'])) {
                 throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
-            } elseif (!Validator::validateName($_POST['last_name'])) {
+            } elseif (!isset($_POST["last_name"]) || !Validator::validateName($_POST['last_name'])) {
                 throw new BadRequestException("Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             }
 
@@ -104,10 +101,12 @@ class UserController implements Editable, Deletable {
             $user->setLastName($_POST['last_name']);
 
             $isEditedPass = "The password is not changed.";
-            if (Validator::validatePassword($_POST["password"]) && strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
-                $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
-                $user->setPassword($cryptedPass);
-                $isEditedPass = "The password is changed.";
+            if (isset($_POST["password"]) && isset($_POST["rpassword"]) &&
+                Validator::validatePassword($_POST["password"]) &&
+                strcmp($_POST["password"], $_POST["rpassword"]) == 0) {
+                    $cryptedPass = password_hash($_POST["password"], PASSWORD_BCRYPT);
+                    $user->setPassword($cryptedPass);
+                    $isEditedPass = "The password is changed.";
             }
 
             $userDAO->edit($user);
@@ -116,7 +115,7 @@ class UserController implements Editable, Deletable {
             }
             return new ResponseBody("Your profile edited successfully. " . $isEditedPass, $user);
         }
-        throw new MethotNotAllowedException("Method Not Allowed.");
+        throw new MethodNotAllowedException("Method Not Allowed.");
     }
 
     public function logout() {
@@ -124,7 +123,7 @@ class UserController implements Editable, Deletable {
             unset($_SESSION["logged_user"]);
             return new ResponseBody("You successfully logged out.", null);
         }
-        throw new MethotNotAllowedException('You are not logged in to logout!');
+        throw new MethodNotAllowedException('You are not logged in to logout!');
     }
 
     public function  delete() {
@@ -135,7 +134,7 @@ class UserController implements Editable, Deletable {
             $userDAO->deleteProfile($user->getId());
             return new ResponseBody("Your profile deleted successfully.", $user);
         }
-        throw new MethotNotAllowedException("Method Not Allowed.");
+        throw new MethodNotAllowedException("Method Not Allowed.");
     }
 
     private function uploadAvatar($email) {
@@ -158,7 +157,7 @@ class UserController implements Editable, Deletable {
         if (isset($_POST["change"])) {
             if (!isset($_POST["token"])){
                 throw new BadRequestException("No token for the password change.");
-            } elseif (!Validator::validatePassword($_POST["password"])) {
+            } elseif (!isset($_POST["password"]) || !isset($_POST["rpassword"]) || !Validator::validatePassword($_POST["password"])) {
                 throw new BadRequestException(PASSWORD_WRONG_PATTERN_MESSAGE);
             } elseif (strcmp($_POST["password"], $_POST["rpassword"]) != 0) {
                 throw new BadRequestException("Passwords do not match!");
@@ -176,18 +175,16 @@ class UserController implements Editable, Deletable {
             $userDAO->changeForgottenPassword($user);
             return new ResponseBody("You changed your password successfully.", $user);
         }
-        throw new MethotNotAllowedException("Method Not Allowed.");
+        throw new MethodNotAllowedException("Method Not Allowed.");
     }
 
     public function sendEmail() {
         if (isset($_POST['changePassword'])) {
-            $email = $_POST["email"];
-            $userDAO = new UserDAO();
-
-            if (!Validator::validateEmail($email)) {
+            if (!isset($_POST["email"]) || !Validator::validateEmail($_POST["email"])) {
                 throw new BadRequestException("Not a valid email!");
             }
-            $user = $userDAO->getUser($email);
+            $userDAO = new UserDAO();
+            $user = $userDAO->getUser($_POST["email"]);
             if (!$user) {
                 throw new NotFoundException("Not found a user with that email!");
             }
@@ -222,7 +219,7 @@ class UserController implements Editable, Deletable {
                 <title>Title</title>
                 </head>
                 <body>' .
-                    'Hello '.$user->getFirstName() . ' ' . $user->getLastName() . ',
+                'Hello '.$user->getFirstName() . ' ' . $user->getLastName() . ',
                  <br> click <a href="http://localhost/finance_tracker/public_html/changeforgottenpass.html?token=' . $token . '">here</a>
                  to change your password.'
                 . '</body>
@@ -234,7 +231,7 @@ class UserController implements Editable, Deletable {
             }
             throw new Exception($mail->ErrorInfo);
         }
-        throw new MethotNotAllowedException("Method Not Allowed.");
+        throw new MethodNotAllowedException("Method Not Allowed.");
     }
 
     private function generateRandomToken() {
@@ -256,7 +253,7 @@ class UserController implements Editable, Deletable {
         foreach ($notActiveUsers as $notActiveUser) {
             if (strtotime($notActiveUser->last_day) < strtotime($today) - MAX_DAYS_NOT_ACTIVE &&
                 (strtotime($notActiveUser->last_time_sent_email) < strtotime($today) - MAX_DAYS_NOT_ACTIVE ||
-                $notActiveUser->last_time_sent_email == null)) {
+                    $notActiveUser->last_time_sent_email == null)) {
                 $this->sendNotificationEmail($notActiveUser->email);
                 $userDAO->updateLastTimeSentEmail($notActiveUser->email);
             }
