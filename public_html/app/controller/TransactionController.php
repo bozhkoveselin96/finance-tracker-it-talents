@@ -6,6 +6,7 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use exceptions\MethodNotAllowedException;
 use Interfaces\Deletable;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
@@ -27,25 +28,24 @@ class TransactionController implements Deletable {
                 throw new BadRequestException("No such category.");
             }
 
-            $transaction = new Transaction($_POST['amount'], $account, strtoupper($_POST['currency']), $category, $_POST['note'], $_POST['time_event']);
-
-            if (!Validator::validateAmount($transaction->getAmount())) {
+            if (!Validator::validateAmount($_POST["amount"])) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
-            } elseif (!Validator::validateDate($transaction->getTimeEvent())) {
+            } elseif (!Validator::validateDate($_POST["time_event"])) {
                 throw new BadRequestException("Please select valid day!");
-            } elseif (!Validator::validateName($transaction->getNote())) {
+            } elseif (!Validator::validateName($_POST["note"])) {
                 throw new BadRequestException("Name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive!");
             } elseif ($account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours.");
-            } elseif (!Validator::validateCurrency($transaction->getCurrency())) {
+            } elseif (!Validator::validateCurrency($_POST["currency"])) {
                 throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
             }
 
+            $transaction = new Transaction($_POST['amount'], $account, strtoupper($_POST['currency']), $category, $_POST['note'], $_POST['time_event']);
             $transactionDAO = new TransactionDAO();
             $transactionDAO->create($transaction);
             return new ResponseBody('Transaction added successfully!', $transaction);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 
     public function showUserTransactions() {
@@ -65,7 +65,7 @@ class TransactionController implements Deletable {
             $transactions = $transactionDAO->getByUserAndCategory($_SESSION['logged_user'], $category_id, $from_date, $to_date);
             return new ResponseBody(null, $transactions);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 
     public function delete() {
@@ -84,8 +84,7 @@ class TransactionController implements Deletable {
                 return new ResponseBody('Deleted successfully!', $transaction);
             }
             throw new ForbiddenException("This transaction is not yours!");
-
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 }

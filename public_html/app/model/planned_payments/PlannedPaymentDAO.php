@@ -12,9 +12,7 @@ use model\users\User;
 
 class PlannedPaymentDAO {
     public function create(PlannedPayment $plannedPayment) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-
+        $conn = Connection::getInstance()->getConn();
         $parameters = [];
         $parameters[] = $plannedPayment->getDayForPayment();
         $parameters[] = $plannedPayment->getAmount();
@@ -29,11 +27,8 @@ class PlannedPaymentDAO {
         $plannedPayment->setId($conn->lastInsertId());
     }
 
-    public function getAll($user_id)
-    {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-
+    public function getAll($user_id) {
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT pp.id, pp.day_for_payment, pp.amount, pp.currency, pp.account_id, pp.category_id, pp.status 
                 FROM planned_payments AS pp 
                 JOIN accounts AS a ON pp.account_id = a.id  WHERE a.owner_id = ? 
@@ -58,9 +53,7 @@ class PlannedPaymentDAO {
     }
 
     public function getPlannedPaymentById($planned_payment_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT pp.id, pp.day_for_payment, pp.amount, pp.currency, pp.account_id, pp.category_id, pp.status 
                 FROM planned_payments AS pp 
                 WHERE pp.id = ?;";
@@ -84,16 +77,14 @@ class PlannedPaymentDAO {
     }
 
     public function deletePlannedPayment(PlannedPayment $plannedPayment) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "DELETE FROM planned_payments WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$plannedPayment->getId()]);
     }
 
     public function editPlannedPayment(PlannedPayment $planned_payment) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "UPDATE planned_payments SET day_for_payment = ?, amount = ?, status = ?
                 WHERE id = ?;";
         $stmt = $conn->prepare($sql);
@@ -104,9 +95,7 @@ class PlannedPaymentDAO {
     }
 
     public function getPlannedPaymentsForToday($after_this_day = false) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
-
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT pp.id, pp.day_for_payment, pp.amount, pp.currency, pp.account_id, pp.category_id, pp.status 
                 FROM planned_payments AS pp 
                 WHERE pp.status = 1 ";
@@ -136,5 +125,4 @@ class PlannedPaymentDAO {
         }
         return $plannedPayments;
     }
-
 }

@@ -48,11 +48,7 @@ class Account implements \JsonSerializable {
         $this->name = $name;
     }
 
-    /**
-     * @param mixed $current_amount
-     */
-    public function setCurrentAmount($current_amount): void
-    {
+    public function setCurrentAmount($current_amount): void {
         $this->current_amount = $current_amount;
     }
 

@@ -14,8 +14,7 @@ use model\planned_payments\PlannedPayment;
 
 class TransactionDAO {
     public function create(Transaction $transaction) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         try {
             $conn->beginTransaction();
                 $parameters = [];
@@ -40,9 +39,9 @@ class TransactionDAO {
                     $updateAccountAmount = $currencyDAO->currencyConverter($transaction->getAmount(), $transactionCurrency, $accountCurrency);
                 }
 
-                $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2) WHERE id = ?";
-                if ($transaction->getCategory()->getType() == 0) {
-                    $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount - ?, 2) WHERE id = ?";
+                $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount + ?, 2) WHERE id = ?;";
+                if ($transaction->getCategory()->getType() == CATEGORY_OUTCOME) {
+                    $sql2 = "UPDATE accounts SET current_amount = ROUND(current_amount - ?, 2) WHERE id = ?;";
                 }
 
                 $stmt2 = $conn->prepare($sql2);
@@ -59,8 +58,7 @@ class TransactionDAO {
         $parameters = [];
         $parameters[] = $user_id;
 
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT t.id, t.amount, t.account_id, t.currency, t.category_id, tc.type AS transaction_type, t.note, t.time_event
                 FROM transactions AS t
                 JOIN accounts AS a ON t.account_id = a.id
@@ -100,8 +98,7 @@ class TransactionDAO {
     }
 
     public function getTransactionById(int $transaction_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT id, amount, account_id, currency, category_id, note, time_event FROM transactions WHERE id = ?;";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$transaction_id]);
@@ -118,8 +115,7 @@ class TransactionDAO {
     }
 
     public function deleteTransaction(Transaction $transaction) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         try {
             $conn->beginTransaction();
 
@@ -151,8 +147,7 @@ class TransactionDAO {
     }
 
     public function getSimilarTransaction(PlannedPayment $plannedPayment) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT id, amount, account_id, currency, category_id, note, time_event FROM transactions 
                 WHERE account_id = ? AND category_id = ? AND DAYOFMONTH(time_event) = ?;";
         $stmt = $conn->prepare($sql);
@@ -166,5 +161,4 @@ class TransactionDAO {
         }
         return false;
     }
-
 }

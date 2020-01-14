@@ -190,6 +190,7 @@ $(document).ready(function () {
                 type.text('Outcome');
             } else {
                 type.text('Income');
+
             }
 
             let editItem = $("<td></td>");

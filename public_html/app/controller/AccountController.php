@@ -6,6 +6,7 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use exceptions\MethodNotAllowedException;
 use Interfaces\Deletable;
 use Interfaces\Editable;
 use model\accounts\Account;
@@ -14,20 +15,19 @@ use model\accounts\AccountDAO;
 class AccountController implements Editable, Deletable {
     public function add() {
         if (isset($_POST['add_account'])) {
-            $account = new Account($_POST['name'], $_POST['current_amount'], strtoupper($_POST["currency"]), $_SESSION['logged_user']);
-            $accountDAO = new AccountDAO();
-            if (!Validator::validateName($account->getName())) {
+            if (!Validator::validateName($_POST["name"])) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols!");
-            } elseif (!Validator::validateAmount($account->getCurrentAmount())) {
+            } elseif (!Validator::validateAmount($_POST["current_amount"])) {
                 throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
-            } elseif (!Validator::validateCurrency($account->getCurrency())){
+            } elseif (!Validator::validateCurrency($_POST["currency"])){
                 throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
             }
-            $id = $accountDAO->createAccount($account);
-            $account->setId($id);
+            $account = new Account($_POST['name'], $_POST['current_amount'], strtoupper($_POST["currency"]), $_SESSION['logged_user']);
+            $accountDAO = new AccountDAO();
+            $accountDAO->createAccount($account);
             return new ResponseBody("Account created successfully!", $account);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed.");
     }
 
     public function getAll() {
@@ -36,7 +36,7 @@ class AccountController implements Editable, Deletable {
             $accounts = $accountsDAO->getMyAccounts($_SESSION['logged_user']);
             return new ResponseBody(null, $accounts);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 
     public function edit() {
@@ -61,7 +61,7 @@ class AccountController implements Editable, Deletable {
             $accountDAO->editAccount($account);
             return new ResponseBody('Account edited successfully!', $account);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 
     public function delete() {
@@ -76,6 +76,6 @@ class AccountController implements Editable, Deletable {
             $accountDAO->deleteAccount($account->getId());
             return new ResponseBody("Account delete successfully!", $account);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 }

@@ -14,18 +14,16 @@ class CategoryDAO {
         $parameters[] = $category->getIcon();
         $parameters[] = $category->getOwnerId();
 
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "INSERT INTO transaction_categories(name, type, icon, owner_id)
                 VALUES (?, ?, ?, ?);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
-        return $conn->lastInsertId();
+        $category->setId($conn->lastInsertId());
     }
 
     public function getAll($owner_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT id, name, type, icon, owner_id FROM transaction_categories 
                 WHERE (owner_id is NULL OR owner_id = ? ) AND type IS NOT NULL ;";
         $stmt = $conn->prepare($sql);
@@ -41,8 +39,7 @@ class CategoryDAO {
     }
 
     public function editCategory(Category $category) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "UPDATE transaction_categories SET name = ?, icon = ? 
                 WHERE id = ? AND owner_id = ?;";
         $stmt = $conn->prepare($sql);
@@ -55,8 +52,7 @@ class CategoryDAO {
     }
 
     public function getCategoryById($category_id, $owner_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "SELECT id, name, type, icon, owner_id 
                 FROM transaction_categories 
                 WHERE id = ? AND (owner_id = ? OR owner_id IS NULL);";
@@ -72,8 +68,7 @@ class CategoryDAO {
     }
 
     public function deleteCategory(int $category_id) {
-        $instance = Connection::getInstance();
-        $conn = $instance->getConn();
+        $conn = Connection::getInstance()->getConn();
         $sql = "DELETE FROM transaction_categories WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$category_id]);
