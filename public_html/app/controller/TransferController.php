@@ -4,6 +4,7 @@
 namespace controller;
 
 use exceptions\BadRequestException;
+use exceptions\ForbiddenException;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\transactions\Transaction;
@@ -13,14 +14,33 @@ use model\transfers\TransferDAO;
 
 class TransferController {
     public function add() {
-        if (isset($_POST["transfer"]) && isset($_POST["from"]) && isset($_POST["to"]) &&
-            isset($_POST["amount"]) && $_POST["currency"] && isset($_POST["time_event"]) && $_POST['note']) {
+        if (isset($_POST["transfer"])) {
+
+            if (!isset($_POST["from"]) || !isset($_POST["to"])) {
+                throw new BadRequestException('The request must have from account and to account POST parameters!');
+            } elseif (!isset($_POST["amount"]) || !Validator::validateAmount($_POST['amount'])) {
+                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
+            } elseif (!isset($_POST["currency"]) || !Validator::validateCurrency(strtoupper($_POST['currency']))) {
+                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
+            } elseif (!isset($_POST["time_event"]) || !Validator::validateDate($_POST['time_event'])) {
+                throw new BadRequestException("Please select valid date!");
+            } elseif (!isset($_POST['note']) || !Validator::validateName($_POST['note'])) {
+                throw new BadRequestException("Note must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive!");
+            } elseif (!isset($_POST["amount"]) || !Validator::validateAmount($_POST["amount"])) {
+                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
+            }
+
             $accountDAO = new AccountDAO();
             $fromAccount = $accountDAO->getAccountById($_POST["from"]);
             $toAccount = $accountDAO->getAccountById($_POST["to"]);
 
             if (!$fromAccount || !$toAccount) {
-                throw new BadRequestException("No such account.");
+                throw new BadRequestException("Not such accounts.");
+            } elseif ($fromAccount->getOwnerId() != $_SESSION['logged_user'] ||
+                $toAccount->getOwnerId() != $_SESSION['logged_user']) {
+                throw new ForbiddenException('One of the accounts is not yours.');
+            } elseif ($fromAccount->getId() == $toAccount->getId()) {
+                throw new BadRequestException("You can not make transfer to same account.");
             }
 
             $categoryDAO = new CategoryDAO();
@@ -29,19 +49,8 @@ class TransferController {
             $outcomeTransaction = new Transaction($_POST["amount"], $fromAccount, strtoupper($_POST['currency']), $category, $_POST['note'], $_POST['time_event']);
 
             $transfer = new Transfer($outcomeTransaction, $incomeTransaction);
-            if (!Validator::validateAmount($transfer->getFromTransaction()->getAmount())) {
-                throw new BadRequestException("Amount must be between 0 and " . MAX_AMOUNT . " inclusive!");
-            } elseif (!Validator::validateCurrency($transfer->getFromTransaction()->getCurrency())) {
-                throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
-            } elseif (!Validator::validateDate($transfer->getFromTransaction()->getTimeEvent())) {
-                throw new BadRequestException("Please select valid day!");
-            } elseif (!Validator::validateName($transfer->getFromTransaction()->getNote())) {
-                throw new BadRequestException("Note must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive!");
-            }
-
             $transferDAO = new TransferDAO();
             $transferDAO->makeTransfer($transfer);
-
             return new ResponseBody("The transfer was successful!", $transfer);
         }
         throw new BadRequestException("Bad request.");

@@ -21,7 +21,7 @@ class UserDAO {
                 VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($data);
-        return $conn->lastInsertId();
+        $user->setId($conn->lastInsertId());
     }
 
     public function getUser($email_or_id) {

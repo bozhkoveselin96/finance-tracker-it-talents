@@ -6,9 +6,9 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use interfaces\Deletable;
+use interfaces\Editable;
 use exceptions\MethodNotAllowedException;
-use Interfaces\Deletable;
-use Interfaces\Editable;
 use model\accounts\Account;
 use model\accounts\AccountDAO;
 
@@ -51,12 +51,11 @@ class AccountController implements Editable, Deletable {
             $account = $accountDAO->getAccountById($account_id);
             if (!$account) {
                 throw new ForbiddenException("This account is not yours!");
-            }
-            $account->setName($_POST['name']);
-
-            if ($account->getOwnerId() != $_SESSION['logged_user']) {
+            } elseif ($account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours!");
             }
+
+            $account->setName($_POST['name']);
 
             $accountDAO->editAccount($account);
             return new ResponseBody('Account edited successfully!', $account);

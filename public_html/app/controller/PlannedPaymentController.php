@@ -6,16 +6,15 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use interfaces\Deletable;
+use interfaces\Editable;
 use exceptions\MethodNotAllowedException;
-use Interfaces\Deletable;
-use Interfaces\Editable;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\planned_payments\PlannedPayment;
 use model\planned_payments\PlannedPaymentDAO;
 use model\transactions\Transaction;
 use model\transactions\TransactionDAO;
-use model\users\UserDAO;
 
 class PlannedPaymentController implements Editable, Deletable {
     public function add() {
@@ -60,7 +59,7 @@ class PlannedPaymentController implements Editable, Deletable {
             $planned_payment = $planned_payment_DAO->getPlannedPaymentById($_POST["planned_payment_id"]);
 
             if (!$planned_payment) {
-                throw new ForbiddenException("This account is not yours.");
+                throw new ForbiddenException("This planned payment is not yours.");
             } elseif ($planned_payment->getAccount()->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours.");
             } elseif (!Validator::validateDayOfMonth($_POST["day_for_payment"])) {

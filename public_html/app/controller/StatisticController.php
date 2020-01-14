@@ -14,12 +14,14 @@ use model\transactions\Transaction;
 class StatisticController {
     public function getIncomesOutcomes() {
         $statisticDAO = new StatisticDAO();
-
+        if (!Validator::validateCurrency($_GET['currency'])) {
+            throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
+        }
         $account = null;
         if (isset($_GET['account_id']) && $_GET['account_id'] > 0) {
             $accountDAO = new AccountDAO();
             $account = $accountDAO->getAccountById($_GET['account_id']);
-            if (!$account) {
+            if (!$account || $account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new BadRequestException('Not a valid account.');
             }
         }
@@ -44,9 +46,6 @@ class StatisticController {
         $response->outcomeSum = 0;
         $response->incomeSum = 0;
         $response->currency = $_GET['currency'];
-        if (!Validator::validateCurrency($response->currency)) {
-            throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
-        }
 
         /** @var Transaction $transaction */
         foreach ($transactions as $transaction) {
@@ -73,7 +72,7 @@ class StatisticController {
         if (isset($_GET['account_id']) && !empty($_GET['account_id'])) {
             $accountDAO = new AccountDAO();
             $account = $accountDAO->getAccountById($_GET['account_id']);
-            if (!$account) {
+            if (!$account || $account->getOwnerId() != $_SESSION['logged_user']) {
                 $account = null;
             }
         }
@@ -100,8 +99,8 @@ class StatisticController {
             if (!Validator::validateDate($from_date) || !Validator::validateDate($to_date)) {
                 throw new BadRequestException("Not valid dates.");
             }
-
         }
+
         $currencyDAO = new CurrencyDAO();
         $transactionsByCategory = $statisticDAO->getTransactionsByCategory($_SESSION['logged_user'], $categoryType, $account, $from_date, $to_date);
         $response = [];
@@ -127,9 +126,13 @@ class StatisticController {
         $statisticDAO = new StatisticDAO();
         $howManyDays = intval($_GET['days']);
         $currency = $_GET['currency'];
-        if (!Validator::validateCurrency($currency)) {
+
+        if ($howManyDays < 0 || $howManyDays > 31) {
+            throw new BadRequestException('Not valid days past.');
+        } elseif (!Validator::validateCurrency($currency)) {
             throw new BadRequestException(MSG_SUPPORTED_CURRENCIES);
         }
+
         $transactions = $statisticDAO->getForTheLastXDays($_SESSION['logged_user'], $howManyDays);
 
         $days = [];

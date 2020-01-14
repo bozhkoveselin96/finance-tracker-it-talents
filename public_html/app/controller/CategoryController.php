@@ -6,9 +6,9 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use interfaces\Deletable;
+use interfaces\Editable;
 use exceptions\MethodNotAllowedException;
-use Interfaces\Deletable;
-use Interfaces\Editable;
 use model\categories\Category;
 use model\categories\CategoryDAO;
 
