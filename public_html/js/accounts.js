@@ -63,8 +63,13 @@ function getAllAccounts() {
     $.get("app/index.php?target=account&action=getAll",
         function (response) {
             let table = $("#accounts");
-
+            let selectAccount = $("#from_account");
             $.each(response.data, function (key, value) {
+
+                if (selectAccount.length) {
+                    selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
+                }
+
                 let tr = $("<tr />");
                 tr.attr("id", value.id);
 
@@ -246,36 +251,33 @@ $(document).ready(function () {
     }
 
     let selectAccount = $("#from_account");
-    $.get("app/index.php?target=account&action=getAll",
-        function (response) {
-            $.each(response.data, function (key, value) {
-                selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
-            })
-        }, 'json')
-        .fail(function (xhr, status, error) {
-            showModal(error, xhr.responseJSON.message);
-        });
-
     let toAccount = $("#to_account");
-    selectAccount.on("change", function () {
-        toAccount.empty();
-        toAccount.append('<option value="-1">Select to which account</option>');
-        if (selectAccount.val() == -1) {
-            return false;
-        }
-        $.get("app/index.php?target=account&action=getAll",
-            function (response) {
-                $.each(response.data, function (key, value) {
-                    if (value.id != selectAccount.val()) {
-                        toAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
-                    }
-                })
-            }, 'json')
-            .fail(function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
-            });
-    });
+    if(selectAccount.length && toAccount.length) {
+        selectAccount.on("change", function () {
+            toAccount.empty();
+            toAccount.append('<option value="-1">Select to which account</option>');
+            if (selectAccount.val() == -1) {
+                return false;
+            }
+            $.get("app/index.php?target=account&action=getAll",
+                function (response) {
+                    $.each(response.data, function (key, value) {
+                        if (value.id != selectAccount.val()) {
+                            toAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
+                        }
+                    })
+                }, 'json')
+                .fail(function (xhr, status, error) {
+                    showModal(error, xhr.responseJSON.message);
+                });
+        });
+    }
 
-    // $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-    getAllAccounts();
+    if ($("#accounts").length) {
+        getAllAccounts();
+    }
+
+    if ($("#accountsMain").length) {
+        getAccountsMain();
+    }
 });

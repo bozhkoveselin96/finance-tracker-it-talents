@@ -38,8 +38,8 @@ class PlannedPaymentController implements Editable, Deletable {
 
             if (!$account || $account->getOwnerId() != $_SESSION['logged_user']) {
                 throw new ForbiddenException("This account is not yours!");
-            } elseif(!$category) {
-                throw new ForbiddenException("The category is not valid for you!");
+            } elseif(!$category || $category->getType() != CATEGORY_OUTCOME) {
+                throw new ForbiddenException("The category is not valid for Planned Payment or is not yours!");
             }
 
             $plannedPaymentDAO = new PlannedPaymentDAO();

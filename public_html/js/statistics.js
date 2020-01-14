@@ -263,24 +263,28 @@ function getIncomesAndOutcomesLastXDays(days = 7, currency = 'BGN') {
 
 $(document).ready(function () {
     let selectAccount = $("select[name=account_id]");
-    $.get("app/index.php?target=account&action=getAll",
-        function (response) {
-            $.each(response.data, function (key, value) {
-                selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
-            })
-        }, 'json')
-        .fail(function (xhr, status, error) {
-            showModal(error, xhr.responseJSON.message);
-        });
+    if (selectAccount.length) {
+        $.get("app/index.php?target=account&action=getAll",
+            function (response) {
+                $.each(response.data, function (key, value) {
+                    selectAccount.append($("<option />").val(this.id).text(this.name + ' (' + this.current_amount + ' ' + this.currency + ')'));
+                })
+            }, 'json')
+            .fail(function (xhr, status, error) {
+                showModal(error, xhr.responseJSON.message);
+            });
+    }
 
     let dateRangeNamePicker = $('input[name="daterange"]');
     if(dateRangeNamePicker.length) {
         dateRangeNamePicker.daterangepicker().val('');
     }
-    $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
-    getIncomesAndOutcomes();
-    getIncomesByCategory();
-    getOutcomesByCategory();
+
+    if ($("#firstChart").length && $("#secondChart").length && $("#thirdChart").length) {
+        getIncomesAndOutcomes();
+        getIncomesByCategory();
+        getOutcomesByCategory();
+    }
 
     $("form#all-incomes-outcomes").on("change", function (event) {
         let daterange = $("#all-incomes-outcomes :input[name ='daterange']").val();
@@ -308,4 +312,12 @@ $(document).ready(function () {
 
         getOutcomesByCategory(diagram, account_id, currency, daterange);
     });
+
+    let mainChartLine = $("#mainChartLine");
+    if (mainChartLine.length) {
+        $("#formMain").on('change', function () {
+            getIncomesAndOutcomesLastXDays($("#days").val(), $("#currencies").val());
+        });
+        getIncomesAndOutcomesLastXDays();
+    }
 });

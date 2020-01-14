@@ -40,8 +40,8 @@ class BudgetController implements Deletable {
 
             $categoryDAO = new CategoryDAO();
             $category = $categoryDAO->getCategoryById($_POST["category_id"], $_SESSION['logged_user']);
-            if (!$category) {
-                throw new ForbiddenException('This category is not yours!');
+            if (!$category || $category->getType() != CATEGORY_OUTCOME) {
+                throw new ForbiddenException('This category is not valid for Budget or is not yours!');
             }
 
             $budget = new Budget($category, $_POST["amount"], $_POST["currency"], $_SESSION["logged_user"], $from_date, $to_date);

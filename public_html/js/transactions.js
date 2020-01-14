@@ -24,7 +24,7 @@ let _deleteButtonTransaction = function (event) {
 };
 
 function addTransaction() {
-    let selectAccount = $("#account");
+    let selectAccount = $("#account_transactions");
     $.get("app/index.php?target=account&action=getAll",
         function (response) {
         $.each(response.data, function (key, value) {
@@ -194,10 +194,11 @@ $(document).ready(function () {
     }
 
 
-    $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
     getTransactionsMain();
 
-    addTransaction();
+    if ($("#account_transactions").length) {
+        addTransaction();
+    }
     $("form#addtransaction").on("submit", function (e) {
         e.preventDefault();
         let form = $(this);

@@ -32,6 +32,7 @@ $(document).ready(function () {
                 $("input#first_name").attr('value', response.data.first_name);
                 $("input#last_name").attr('value', response.data.last_name);
                 $("img#img").attr('src', 'app/' + response.data.avatar_url);
+                $("#avatar_url").attr('src', 'app/' + response.data.avatar_url);
             },
             error: function (xhr, status, error) {
                 if (xhr.status === 401) {

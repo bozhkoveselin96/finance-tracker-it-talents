@@ -223,7 +223,6 @@ $(document).ready(function () {
             });
     });
 
-    $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
     showUserBudgets();
     addBudget();
 });

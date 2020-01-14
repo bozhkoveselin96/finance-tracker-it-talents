@@ -225,7 +225,6 @@ $(document).ready(function () {
             });
     });
 
-    $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
     $('.icon-picker').qlIconPicker({
         'save': 'class'
     });
