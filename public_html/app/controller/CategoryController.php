@@ -15,35 +15,29 @@ use model\categories\CategoryDAO;
 class CategoryController implements Editable, Deletable {
     public function add() {
         if (isset($_POST["add_category"])) {
-            $name = $_POST["name"];
-            $type = $_POST["type"];
-            $icon = $_POST["icon"];
-            $owner_id = $_SESSION["logged_user"];
-
-            if (!Validator::validateName($name)) {
+            if (!isset($_POST['name']) || !Validator::validateName($_POST['name'])) {
                 throw new BadRequestException("Name must be have greater than " . MIN_LENGTH_NAME . " symbols");
-            } elseif (!Validator::validateCategoryType($type)) {
+            }elseif (!isset($_POST['type']) || !Validator::validateCategoryType($_POST['type'])) {
                 throw new BadRequestException("Type must be have income or outcome!");
-            } else {
-                $category = new Category($name, $type, $icon, $owner_id);
-                $categoryDAO = new CategoryDAO();
-                $categoryDAO->createCategory($category);
             }
-        } else {
-            throw new MethodNotAllowedException("Method not allowed!");
+
+            $icon = isset($_POST["icon"]) ? $_POST["icon"] : '';
+
+            $category = new Category($_POST["name"], $_POST["type"], $icon, $_SESSION["logged_user"]);
+            $categoryDAO = new CategoryDAO();
+            $categoryDAO->createCategory($category);
+            return new ResponseBody("Category added successfully.", $category);
+
         }
-        return new ResponseBody("Category added successfully.", $category);
+        throw new MethodNotAllowedException("Method not allowed!");
     }
 
     public function getAll() {
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
-            $user_id = $_SESSION["logged_user"];
             $categoriesDAO = new CategoryDAO();
-            $categories = $categoriesDAO->getAll($user_id);
-            if (isset($_GET["category_type"])) {
-                if(!Validator::validateCategoryType($_GET["category_type"])) {
-                    throw new BadRequestException("Type must be have income or outcome!");
-                }
+            $categories = $categoriesDAO->getAll($_SESSION["logged_user"]);
+
+            if (isset($_GET["category_type"]) && Validator::validateCategoryType($_GET["category_type"])) {
                 $type = $_GET["category_type"];
                 /** @var Category $category */
                 $categoriesByType = [];

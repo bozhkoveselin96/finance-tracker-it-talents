@@ -23,7 +23,7 @@ class BudgetDAO {
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE);";
         $stmt = $conn->prepare($sql);
         $stmt->execute($parameters);
-        return $conn->lastInsertId();
+        $budget->setId($conn->lastInsertId());
     }
 
     public function getAll(int $user_id) {

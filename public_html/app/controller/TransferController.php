@@ -5,6 +5,7 @@ namespace controller;
 
 use exceptions\BadRequestException;
 use exceptions\ForbiddenException;
+use exceptions\MethodNotAllowedException;
 use model\accounts\AccountDAO;
 use model\categories\CategoryDAO;
 use model\transactions\Transaction;
@@ -53,7 +54,7 @@ class TransferController {
             $transferDAO->makeTransfer($transfer);
             return new ResponseBody("The transfer was successful!", $transfer);
         }
-        throw new BadRequestException("Bad request.");
+        throw new MethodNotAllowedException("Method Not Allowed.");
     }
 
     public function checkTransactionType(Transaction $transaction) {

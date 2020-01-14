@@ -61,7 +61,7 @@ class UserController implements Editable, Deletable {
             }elseif (!Validator::validateName($_POST['first_name'])) {
                 throw new BadRequestException("First name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             } elseif (!Validator::validateName($_POST['last_name'])) {
-                $msg = "Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive";
+                throw new BadRequestException("Last name must be have between " . MIN_LENGTH_NAME . " and ". MAX_LENGTH_NAME . " symbols inclusive");
             }
 
             $userDAO = new UserDAO();
