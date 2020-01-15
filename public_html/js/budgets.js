@@ -15,6 +15,8 @@ let _deleteButtonBudget = function (event) {
                     localStorage.removeItem("last_name");
                     localStorage.removeItem("avatar_url");
                     window.location.replace('login.html');
+                } else if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
                 } else {
                     showModal(error, xhr.responseJSON.message);
                 }
@@ -45,7 +47,9 @@ function addBudget() {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
-            }else {
+            } else if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
                 showModal(error, xhr.responseJSON.message);
             }
         });
@@ -139,7 +143,9 @@ function showUserBudgets() {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
-            }else {
+            } else if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
                 showModal(error, xhr.responseJSON.message);
             }
         });
@@ -170,6 +176,7 @@ $(document).ready(function () {
             let budgetAmount = data.data.amount;
             let amount = $("<td />");
             amount.text(budgetAmount);
+            amount.append("&nbsp; " + data.data.currency);
             let fromDate = $("<td />");
             fromDate.text(data.data.from_date);
             let toDate = $("<td />");
@@ -217,7 +224,9 @@ $(document).ready(function () {
                     localStorage.removeItem("last_name");
                     localStorage.removeItem("avatar_url");
                     window.location.replace('login.html');
-                }else {
+                } else if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
                     showModal(error, xhr.responseJSON.message);
                 }
             });

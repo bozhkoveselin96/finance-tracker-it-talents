@@ -52,7 +52,9 @@ function getIncomesAndOutcomes(diagramType = 'pie', account_id, currency = 'BGN'
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
-            }else {
+            } else if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
                 showModal(error, xhr.responseJSON.message);
             }
         });
@@ -122,7 +124,9 @@ function getIncomesByCategory(diagramType = 'pie', account_id, currency = 'BGN',
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
-            }else {
+            } else if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
                 showModal(error, xhr.responseJSON.message);
             }
         });
@@ -190,7 +194,9 @@ function getOutcomesByCategory(diagramType = 'pie', account_id, currency = 'BGN'
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
-            }else {
+            } else if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
                 showModal(error, xhr.responseJSON.message);
             }
         });
@@ -255,7 +261,9 @@ function getIncomesAndOutcomesLastXDays(days = 7, currency = 'BGN') {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
-            }else {
+            } else if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
                 showModal(error, xhr.responseJSON.message);
             }
         });
@@ -271,7 +279,11 @@ $(document).ready(function () {
                 })
             }, 'json')
             .fail(function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
+                if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
             });
     }
 

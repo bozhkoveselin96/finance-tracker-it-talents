@@ -43,6 +43,8 @@ let _editButton = function (event) {
                     localStorage.removeItem("last_name");
                     localStorage.removeItem("avatar_url");
                     window.location.replace('login.html');
+                } else if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
                 } else {
                     showModal(error, xhr.responseJSON.message);
                 }
@@ -68,6 +70,8 @@ let _deleteButton = function (event) {
                     localStorage.removeItem("last_name");
                     localStorage.removeItem("avatar_url");
                     window.location.replace('login.html');
+                } else if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
                 } else {
                     showModal(error, xhr.responseJSON.message);
                 }
@@ -154,7 +158,9 @@ function getAllCategories() {
                 localStorage.removeItem("last_name");
                 localStorage.removeItem("avatar_url");
                 window.location.replace('login.html');
-            }else {
+            } else if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
                 showModal(error, xhr.responseJSON.message);
             }
         });
@@ -219,7 +225,9 @@ $(document).ready(function () {
                     localStorage.removeItem("last_name");
                     localStorage.removeItem("avatar_url");
                     window.location.replace('login.html');
-                }else {
+                } else if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
                     showModal(error, xhr.responseJSON.message);
                 }
             });

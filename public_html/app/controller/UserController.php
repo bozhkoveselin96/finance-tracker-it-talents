@@ -141,16 +141,18 @@ class UserController implements Editable, Deletable {
         $tempName = $_FILES["avatar"]["tmp_name"];
 
         if (is_uploaded_file($tempName)) {
+            if ($_FILES['avatar']['size'] > IMAGE_MAX_UPLOAD_SIZE) {
+                throw new BadRequestException("Max image size is 2MB!");
+            } elseif (!Validator::validateMimeType(mime_content_type($tempName))) {
+                throw new BadRequestException("Supported images are jpeg, png and gif!");
+            }
             $ext = strtolower(pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION));
             $fileUrl = "avatars" . DIRECTORY_SEPARATOR . "$email-" . time() . ".$ext";
             if (move_uploaded_file($tempName, $fileUrl)) {
                 return $fileUrl;
-            } else {
-                return false;
             }
-        } else {
-            return false;
         }
+        return false;
     }
 
     public function setNewPassword() {

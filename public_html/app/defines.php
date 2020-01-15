@@ -14,6 +14,7 @@ define("TOKEN_LENGTH", 30);
 define("TOKEN_EXPIRATION_MINUTES", 30);
 define("MSG_SUPPORTED_CURRENCIES", "Supported currencies are BGN, EUR and USD.");
 define("MAX_DAYS_NOT_ACTIVE", 7);
+define("IMAGE_MAX_UPLOAD_SIZE", 2097152); //2MB
 $white_list_not_logged = [
     'login',
     'register',

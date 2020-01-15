@@ -74,7 +74,18 @@ class Validator {
             case "EUR":
             case "BGN":
                 return true;
+            default:
+                return false;
         }
-        return false;
+    }
+
+    public static function validateMimeType($mimeType) {
+        switch ($mimeType) {
+            case "image/png":
+            case "image/jpeg":
+            case "image/gif":
+                return true;
+            default: return false;
+        }
     }
 }

@@ -41,6 +41,8 @@ $(document).ready(function () {
                     localStorage.removeItem("last_name");
                     localStorage.removeItem("avatar_url");
                     window.location.replace('login.html');
+                } else if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
                 } else {
                     showModal(error, xhr.responseJSON.message);
                 }
@@ -82,7 +84,11 @@ $(document).ready(function () {
                 }, 2000);
             },
             error: function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
+                if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
                 $("#btnSubmit").prop("disabled", false);
             }
         });
@@ -101,7 +107,11 @@ $(document).ready(function () {
                 window.location.replace('login.html');
         }, 'json')
         .fail(function (xhr, status, error) {
-            showModal(error, xhr.responseJSON.message);
+            if (xhr.status === 500) {
+                showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+            } else {
+                showModal(error, xhr.responseJSON.message);
+            }
         });
     });
 
@@ -122,7 +132,11 @@ $(document).ready(function () {
                 window.location.replace('login.html');
             },'json')
             .fail(function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
+                if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
             });
         }
     );
@@ -149,7 +163,11 @@ $(document).ready(function () {
             }, 2000);
         }, 'json')
             .fail(function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
+                if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
             });
     });
 
@@ -165,7 +183,11 @@ $(document).ready(function () {
             }, 5000);
         }, 'json')
             .fail(function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
+                if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
             });
     });
 
@@ -190,7 +212,11 @@ $(document).ready(function () {
             }, 2000);
         }, 'json')
             .fail(function (xhr, status, error) {
-                showModal(error, xhr.responseJSON.message);
+                if (xhr.status === 500) {
+                    showModal('Server error', 'Sorry, something went wrong. We will try our best to fix this. Please try again later.');
+                } else {
+                    showModal(error, xhr.responseJSON.message);
+                }
             });
     });
 });

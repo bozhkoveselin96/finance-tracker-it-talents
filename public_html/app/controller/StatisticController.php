@@ -5,7 +5,6 @@ namespace controller;
 
 
 use exceptions\BadRequestException;
-use exceptions\NotFoundException;
 use model\accounts\AccountDAO;
 use model\CurrencyDAO;
 use model\StatisticDAO;

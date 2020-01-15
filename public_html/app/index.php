@@ -6,12 +6,6 @@ session_start();
 require_once 'defines.php';
 set_exception_handler("handleExceptions");
 
-//set_error_handler("errorHandler");
-
-//function errorHandler(TypeError $error) {
-//    var_dump($error);
-//}
-
 spl_autoload_register(function ($class) {
     $class = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
     if (file_exists($class)) {
@@ -21,7 +15,7 @@ spl_autoload_register(function ($class) {
     }
 });
 
-function handleExceptions(Exception $exception) {
+function handleExceptions($exception) {
     $status = $exception instanceof BaseException ? $exception->getStatusCode() : 500;
     $message = $exception->getMessage();
     $object = new stdClass();
