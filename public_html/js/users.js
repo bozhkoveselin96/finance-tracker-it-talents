@@ -1,4 +1,7 @@
 $(document).ready(function () {
+    if ($("#btnEdit").length && localStorage.getItem('id') === null) {
+        window.location.replace('login.html');
+    }
     $("#avatar_url").attr('src', 'app/' + localStorage.getItem('avatar_url'));
     $("input#first_name").attr('value', localStorage.getItem('first_name'));
     $("input#email").attr('value', localStorage.getItem('email'));

@@ -152,7 +152,7 @@ function getAllCategories() {
             });
         }, 'json')
         .fail(function (xhr, status, error) {
-            if (status === 401) {
+            if (xhr.status === 401) {
                 localStorage.removeItem("id");
                 localStorage.removeItem("first_name");
                 localStorage.removeItem("last_name");
