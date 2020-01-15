@@ -13,7 +13,6 @@ class TransferDAO {
         $conn = $instance->getConn();
         try {
             $conn->beginTransaction();
-            $most_recently_added_ids = [];
 
             $sql1 = "UPDATE accounts SET current_amount = ROUND(current_amount - ?, 2)
                      WHERE id = ?;";

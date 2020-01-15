@@ -68,6 +68,9 @@ function getAllAccounts() {
         function (response) {
             let table = $("#accounts");
             let selectAccount = $("#from_account");
+            if (response.data.length === 0) {
+                table.html("<tr><td style='text-align: center;' colspan='4'>No data available in table</td></tr>");
+            }
             $.each(response.data, function (key, value) {
 
                 if (selectAccount.length) {

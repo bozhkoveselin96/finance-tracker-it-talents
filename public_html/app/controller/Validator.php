@@ -28,7 +28,7 @@ class Validator {
     }
 
     public static function validateAmount($amount) {
-        if (is_numeric($amount) && $amount >= 0 && $amount < MAX_AMOUNT) {
+        if (is_numeric($amount) && $amount > 0 && $amount < MAX_AMOUNT) {
             return true;
         }
         return false;
